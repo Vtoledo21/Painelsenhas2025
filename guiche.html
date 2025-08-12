@@ -4,66 +4,24 @@
   <meta charset="UTF-8">
   <title>Guichê - Painel de Senhas</title>
   <style>
-    body {
-      background: #222;
-      color: #fff;
-      font-family: Arial, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-    }
-    .container {
-      background: #333;
-      border-radius: 15px;
-      padding: 36px 40px;
-      box-shadow: 0 0 12px #0007;
-      text-align: center;
-      min-width: 350px;
-    }
-    .titulo {
-      font-size: 2em;
-      color: #2196F3;
-      margin-bottom: 18px;
-      font-weight: bold;
-    }
-    label, input {
-      font-size: 1.1em;
-      margin: 4px 0;
-    }
-    input {
-      padding: 6px;
-      border-radius: 6px;
-      border: none;
-      margin-bottom: 12px;
-      width: 80%;
-    }
-    .botao {
-      background: #2196F3;
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      font-size: 1.2em;
-      padding: 10px 24px;
-      margin: 10px 8px;
-      cursor: pointer;
-      font-weight: bold;
-      transition: background 0.2s;
-    }
-    .botao:hover {
-      background: #1976D2;
-    }
-    .senha-form {
-      margin-bottom: 22px;
-    }
+    body { background: #222; color: #fff; font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+    .container { background: #333; border-radius: 15px; padding: 36px 40px; box-shadow: 0 0 12px #0007; text-align: center; min-width: 350px; }
+    .titulo { font-size: 2em; color: #2196F3; margin-bottom: 18px; font-weight: bold; }
+    label, input { font-size: 1.1em; margin: 4px 0; }
+    input { padding: 6px; border-radius: 6px; border: none; margin-bottom: 12px; width: 80%; }
+    .botao { background: #2196F3; color: #fff; border: none; border-radius: 8px; font-size: 1.2em; padding: 10px 24px; margin: 10px 8px; cursor: pointer; font-weight: bold; transition: background 0.2s; }
+    .botao:hover { background: #1976D2; }
+    .senha-form { margin-bottom: 22px; }
   </style>
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-database-compat.js"></script>
 </head>
 <body>
   <div class="container" id="guiche-container" style="display:none;">
     <div class="titulo">Guichê</div>
     <label for="guicheNum">Número do Guichê:</label>
-    <input type="number" id="guicheNum" min="1" max="5" value="1" required><br>
+    <input type="number" id="guicheNum" min="1" max="6" value="1" required><br>
     <label for="tipoSenha">Tipo de Senha:</label>
     <select id="tipoSenha">
       <option value="G">G</option>
@@ -98,8 +56,50 @@
       }
     }
 
-    // Simulação de chamada de senha (depois integrar com Firebase)
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyAsuP9gO2sBOmzBet2b7ijljMgTsXo29lE",
+      authDomain: "painel-senhas-hcpa.firebaseapp.com",
+      databaseURL: "https://painel-senhas-hcpa-default-rtdb.firebaseio.com",
+      projectId: "painel-senhas-hcpa",
+      storageBucket: "painel-senhas-hcpa.firebasestorage.app",
+      messagingSenderId: "164117661743",
+      appId: "1:164117661743:web:c82a42d485af05ecd71eda",
+      measurementId: "G-92XCSNDE54"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // Histórico local para exibir no painel
+    let historico = [];
+
+    // Apenas para garantir que cada guichê controle seu número e volte para 1 após 999
     function chamarSenha(tipo) {
-      const guiche = document.getElementById('guicheNum').value.padStart(2, '0');
-      const tipoSenha = document.getElementById('tipoSenha').value;
-      const numeroSenha = document.getElementById('numero
+      let guiche = document.getElementById('guicheNum').value.padStart(2, '0');
+      let tipoSenha = document.getElementById('tipoSenha').value;
+      let numeroSenha = parseInt(document.getElementById('numeroSenha').value, 10);
+      if (numeroSenha > 999) numeroSenha = 1;
+      document.getElementById('numeroSenha').value = numeroSenha; // Atualiza input
+      
+      let senha = `${tipoSenha}${String(numeroSenha).padStart(3, '0')}`;
+
+      // Mensagem local
+      document.getElementById("msg").textContent = `Chamando: Senha ${senha} guichê ${guiche}`;
+      
+      // Atualiza histórico local (máx 10 itens)
+      historico.push(`Senha ${senha} guichê ${guiche}`);
+      if (historico.length > 10) historico = historico.slice(-10);
+
+      // Envia para Firebase
+      db.ref("chamadaSenha").set({
+        senha: senha,
+        guiche: guiche,
+        historico: historico
+      });
+
+      // Incrementa senha para próxima chamada automática
+      document.getElementById('numeroSenha').value = numeroSenha + 1 > 999 ? 1 : numeroSenha + 1;
+    }
+  </script>
+</body>
+</html>
