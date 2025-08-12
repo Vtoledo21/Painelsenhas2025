@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Guichê - Painel de Senhas</title>
+  <style>
+    body {
+      background: #222;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .container {
+      background: #333;
+      border-radius: 15px;
+      padding: 36px 40px;
+      box-shadow: 0 0 12px #0007;
+      text-align: center;
+      min-width: 350px;
+    }
+    .titulo {
+      font-size: 2em;
+      color: #2196F3;
+      margin-bottom: 18px;
+      font-weight: bold;
+    }
+    label, input {
+      font-size: 1.1em;
+      margin: 4px 0;
+    }
+    input {
+      padding: 6px;
+      border-radius: 6px;
+      border: none;
+      margin-bottom: 12px;
+      width: 80%;
+    }
+    .botao {
+      background: #2196F3;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.2em;
+      padding: 10px 24px;
+      margin: 10px 8px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.2s;
+    }
+    .botao:hover {
+      background: #1976D2;
+    }
+    .senha-form {
+      margin-bottom: 22px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="guiche-container" style="display:none;">
+    <div class="titulo">Guichê</div>
+    <label for="guicheNum">Número do Guichê:</label>
+    <input type="number" id="guicheNum" min="1" max="5" value="1" required><br>
+    <label for="tipoSenha">Tipo de Senha:</label>
+    <select id="tipoSenha">
+      <option value="G">G</option>
+      <option value="A">A</option>
+      <option value="B">B</option>
+      <option value="C">C</option>
+    </select>
+    <br>
+    <label for="numeroSenha">Número:</label>
+    <input type="number" id="numeroSenha" min="1" max="999" value="1" required><br>
+    <button class="botao" onclick="chamarSenha('normal')">Receber</button>
+    <button class="botao" onclick="chamarSenha('agendar')">Agendar</button>
+    <button class="botao" onclick="chamarSenha('repetir')">Rechamar</button>
+    <div id="msg" style="color:yellow;margin-top:10px;"></div>
+  </div>
+  <div id="senha-protect" class="senha-form">
+    <label for="senha">Senha de acesso:</label>
+    <input type="password" id="senha" autofocus>
+    <button onclick="checarSenha()">Entrar</button>
+    <div id="msgSenha" style="color:red;margin-top:8px;"></div>
+  </div>
+  <script>
+    // Senha de acesso
+    const senhaCorreta = "radiologia2025";
+    function checarSenha() {
+      const senhaInput = document.getElementById("senha").value;
+      if (senhaInput === senhaCorreta) {
+        document.getElementById("senha-protect").style.display = "none";
+        document.getElementById("guiche-container").style.display = "block";
+      } else {
+        document.getElementById("msgSenha").textContent = "Senha incorreta!";
+      }
+    }
+
+    // Simulação de chamada de senha (depois integrar com Firebase)
+    function chamarSenha(tipo) {
+      const guiche = document.getElementById('guicheNum').value.padStart(2, '0');
+      const tipoSenha = document.getElementById('tipoSenha').value;
+      const numeroSenha = document.getElementById('numeroSenha').value.padStart(3, '0');
+      let senha = `${tipoSenha}${numeroSenha}`;
+      document.getElementById("msg").textContent = `Chamando: Senha ${senha} guichê ${guiche}`;
+      // Aqui, enviar para Firebase no futuro
+      // Exemplo: enviarSenhaParaPainel(senha, guiche, tipo);
+    }
+  </script>
+</body>
+</html>

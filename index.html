@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Painel de Senhas</title>
+  <style>
+    body {
+      background: #000;
+      color: #fff;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+    .left {
+      width: 70vw;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 40px 0;
+      box-sizing: border-box;
+    }
+    .titulo {
+      font-size: 3em;
+      color: #2196F3;
+      margin-bottom: 20px;
+      font-weight: bold;
+    }
+    .numero {
+      font-size: 7em;
+      color: yellow;
+      font-weight: bold;
+      margin-bottom: 30px;
+      animation: blink 1s steps(2, start) infinite;
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+    .guiche-titulo {
+      font-size: 2em;
+      color: #2196F3;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+    .guiche-numero {
+      font-size: 4em;
+      color: yellow;
+      font-weight: bold;
+      animation: blink 1s steps(2, start) infinite;
+    }
+    .right {
+      width: 30vw;
+      background: #111;
+      padding: 40px 20px;
+      box-sizing: border-box;
+      overflow-y: auto;
+    }
+    .historico-titulo {
+      color: #fff;
+      font-size: 2em;
+      margin-bottom: 16px;
+      font-weight: bold;
+      text-align: center;
+    }
+    .historico-lista {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      font-size: 1.5em;
+      color: #fff;
+    }
+    .historico-lista li {
+      margin-bottom: 12px;
+      border-bottom: 1px solid #333;
+      padding-bottom: 8px;
+      word-break: break-all;
+    }
+    .senha-form {
+      position: absolute;
+      top: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #222;
+      padding: 18px 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #0004;
+    }
+    .senha-form label, .senha-form input {
+      font-size: 1.2em;
+    }
+    .senha-form input {
+      margin-left: 10px;
+      padding: 5px;
+      border-radius: 5px;
+      border: none;
+    }
+    .senha-form button {
+      margin-left: 10px;
+      padding: 7px 16px;
+      border-radius: 6px;
+      border: none;
+      background: #2196F3;
+      color: #fff;
+      font-weight: bold;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div id="senha-protect" class="senha-form">
+    <label for="senha">Senha de acesso:</label>
+    <input type="password" id="senha" autofocus>
+    <button onclick="checarSenha()">Entrar</button>
+    <div id="msgSenha" style="color:red;margin-top:8px;"></div>
+  </div>
+  <div style="width:100%;display:flex;visibility:hidden;" id="painel-main">
+    <div class="left">
+      <div class="titulo">Senha</div>
+      <div class="numero" id="senhaAtual">G001</div>
+      <div class="guiche-titulo">Guichê</div>
+      <div class="guiche-numero" id="guicheAtual">05</div>
+    </div>
+    <div class="right">
+      <div class="historico-titulo">Histórico</div>
+      <ul class="historico-lista" id="historicoLista">
+        <li>Senha G001 guichê 05</li>
+        <li>Senha G002 guichê 03</li>
+        <li>Senha A003 guichê 02</li>
+        <li>Senha B004 guichê 01</li>
+        <li>Senha C005 guichê 04</li>
+      </ul>
+    </div>
+  </div>
+  <script>
+    // Senha de acesso
+    const senhaCorreta = "radiologia2025";
+    function checarSenha() {
+      const senhaInput = document.getElementById("senha").value;
+      if (senhaInput === senhaCorreta) {
+        document.getElementById("senha-protect").style.display = "none";
+        document.getElementById("painel-main").style.visibility = "visible";
+      } else {
+        document.getElementById("msgSenha").textContent = "Senha incorreta!";
+      }
+    }
+
+    // Exemplo de atualização automática e voz (Firebase deve ser integrado)
+    function atualizarPainel(senha, guiche) {
+      document.getElementById('senhaAtual').textContent = senha;
+      document.getElementById('guicheAtual').textContent = guiche;
+      falarPainel(senha, guiche);
+    }
+    function atualizarHistorico(lista) {
+      const historico = document.getElementById('historicoLista');
+      historico.innerHTML = '';
+      lista.forEach(item => {
+        const li = document.createElement('li');
+        li.textContent = item;
+        historico.appendChild(li);
+      });
+    }
+    function falarPainel(senha, guiche) {
+      const frase = `Senha ${senha} guichê ${guiche}`;
+      const synth = window.speechSynthesis;
+      const utter = new SpeechSynthesisUtterance(frase);
+      utter.lang = "pt-BR";
+      synth.speak(utter);
+    }
+
+    // Exemplo: simulação de atualização (remova após integrar ao Firebase)
+    setTimeout(() => atualizarPainel("G101", "03"), 4000);
+    setTimeout(() => atualizarHistorico([
+      "Senha G101 guichê 03",
+      "Senha G001 guichê 05",
+      "Senha G002 guichê 03",
+      "Senha A003 guichê 02",
+      "Senha B004 guichê 01"
+    ]), 5000);
+
+    // Ao integrar com Firebase, troque as funções de simulação pelas funções de atualização vindas do banco
+  </script>
+</body>
+</html>
