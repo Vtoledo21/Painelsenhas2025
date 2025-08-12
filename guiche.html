@@ -102,12 +102,4 @@
     function chamarSenha(tipo) {
       const guiche = document.getElementById('guicheNum').value.padStart(2, '0');
       const tipoSenha = document.getElementById('tipoSenha').value;
-      const numeroSenha = document.getElementById('numeroSenha').value.padStart(3, '0');
-      let senha = `${tipoSenha}${numeroSenha}`;
-      document.getElementById("msg").textContent = `Chamando: Senha ${senha} guichê ${guiche}`;
-      // Aqui, enviar para Firebase no futuro
-      // Exemplo: enviarSenhaParaPainel(senha, guiche, tipo);
-    }
-  </script>
-</body>
-</html>
+      const numeroSenha = document.getElementById('numero
