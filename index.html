@@ -2,23 +2,178 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Painel de Senhas</title>
+  <title>Painel de Senhas - Radiologia HCPA</title>
   <style>
-    body { background: #000; color: #fff; margin: 0; font-family: Arial, sans-serif; display: flex; height: 100vh; overflow: hidden; }
-    .left { width: 70vw; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 40px 0; box-sizing: border-box; }
-    .titulo { font-size: 3em; color: #2196F3; margin-bottom: 20px; font-weight: bold; }
-    .numero { font-size: 7em; color: yellow; font-weight: bold; margin-bottom: 30px; animation: blink 1s steps(2, start) infinite; }
-    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
-    .guiche-titulo { font-size: 2em; color: #2196F3; margin-bottom: 10px; font-weight: bold; }
-    .guiche-numero { font-size: 4em; color: yellow; font-weight: bold; animation: blink 1s steps(2, start) infinite; }
-    .right { width: 30vw; background: #111; padding: 40px 20px; box-sizing: border-box; overflow-y: auto; }
-    .historico-titulo { color: #fff; font-size: 2em; margin-bottom: 16px; font-weight: bold; text-align: center; }
-    .historico-lista { list-style: none; padding: 0; margin: 0; font-size: 1.5em; color: #fff; }
-    .historico-lista li { margin-bottom: 12px; border-bottom: 1px solid #333; padding-bottom: 8px; word-break: break-all; }
-    .senha-form { position: absolute; top: 30px; left: 50%; transform: translateX(-50%); background: #222; padding: 18px 30px; border-radius: 10px; box-shadow: 0 0 10px #0004; }
-    .senha-form label, .senha-form input { font-size: 1.2em; }
-    .senha-form input { margin-left: 10px; padding: 5px; border-radius: 5px; border: none; }
-    .senha-form button { margin-left: 10px; padding: 7px 16px; border-radius: 6px; border: none; background: #2196F3; color: #fff; font-weight: bold; cursor: pointer; }
+    body {
+      background: #000;
+      color: #ffe99c;
+      font-family: Arial, Helvetica, sans-serif;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #000;
+      padding: 10px 40px 0 40px;
+      border-bottom: 3px solid #ffe99c;
+      height: 90px;
+    }
+    .logo {
+      height: 80px;
+      width: 80px;
+      object-fit: contain;
+      background: #000;
+      border-radius: 10px;
+    }
+    .titulo {
+      flex: 1;
+      text-align: center;
+      font-size: 2.7em;
+      font-weight: bold;
+      color: #ffe900;
+      letter-spacing: 2px;
+      text-shadow: 2px 2px 4px #222;
+    }
+    .logo-hcpa {
+      height: 65px;
+      width: 65px;
+      object-fit: contain;
+      background: #000;
+      border-radius: 10px;
+    }
+    .painel {
+      display: flex;
+      height: calc(100vh - 90px);
+      width: 100vw;
+    }
+    .esquerda {
+      flex: 1.5;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: stretch;
+      background: #000;
+      border-right: 3px solid #ffe99c;
+      height: 100%;
+    }
+    .tipo-exame {
+      font-size: 2.3em;
+      background: #000;
+      color: #ffe900;
+      text-align: center;
+      font-weight: bold;
+      padding: 15px 0;
+      letter-spacing: 1px;
+    }
+    .senha-box {
+      background: #d70000;
+      color: #ffe900;
+      text-align: center;
+      padding: 20px 0;
+      margin: 0;
+      font-size: 1.2em;
+      font-weight: bold;
+      border-top: 5px solid #ffe99c;
+      border-bottom: 5px solid #ffe99c;
+    }
+    .senha-numero {
+      font-size: 7em;
+      font-weight: bold;
+      letter-spacing: 4px;
+      color: #ffe900;
+      margin: 0;
+      text-shadow: 2px 2px 7px #222;
+    }
+    .guiche-box {
+      background: #000;
+      color: #fffbe5;
+      text-align: center;
+      font-size: 3.7em;
+      font-weight: bold;
+      padding: 25px 0 13px 0;
+      border-bottom: 5px solid #ffe99c;
+      margin-bottom: 0px;
+    }
+    .direita {
+      flex: 1.2;
+      background: #000;
+      color: #ffe99c;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: stretch;
+      padding: 0 10px;
+    }
+    .historico-header {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      font-size: 1.7em;
+      font-weight: bold;
+      text-align: center;
+      background: #000;
+      margin-top: 18px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #ffe99c;
+    }
+    .historico-lista {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      font-size: 2.2em;
+      text-align: left;
+      min-height: 270px;
+    }
+    .historico-lista li {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      padding: 8px 0;
+      border-bottom: 1px solid #ffe99c50;
+      color: #ffe99c;
+      background: #000;
+    }
+    .aguarde {
+      background: #000;
+      color: #ffe99c;
+      text-align: center;
+      font-size: 2.7em;
+      font-weight: bold;
+      margin-top: 26px;
+      padding: 18px;
+      border-top: 2px solid #ffe99c;
+    }
+    .senha-form {
+      position: absolute;
+      top: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #222;
+      padding: 18px 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #0004;
+      z-index: 10;
+    }
+    .senha-form label, .senha-form input {
+      font-size: 1.2em;
+    }
+    .senha-form input {
+      margin-left: 10px;
+      padding: 5px;
+      border-radius: 5px;
+      border: none;
+    }
+    .senha-form button {
+      margin-left: 10px;
+      padding: 7px 16px;
+      border-radius: 6px;
+      border: none;
+      background: #2196F3;
+      color: #fff;
+      font-weight: bold;
+      cursor: pointer;
+    }
   </style>
   <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-app-compat.js"></script>
@@ -31,16 +186,29 @@
     <button onclick="checarSenha()">Entrar</button>
     <div id="msgSenha" style="color:red;margin-top:8px;"></div>
   </div>
-  <div style="width:100%;display:flex;visibility:hidden;" id="painel-main">
-    <div class="left">
-      <div class="titulo">Senha</div>
-      <div class="numero" id="senhaAtual">---</div>
-      <div class="guiche-titulo">Guichê</div>
-      <div class="guiche-numero" id="guicheAtual">--</div>
+  <div id="painel-main" style="visibility:hidden;">
+    <div class="header">
+      <img src="logo-radiologia.png" class="logo" alt="Logo Radiologia">
+      <div class="titulo">SERVIÇO DE RADIOLOGIA</div>
+      <img src="logo-hcpa.png" class="logo-hcpa" alt="Logo HCPA">
     </div>
-    <div class="right">
-      <div class="historico-titulo">Histórico</div>
-      <ul class="historico-lista" id="historicoLista"></ul>
+    <div class="painel">
+      <div class="esquerda">
+        <div id="tipoExame" class="tipo-exame">---</div>
+        <div class="senha-box">
+          <div>SENHA</div>
+          <div id="senhaAtual" class="senha-numero">---</div>
+        </div>
+        <div id="guicheBox" class="guiche-box">Guichê --</div>
+      </div>
+      <div class="direita">
+        <div class="historico-header">
+          <div>Senha Anterior</div>
+          <div>Guichê Anterior</div>
+        </div>
+        <ul id="historicoLista" class="historico-lista"></ul>
+        <div class="aguarde">AGUARDE A CHAMADA</div>
+      </div>
     </div>
   </div>
   <script>
@@ -74,27 +242,38 @@
     db.ref("chamadaSenha").on("value", snapshot => {
       const dados = snapshot.val();
       if (!dados) return;
-      atualizarPainel(dados.senha, dados.guiche);
+      atualizarPainel(dados.tipo, dados.senha, dados.guiche);
       atualizarHistorico(dados.historico || []);
     });
 
     // Atualiza painel e fala senha
-    function atualizarPainel(senha, guiche) {
+    function atualizarPainel(tipo, senha, guiche) {
+      if(tipo === "Agendar") {
+        document.getElementById('tipoExame').textContent = "Exames para agendar";
+      } else if(tipo === "Agendados") {
+        document.getElementById('tipoExame').textContent = "Exames Agendados";
+      } else {
+        document.getElementById('tipoExame').textContent = "---";
+      }
       document.getElementById('senhaAtual').textContent = senha;
-      document.getElementById('guicheAtual').textContent = guiche;
-      falarPainel(senha, guiche);
+      document.getElementById('guicheBox').textContent = `Guichê ${guiche}`;
+      falarPainel(tipo, senha, guiche);
     }
     function atualizarHistorico(lista) {
       const historico = document.getElementById('historicoLista');
       historico.innerHTML = '';
-      lista.slice().reverse().forEach(item => {
+      lista.slice(-4).reverse().forEach(item => {
         const li = document.createElement('li');
-        li.textContent = item;
+        li.innerHTML = `<div>${item.senha}</div><div>Guichê ${item.guiche}</div>`;
         historico.appendChild(li);
       });
     }
-    function falarPainel(senha, guiche) {
-      const frase = `Senha ${senha} guichê ${guiche}`;
+    function falarPainel(tipo, senha, guiche) {
+      let frase = tipo === "Agendar"
+        ? `Exame para agendar, senha ${senha}, guichê ${guiche}`
+        : tipo === "Agendados"
+        ? `Exame agendado, senha ${senha}, guichê ${guiche}`
+        : `Senha ${senha}, guichê ${guiche}`;
       const synth = window.speechSynthesis;
       const utter = new SpeechSynthesisUtterance(frase);
       utter.lang = "pt-BR";
