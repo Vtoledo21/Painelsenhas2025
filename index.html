@@ -5,139 +5,147 @@
   <title>Painel de Senhas - Radiologia HCPA</title>
   <style>
     :root {
-      --verde-hcpa: #6caca6;
+      /* Cor institucional do verde HCPA, pego do logo */
+      --verde-hcpa: #25806D;
       --amarelo-hcpa: #ffe900;
       --preto: #000;
       --azul-agendar: #0074d9;
       --vermelho-agendados: #d70000;
-      --shadow: 3px 5px 0px #222;
+      --shadow: 0.18em 0.28em 0 var(--preto);
     }
     html, body {
+      /* Fundo institucional */
       background: var(--verde-hcpa);
-      width: 100vw;
-      height: 100vh;
-      margin: 0;
-      padding: 0;
-      overflow: hidden;
+      min-height: 100vh;
+      min-width: 100vw;
+      margin: 0; padding: 0;
       font-family: Arial Black, Arial, Helvetica, sans-serif;
+      /* Ocupa sempre tudo, sem scroll */
+      width: 100vw; height: 100vh; overflow: hidden;
     }
     #painel-main {
-      width: 100vw;
-      height: 100vh;
-      min-width: 1280px;
-      min-height: 720px;
-      box-sizing: border-box;
-      display: flex;
-      flex-direction: column;
+      /* Ocupa toda tela, layout em coluna */
+      width: 100vw; height: 100vh;
+      display: flex; flex-direction: column;
     }
-    /* CABEÇALHO */
+
+    /* ===================== CABEÇALHO ===================== */
     .header {
       width: 100vw;
-      height: 17vh;
       display: flex;
+      align-items: center; /* Centraliza verticalmente */
       justify-content: space-between;
-      align-items: center;
+      padding: 0 2vw;
+      /* Altura responsiva, mínimo 100px */
+      height: clamp(90px, 16vh, 200px);
+      box-sizing: border-box;
       background: var(--verde-hcpa);
-      padding: 0 3vw;
-      border-bottom: 5px solid var(--amarelo-hcpa);
+      border-bottom: 0.5vw solid var(--amarelo-hcpa); /* Linha grossa amarela */
     }
     .logo {
-      height: 13vh;
-      width: 13vh;
-      min-height: 100px;
-      object-fit: contain;
+      /* Logo esquerda, tamanho ajusta com altura da tela */
+      height: clamp(60px, 13vh, 150px); width: auto;
       background: #fff;
       border-radius: 12px;
+      object-fit: contain;
+      margin-right: 2vw;
     }
     .logo-hcpa {
-      height: 12vh;
-      width: 12vh;
-      min-height: 90px;
-      object-fit: contain;
+      /* Logo direita, tamanho ajusta com altura da tela */
+      height: clamp(50px, 12vh, 130px); width: auto;
       background: var(--verde-hcpa);
       border-radius: 24px;
+      object-fit: contain;
+      margin-left: 2vw;
     }
     .titulo {
+      /* Título centralizado, bem grande, responsivo */
       flex: 1;
       text-align: center;
-      font-size: 6.2vh;
+      font-size: clamp(2.6rem, 6.2vh, 6vw);
       font-weight: bold;
       color: var(--amarelo-hcpa);
-      letter-spacing: 3px;
+      letter-spacing: 0.15em;
       text-shadow: var(--shadow);
       margin: 0 2vw;
       line-height: 1;
+      word-break: keep-all;
     }
-    /* PAINEL CENTRAL */
+
+    /* ===================== ÁREA PRINCIPAL ===================== */
     .painel {
       flex: 1;
       display: flex;
       flex-direction: row;
       width: 100vw;
-      height: 76vh;
+      min-height: 0;
+      height: 1px;
+      /* Garante que o painel central ocupe o espaço entre cabeçalho e faixa inferior */
     }
+
+    /* ======== LADO ESQUERDO ======== */
     .esquerda {
-      width: 63vw;
+      width: 63vw; /* 63% da largura da tela */
+      min-width: 320px;
       display: flex;
       flex-direction: column;
       align-items: stretch;
-      border-right: 5px solid var(--amarelo-hcpa);
       box-sizing: border-box;
+      border-right: 0.5vw solid var(--amarelo-hcpa); /* Linha amarela central */
+      position: relative;
+      background: var(--verde-hcpa);
     }
-    /* BARRA DO TIPO DE EXAME */
+    /* Barra preta tipo de exame */
     .tipo-exame-bar {
       width: 100%;
       background: var(--preto);
       color: var(--amarelo-hcpa);
-      font-size: 5.7vh;
+      font-size: clamp(1.5rem, 5.3vh, 5vw);
       font-weight: bold;
       text-align: center;
-      letter-spacing: 2px;
-      padding: 1.2vh 0 1vh 0;
-      border-bottom: 5px solid var(--amarelo-hcpa);
+      letter-spacing: 0.08em;
+      padding: 1.3vh 0 1.1vh 0;
+      border-bottom: 0.5vw solid var(--amarelo-hcpa);
       text-shadow: var(--shadow);
-      margin: 0;
-      line-height: 1.1;
+      margin: 0; line-height: 1.1;
+      white-space: nowrap;
     }
+    /* Área do número da senha */
     .senha-area {
       width: 100%;
       background: var(--verde-hcpa);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      border-bottom: none;
-      border-top: none;
+      display: flex; flex-direction: column; align-items: center;
       padding: 2.5vh 0 0 0;
-      flex: 1;
-      min-height: 33vh;
-      justify-content: flex-start;
+      flex: 1; min-height: 33vh; justify-content: flex-start;
     }
     .senha-label {
-      font-size: 4.7vh;
+      font-size: clamp(1.2rem, 4.3vh, 3vw);
       color: var(--amarelo-hcpa);
       font-weight: bold;
-      margin: 1.7vh 0 1vh 0;
+      margin: 1.6vh 0 1.2vh 0;
       text-shadow: var(--shadow);
       text-align: center;
       line-height: 1;
+      letter-spacing: 0.09em;
     }
     .senha-numero {
-      font-size: 13.5vh;
+      font-size: clamp(3rem, 12.5vh, 14vw); /* Número bem grande */
       font-weight: bold;
       color: var(--amarelo-hcpa);
-      letter-spacing: 27px;
+      letter-spacing: 0.19em;
       text-shadow: var(--shadow);
       margin: 0.1vh 0 1vh 0;
       text-align: center;
       transition: color 0.2s;
       line-height: 1;
+      word-break: keep-all;
     }
     .senha-numero.azul { color: var(--azul-agendar);}
     .senha-numero.vermelho { color: var(--vermelho-agendados);}
-    /* LADO DIREITO - HISTÓRICO */
+
+    /* ======== LADO DIREITO (histórico) ======== */
     .direita {
-      flex: 1;
-      width: 37vw;
+      flex: 1; width: 37vw; min-width: 250px;
       height: 100%;
       display: flex;
       flex-direction: column;
@@ -145,6 +153,7 @@
       justify-content: flex-start;
       box-sizing: border-box;
       position: relative;
+      background: var(--verde-hcpa);
     }
     .historico-header {
       display: flex;
@@ -153,101 +162,89 @@
       align-items: center;
       background: var(--verde-hcpa);
       color: var(--amarelo-hcpa);
-      font-size: 3.8vh;
+      font-size: clamp(1rem, 3.6vh, 2vw);
       font-weight: bold;
       text-align: center;
       border-bottom: 2px solid var(--amarelo-hcpa);
-      border-left: none;
-      border-right: none;
-      padding: 1.7vh 0 1.7vh 0;
+      padding: 1.2vh 0 1.2vh 0;
       margin: 0 0.5vw;
       text-shadow: var(--shadow);
+      white-space: nowrap;
     }
-    .historico-header > div {
-      flex: 1;
-      text-align: center;
-    }
+    .historico-header > div { flex: 1; text-align: center; }
     .historico-lista {
       width: 100%;
-      min-height: 37vh;
+      min-height: 25vh;
       background: var(--verde-hcpa);
       color: var(--amarelo-hcpa);
-      font-size: 4.2vh;
+      font-size: clamp(1rem, 3.6vh, 2vw);
       text-align: left;
       padding: 0;
       margin: 0 0.5vw;
       list-style: none;
-      border-left: none;
-      border-right: none;
     }
     .historico-lista li {
       display: flex;
       flex-direction: row;
       justify-content: space-between;
       align-items: center;
-      padding: 1.6vh 2vw;
+      padding: 1.1vh 2vw;
       border-bottom: 1px solid #ffe90055;
-      font-size: 3.8vh;
+      font-size: clamp(0.9rem, 3.5vh, 2vw);
       background: var(--verde-hcpa);
       color: var(--amarelo-hcpa);
-      letter-spacing: 1px;
+      letter-spacing: 0.04em;
     }
-    /* ====== FAIXA INFERIOR ====== */
+
+    /* ===================== FAIXA INFERIOR (Guichê e Aguarde) ===================== */
     .faixa-inferior {
       width: 100vw;
-      position: absolute;
-      left: 0;
-      bottom: 0;
-      z-index: 10;
-      /* Não mude a altura aqui, mude nas linhas internas */
+      position: fixed; /* Sempre grudada no fundo */
+      left: 0; bottom: 0; z-index: 10;
     }
+    /* Linha amarela superior da faixa inferior */
     .faixa-inferior-top {
-      width: 100vw;
-      height: 5px;
+      width: 100vw; height: 0.5vw;
       background: var(--amarelo-hcpa);
     }
+    /* Faixa preta com Guichê e AGUARDE */
     .faixa-inferior-centro {
       width: 100vw;
       display: flex;
       flex-direction: row;
       align-items: stretch;
       background: var(--preto);
-      height: 11vh; /* << AJUSTE altura da faixa preta inferior */
-      border-bottom: 5px solid var(--amarelo-hcpa); /* Linha amarela inferior */
+      height: clamp(55px, 10.5vh, 130px); /* altura ajustável */
+      border-bottom: 0.5vw solid var(--amarelo-hcpa); /* Linha amarela abaixo */
     }
+    /* Guichê (lado esquerdo) */
     .faixa-guiche {
-      width: 63vw;
-      display: flex;
-      align-items: center;
-      justify-content: flex-start;
+      width: 63vw; min-width: 200px; max-width: 80vw;
+      display: flex; align-items: center; justify-content: flex-start;
       color: #fff;
-      font-size: 7.2vh; /* << AJUSTE tamanho do texto Guichê */
+      font-size: clamp(1.5rem, 6.5vh, 5vw);
       font-weight: bold;
       padding-left: 3vw;
-      letter-spacing: 2px;
-      text-shadow: var(--shadow);
-      height: 100%;
-      background: none;
+      letter-spacing: 0.08em; text-shadow: var(--shadow);
+      height: 100%; background: none;
     }
+    /* Aguarde chamada (lado direito) */
     .faixa-aguarde {
-      width: 37vw;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      width: 37vw; min-width: 100px; max-width: 37vw;
+      display: flex; align-items: center; justify-content: center;
       color: var(--amarelo-hcpa);
-      font-size: 6.7vh; /* << AJUSTE tamanho do texto AGUARDE */
+      font-size: clamp(1.1rem, 5.2vh, 3.5vw);
       font-weight: bold;
-      letter-spacing: 7px;
-      text-shadow: var(--shadow);
-      height: 100%;
-      background: none;
+      letter-spacing: 0.11em; text-shadow: var(--shadow);
+      height: 100%; background: none;
     }
+    /* Linha amarela inferior da faixa */
     .faixa-inferior-bottom {
-      width: 100vw;
-      height: 5px;
+      width: 100vw; height: 0.5vw;
       background: var(--amarelo-hcpa);
     }
-    /* ANIMAÇÃO */
+
+    /* ===================== ANIMAÇÃO DE PISCAR ===================== */
     .senha-area.piscando { animation: pisca-fundo 0.7s alternate 7; }
     @keyframes pisca-fundo {
       0%   { background: #d70000;}
@@ -271,13 +268,12 @@
       50%  { color: #ff4040;}
       100% { color: #d70000;}
     }
+
+    /* ===================== FORM DE SENHA ===================== */
     .senha-form {
       position: absolute;
-      top: 30px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #222;
-      padding: 18px 30px;
+      top: 30px; left: 50%; transform: translateX(-50%);
+      background: #222; padding: 18px 30px;
       border-radius: 10px;
       box-shadow: 0 0 10px #0004;
       z-index: 10;
@@ -299,33 +295,36 @@
       font-weight: bold;
       cursor: pointer;
     }
-    /* PARA RESPONSIVIDADE EM TELAS MENORES */
-    @media (max-width:1600px) {
-      .titulo { font-size: 4.5vh; }
-      .senha-numero { font-size: 8vh; letter-spacing: 16px;}
-      .faixa-guiche { font-size: 4.5vh; }
-      .faixa-aguarde { font-size: 4.5vh; }
-      .tipo-exame-bar { font-size: 3.2vh; }
+    /* ======= Responsividade extra para telas menores ======= */
+    @media (max-width:900px), (max-height:700px) {
+      .titulo, .tipo-exame-bar, .senha-label, .senha-numero, .faixa-guiche, .faixa-aguarde {
+        font-size: 2.2vh !important;
+      }
     }
   </style>
-  <!-- Firebase -->
+  <!-- Firebase scripts -->
   <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-database-compat.js"></script>
 </head>
 <body>
+  <!-- Tela protegida por senha (administração) -->
   <div id="senha-protect" class="senha-form">
     <label for="senha">Senha de acesso:</label>
     <input type="password" id="senha" autofocus>
     <button onclick="checarSenha()">Entrar</button>
     <div id="msgSenha" style="color:red;margin-top:8px;"></div>
   </div>
+  <!-- Painel principal -->
   <div id="painel-main" style="visibility:hidden;">
+    <!-- Cabeçalho -->
     <div class="header">
       <img src="logo-radiologia.png" class="logo" alt="Logo Radiologia">
       <div class="titulo">SERVIÇO DE RADIOLOGIA</div>
       <img src="logo-hcpa.png" class="logo-hcpa" alt="Logo HCPA">
     </div>
+    <!-- Painel central -->
     <div class="painel">
+      <!-- Lado esquerdo -->
       <div class="esquerda">
         <div id="tipoExame" class="tipo-exame-bar">---</div>
         <div id="senhaArea" class="senha-area">
@@ -333,6 +332,7 @@
           <div id="senhaAtual" class="senha-numero">---</div>
         </div>
       </div>
+      <!-- Lado direito -->
       <div class="direita">
         <div class="historico-header">
           <div>Senha Anterior</div>
@@ -341,7 +341,7 @@
         <ul id="historicoLista" class="historico-lista"></ul>
       </div>
     </div>
-    <!-- FAIXA INFERIOR -->
+    <!-- Faixa inferior fixa com guichê e aguarde a chamada -->
     <div class="faixa-inferior">
       <div class="faixa-inferior-top"></div>
       <div class="faixa-inferior-centro">
@@ -352,9 +352,10 @@
     </div>
   </div>
   <script>
-    // Senha de acesso
+    // Senha para acessar o painel
     const senhaCorreta = "radiologia2025";
     function checarSenha() {
+      // Checa a senha digitada
       const senhaInput = document.getElementById("senha").value;
       if (senhaInput === senhaCorreta) {
         document.getElementById("senha-protect").style.display = "none";
@@ -363,7 +364,7 @@
         document.getElementById("msgSenha").textContent = "Senha incorreta!";
       }
     }
-    // Firebase config
+    // Configuração do Firebase (não altere)
     const firebaseConfig = {
       apiKey: "AIzaSyAsuP9gO2sBOmzBet2b7ijljMgTsXo29lE",
       authDomain: "painel-senhas-hcpa.firebaseapp.com",
@@ -377,9 +378,11 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
+    // Variáveis para controle do último chamado
     let ultimaSenha = "";
     let ultimaTipo = "";
 
+    // Atualiza painel em tempo real via Firebase
     db.ref("chamadaSenha").on("value", snapshot => {
       const dados = snapshot.val();
       if (!dados) return;
@@ -387,8 +390,9 @@
       atualizarHistorico(dados.historico || []);
     });
 
+    // Atualiza os textos do painel e anima chamada de senha
     function atualizarPainel(tipo, senha, guiche) {
-      // Textos tipo
+      // Altera texto da barra preta conforme tipo
       if(tipo === "Agendar") {
         document.getElementById('tipoExame').textContent = "Exames para Agendar";
       } else if(tipo === "Agendados") {
@@ -396,13 +400,15 @@
       } else {
         document.getElementById('tipoExame').textContent = "---";
       }
+      // Atualiza número da senha no painel
       document.getElementById('senhaAtual').textContent = senha;
+      // Atualiza "Guichê X" na faixa inferior
       document.getElementById('guicheFaixa').textContent = `Guichê ${parseInt(guiche, 10)}`;
 
-      // Remove cor fixa anterior
+      // Remove classes de cor anterior (azul/vermelho)
       document.getElementById('senhaAtual').classList.remove('azul', 'vermelho');
 
-      // Pisca animação apenas se senha mudou
+      // Pisca só se senha/tipo mudar
       if (senha !== ultimaSenha || tipo !== ultimaTipo) {
         piscarChamada(tipo);
         ultimaSenha = senha;
@@ -413,6 +419,7 @@
       falarPainel(tipo, senha, guiche);
     }
 
+    // Atualiza o histórico à direita
     function atualizarHistorico(lista) {
       const historico = document.getElementById('historicoLista');
       historico.innerHTML = '';
@@ -423,7 +430,7 @@
       });
     }
 
-    // Efeito de piscar
+    // Efeito de piscar número da senha e fundo
     function piscarChamada(tipo) {
       const senhaArea = document.getElementById('senhaArea');
       const senhaNum = document.getElementById('senhaAtual');
@@ -442,7 +449,7 @@
       }, 4900); // 7x 0.7s ~5s
     }
 
-    // Define cor fixa do número
+    // Mantém cor da senha depois do piscar
     function setCorNumero(tipo) {
       const senhaNum = document.getElementById('senhaAtual');
       senhaNum.classList.remove('azul', 'vermelho');
@@ -453,7 +460,7 @@
       }
     }
 
-    // Voz painel
+    // Fala senha e guichê usando voz do navegador
     function falarPainel(tipo, senha, guiche) {
       const guicheVoz = parseInt(guiche, 10);
       let frase = tipo === "Agendar"
@@ -470,4 +477,3 @@
   </script>
 </body>
 </html>
-
