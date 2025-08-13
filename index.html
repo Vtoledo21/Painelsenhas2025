@@ -10,8 +10,6 @@
       --preto: #000;
       --branco: #fff;
       --shadow: 2px 4px 0px #222;
-      --azul-agendar: #0074d9;
-      --vermelho-agendados: #d70000;
     }
     html, body {
       background: var(--verde-hcpa);
@@ -133,18 +131,12 @@
     .senha-numero {
       font-size: 11vh;
       font-weight: bold;
-      color: var(--amarelo-hcpa); /* default, but will be set by JS */
+      color: var(--amarelo-hcpa);
       letter-spacing: 20px;
       text-shadow: var(--shadow);
       margin: 0.6vh 0 0.7vh 0;
       text-align: center;
       transition: color 0.2s;
-    }
-    .senha-numero.azul {
-      color: var(--azul-agendar);
-    }
-    .senha-numero.vermelho {
-      color: var(--vermelho-agendados);
     }
     .guiche-box {
       width: 100%;
@@ -230,7 +222,7 @@
       letter-spacing: 4px;
       text-shadow: var(--shadow);
     }
-    /* Piscar efeito */
+    /* Piscar efeito (mantém do ajuste anterior) */
     .senha-area.piscando { animation: pisca-fundo 0.7s alternate 7; }
     @keyframes pisca-fundo {
       0%   { background: #d70000;}
@@ -375,17 +367,11 @@
       }
       document.getElementById('senhaAtual').textContent = senha;
       document.getElementById('guicheBox').textContent = `Guichê ${parseInt(guiche, 10)}`;
-
-      // Remove cor fixa anterior
-      document.getElementById('senhaAtual').classList.remove('azul', 'vermelho');
-
       // Pisca animação apenas se senha mudou
       if (senha !== ultimaSenha || tipo !== ultimaTipo) {
         piscarChamada(tipo);
         ultimaSenha = senha;
         ultimaTipo = tipo;
-      } else {
-        setCorNumero(tipo);
       }
       falarPainel(tipo, senha, guiche);
     }
@@ -405,7 +391,6 @@
       const senhaArea = document.getElementById('senhaArea');
       const senhaNum = document.getElementById('senhaAtual');
       senhaArea.classList.add('piscando');
-      senhaNum.classList.remove('azul', 'vermelho');
       if (tipo === "Agendar") {
         senhaNum.classList.add('piscando-agendar');
       } else {
@@ -415,19 +400,7 @@
         senhaArea.classList.remove('piscando');
         senhaNum.classList.remove('piscando-agendar');
         senhaNum.classList.remove('piscando-agendados');
-        setCorNumero(tipo);
       }, 4900); // 7x 0.7s ~5s
-    }
-
-    // Define cor fixa do número
-    function setCorNumero(tipo) {
-      const senhaNum = document.getElementById('senhaAtual');
-      senhaNum.classList.remove('azul', 'vermelho');
-      if (tipo === "Agendar") {
-        senhaNum.classList.add('azul');
-      } else if (tipo === "Agendados") {
-        senhaNum.classList.add('vermelho');
-      }
     }
 
     // Voz painel
