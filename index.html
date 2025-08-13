@@ -19,11 +19,11 @@
       background: #000;
       padding: 10px 40px 0 40px;
       border-bottom: 3px solid #ffe99c;
-      height: 90px;
+      height: 96px;
     }
     .logo {
-      height: 80px;
-      width: 80px;
+      height: 96px;
+      width: 96px;
       object-fit: contain;
       background: #000;
       border-radius: 10px;
@@ -38,15 +38,15 @@
       text-shadow: 2px 2px 4px #222;
     }
     .logo-hcpa {
-      height: 65px;
-      width: 65px;
+      height: 78px;
+      width: 78px;
       object-fit: contain;
       background: #000;
       border-radius: 10px;
     }
     .painel {
       display: flex;
-      height: calc(100vh - 90px);
+      height: calc(100vh - 96px);
       width: 100vw;
     }
     .esquerda {
@@ -256,7 +256,7 @@
         document.getElementById('tipoExame').textContent = "---";
       }
       document.getElementById('senhaAtual').textContent = senha;
-      document.getElementById('guicheBox').textContent = `Guichê ${guiche}`;
+      document.getElementById('guicheBox').textContent = `Guichê ${parseInt(guiche, 10)}`;
       falarPainel(tipo, senha, guiche);
     }
     function atualizarHistorico(lista) {
@@ -264,16 +264,17 @@
       historico.innerHTML = '';
       lista.slice(-4).reverse().forEach(item => {
         const li = document.createElement('li');
-        li.innerHTML = `<div>${item.senha}</div><div>Guichê ${item.guiche}</div>`;
+        li.innerHTML = `<div>${item.senha}</div><div>Guichê ${parseInt(item.guiche, 10)}</div>`;
         historico.appendChild(li);
       });
     }
     function falarPainel(tipo, senha, guiche) {
+      const guicheVoz = parseInt(guiche, 10);
       let frase = tipo === "Agendar"
-        ? `Exame para agendar, senha ${senha}, guichê ${guiche}`
+        ? `Exame para agendar, senha ${senha}, guichê ${guicheVoz}`
         : tipo === "Agendados"
-        ? `Exame agendado, senha ${senha}, guichê ${guiche}`
-        : `Senha ${senha}, guichê ${guiche}`;
+        ? `Exame agendado, senha ${senha}, guichê ${guicheVoz}`
+        : `Senha ${senha}, guichê ${guicheVoz}`;
       const synth = window.speechSynthesis;
       const utter = new SpeechSynthesisUtterance(frase);
       utter.lang = "pt-BR";
