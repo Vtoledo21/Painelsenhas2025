@@ -464,7 +464,7 @@
     function falarPainel(tipo, senha, guiche) {
       const guicheVoz = parseInt(guiche, 10);
       let frase = tipo === "Agendar"
-        ? `Exame para agendar, senha ${senha}, guichê ${guicheVoz}`
+        ? `Exames para agendar, senha ${senha}, guichê ${guicheVoz}`
         : tipo === "Agendados"
         ? `Realizar Exames, senha ${senha}, guichê ${guicheVoz}`
         : `Senha ${senha}, guichê ${guicheVoz}`;
@@ -477,6 +477,7 @@
   </script>
 </body>
 </html>
+
 
 
 
