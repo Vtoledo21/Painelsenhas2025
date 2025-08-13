@@ -10,6 +10,8 @@
       --preto: #000;
       --branco: #fff;
       --shadow: 2px 4px 0px #222;
+      --azul-agendar: #0074d9;
+      --vermelho-agendados: #d70000;
     }
     html, body {
       background: var(--verde-hcpa);
@@ -28,83 +30,79 @@
       box-sizing: border-box;
       display: flex;
       flex-direction: column;
-      justify-content: flex-start;
-      align-items: flex-start;
     }
     .header {
       width: 100vw;
-      height: 19vh;
+      height: 20vh;
       min-height: 140px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       background: var(--verde-hcpa);
       box-sizing: border-box;
-      padding: 0 2vw 0 2vw;
-      border-bottom: 4px solid var(--amarelo-hcpa);
+      padding: 0 3vw 0 3vw;
+      border-bottom: 5px solid var(--amarelo-hcpa);
+      position: relative;
     }
     .logo {
-      height: 14vh;
-      width: 14vh;
-      min-height: 100px;
-      min-width: 100px;
-      max-height: 180px;
-      max-width: 180px;
+      height: 16vh;
+      width: 16vh;
+      min-height: 120px;
+      min-width: 120px;
       object-fit: contain;
       background: var(--branco);
       border-radius: 12px;
     }
     .logo-hcpa {
-      height: 12vh;
-      width: 12vh;
-      min-height: 90px;
-      min-width: 90px;
-      max-height: 150px;
-      max-width: 150px;
+      height: 14vh;
+      width: 14vh;
+      min-height: 110px;
+      min-width: 110px;
       object-fit: contain;
       background: var(--verde-hcpa);
       border-radius: 24px;
-      padding: 0.5vw;
-      box-sizing: border-box;
     }
     .titulo {
       flex: 1;
       text-align: center;
-      font-size: 6vh;
+      font-size: 6.7vh;
       font-weight: bold;
       color: var(--amarelo-hcpa);
       letter-spacing: 3px;
       text-shadow: var(--shadow);
       margin: 0 2vw;
+      line-height: 1;
     }
     .painel {
       flex: 1;
       display: flex;
       flex-direction: row;
       width: 100vw;
-      height: 81vh;
+      min-height: 80vh;
+      height: 80vh;
     }
     .esquerda {
-      width: 62vw;
+      width: 63vw;
       height: 100%;
       display: flex;
       flex-direction: column;
       align-items: stretch;
-      justify-content: flex-start;
+      border-right: 5px solid var(--amarelo-hcpa);
       box-sizing: border-box;
-      border-right: 4px solid var(--amarelo-hcpa);
     }
     .tipo-exame-bar {
       width: 100%;
       background: var(--preto);
       color: var(--amarelo-hcpa);
-      font-size: 4.5vh;
+      font-size: 5.7vh;
       font-weight: bold;
       text-align: center;
       letter-spacing: 2px;
-      padding: 0.6vh 0 0.6vh 0;
-      border-bottom: 4px solid var(--amarelo-hcpa);
+      padding: 0.9vh 0 0.8vh 0;
+      border-bottom: 5px solid var(--amarelo-hcpa);
       text-shadow: var(--shadow);
+      margin: 0;
+      line-height: 1;
     }
     .senha-area {
       width: 100%;
@@ -112,49 +110,53 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      border-bottom: 4px solid var(--amarelo-hcpa);
-      border-top: 4px solid var(--amarelo-hcpa);
-      padding: 1vh 0 0.7vh 0;
+      border-bottom: 5px solid var(--amarelo-hcpa);
+      border-top: 5px solid var(--amarelo-hcpa);
+      padding: 1.5vh 0 0.2vh 0;
       flex: 1;
       min-height: 33vh;
       justify-content: flex-start;
     }
     .senha-label {
-      font-size: 4.3vh;
+      font-size: 4.7vh;
       color: var(--amarelo-hcpa);
       font-weight: bold;
-      margin: 0.5vh 0 0 0;
+      margin: 1.3vh 0 0.5vh 0;
       letter-spacing: 2px;
       text-shadow: var(--shadow);
       text-align: center;
+      line-height: 1;
     }
     .senha-numero {
-      font-size: 11vh;
+      font-size: 13vh;
       font-weight: bold;
       color: var(--amarelo-hcpa);
-      letter-spacing: 20px;
+      letter-spacing: 27px;
       text-shadow: var(--shadow);
-      margin: 0.6vh 0 0.7vh 0;
+      margin: 0.4vh 0 0.7vh 0;
       text-align: center;
       transition: color 0.2s;
+      line-height: 1;
     }
+    .senha-numero.azul { color: var(--azul-agendar);}
+    .senha-numero.vermelho { color: var(--vermelho-agendados);}
     .guiche-box {
       width: 100%;
       background: var(--preto);
-      color: var(--branco);
-      font-size: 5.3vh;
+      color: #fff;
+      font-size: 7vh;
       font-weight: bold;
       text-align: center;
-      padding: 0.9vh 0 0.7vh 0;
-      border-bottom: 4px solid var(--amarelo-hcpa);
+      padding: 1.2vh 0 1.2vh 0;
+      border-bottom: 5px solid var(--amarelo-hcpa);
       border-top: none;
-      height: 8.6vh;
       letter-spacing: 2px;
       text-shadow: var(--shadow);
+      line-height: 1;
     }
     .direita {
       flex: 1;
-      width: 38vw;
+      width: 37vw;
       height: 100%;
       display: flex;
       flex-direction: column;
@@ -169,11 +171,11 @@
       align-items: center;
       background: var(--verde-hcpa);
       color: var(--amarelo-hcpa);
-      font-size: 3.2vh;
+      font-size: 3.5vh;
       font-weight: bold;
       text-align: center;
       border-bottom: 2px solid var(--amarelo-hcpa);
-      border-left: 4px solid var(--amarelo-hcpa);
+      border-left: 5px solid var(--amarelo-hcpa);
       padding: 1.2vh 0 1.2vh 0;
       margin: 0 0.5vw;
       letter-spacing: 1px;
@@ -193,16 +195,16 @@
       padding: 0;
       margin: 0 0.5vw;
       list-style: none;
-      border-left: 4px solid var(--amarelo-hcpa);
+      border-left: 5px solid var(--amarelo-hcpa);
     }
     .historico-lista li {
       display: flex;
       flex-direction: row;
       justify-content: space-between;
       align-items: center;
-      padding: 0.9vh 0.7vw;
+      padding: 1.2vh 2vw;
       border-bottom: 1px solid #ffe90055;
-      font-size: 3.2vh;
+      font-size: 3.7vh;
       background: var(--verde-hcpa);
       color: var(--amarelo-hcpa);
       font-weight: normal;
@@ -212,17 +214,17 @@
       width: 100%;
       background: var(--preto);
       color: var(--amarelo-hcpa);
-      font-size: 5.1vh;
+      font-size: 6.7vh;
       font-weight: bold;
       text-align: center;
-      padding: 1.5vh 0 1.5vh 0;
-      margin-top: auto;
-      border-top: 4px solid var(--amarelo-hcpa);
-      border-left: 4px solid var(--amarelo-hcpa);
-      letter-spacing: 4px;
+      padding: 2.2vh 0 2.2vh 0;
+      border-top: 5px solid var(--amarelo-hcpa);
+      border-left: 5px solid var(--amarelo-hcpa);
+      letter-spacing: 7px;
       text-shadow: var(--shadow);
+      line-height: 1;
     }
-    /* Piscar efeito (mantém do ajuste anterior) */
+    /* Piscar efeito */
     .senha-area.piscando { animation: pisca-fundo 0.7s alternate 7; }
     @keyframes pisca-fundo {
       0%   { background: #d70000;}
@@ -274,7 +276,6 @@
       font-weight: bold;
       cursor: pointer;
     }
-    /* Para garantir responsividade em TVs */
     @media (max-width:1600px) {
       .titulo { font-size: 4.5vh; }
       .senha-numero { font-size: 8vh; letter-spacing: 16px;}
@@ -367,11 +368,17 @@
       }
       document.getElementById('senhaAtual').textContent = senha;
       document.getElementById('guicheBox').textContent = `Guichê ${parseInt(guiche, 10)}`;
+
+      // Remove cor fixa anterior
+      document.getElementById('senhaAtual').classList.remove('azul', 'vermelho');
+
       // Pisca animação apenas se senha mudou
       if (senha !== ultimaSenha || tipo !== ultimaTipo) {
         piscarChamada(tipo);
         ultimaSenha = senha;
         ultimaTipo = tipo;
+      } else {
+        setCorNumero(tipo);
       }
       falarPainel(tipo, senha, guiche);
     }
@@ -391,6 +398,7 @@
       const senhaArea = document.getElementById('senhaArea');
       const senhaNum = document.getElementById('senhaAtual');
       senhaArea.classList.add('piscando');
+      senhaNum.classList.remove('azul', 'vermelho');
       if (tipo === "Agendar") {
         senhaNum.classList.add('piscando-agendar');
       } else {
@@ -400,7 +408,19 @@
         senhaArea.classList.remove('piscando');
         senhaNum.classList.remove('piscando-agendar');
         senhaNum.classList.remove('piscando-agendados');
+        setCorNumero(tipo);
       }, 4900); // 7x 0.7s ~5s
+    }
+
+    // Define cor fixa do número
+    function setCorNumero(tipo) {
+      const senhaNum = document.getElementById('senhaAtual');
+      senhaNum.classList.remove('azul', 'vermelho');
+      if (tipo === "Agendar") {
+        senhaNum.classList.add('azul');
+      } else if (tipo === "Agendados") {
+        senhaNum.classList.add('vermelho');
+      }
     }
 
     // Voz painel
