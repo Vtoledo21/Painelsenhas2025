@@ -30,19 +30,19 @@
       display: flex;
       flex-direction: column;
     }
-    /* === CABEÇALHO ==================================================================== */
+    /* CABEÇALHO */
     .header {
       width: 100vw;
-      height: 17vh; /* << AJUSTE altura do cabeçalho */
+      height: 17vh;
       display: flex;
       justify-content: space-between;
       align-items: center;
       background: var(--verde-hcpa);
       padding: 0 3vw;
-      border-bottom: 5px solid var(--amarelo-hcpa); /* Linha amarela principal no topo */
+      border-bottom: 5px solid var(--amarelo-hcpa);
     }
     .logo {
-      height: 13vh;  /* << AJUSTE altura do logo esquerdo */
+      height: 13vh;
       width: 13vh;
       min-height: 100px;
       object-fit: contain;
@@ -50,7 +50,7 @@
       border-radius: 12px;
     }
     .logo-hcpa {
-      height: 12vh;  /* << AJUSTE altura do logo direito */
+      height: 12vh;
       width: 12vh;
       min-height: 90px;
       object-fit: contain;
@@ -60,7 +60,7 @@
     .titulo {
       flex: 1;
       text-align: center;
-      font-size: 6.2vh; /* << AJUSTE tamanho do título */
+      font-size: 6.2vh;
       font-weight: bold;
       color: var(--amarelo-hcpa);
       letter-spacing: 3px;
@@ -68,7 +68,7 @@
       margin: 0 2vw;
       line-height: 1;
     }
-    /* === PAINEL CENTRAL ================================================================ */
+    /* PAINEL CENTRAL */
     .painel {
       flex: 1;
       display: flex;
@@ -77,19 +77,19 @@
       height: 76vh;
     }
     .esquerda {
-      width: 63vw;  /* << AJUSTE largura da área esquerda */
+      width: 63vw;
       display: flex;
       flex-direction: column;
       align-items: stretch;
-      border-right: 5px solid var(--amarelo-hcpa); /* Linha amarela única à direita */
+      border-right: 5px solid var(--amarelo-hcpa);
       box-sizing: border-box;
     }
-    /* === BARRA DO TIPO DE EXAME ("EXAMES AGENDADOS" etc) ============================== */
+    /* BARRA DO TIPO DE EXAME */
     .tipo-exame-bar {
       width: 100%;
       background: var(--preto);
       color: var(--amarelo-hcpa);
-      font-size: 5.7vh; /* << AJUSTE tamanho da fonte do tipo de exame */
+      font-size: 5.7vh;
       font-weight: bold;
       text-align: center;
       letter-spacing: 2px;
@@ -113,7 +113,7 @@
       justify-content: flex-start;
     }
     .senha-label {
-      font-size: 4.7vh; /* << AJUSTE tamanho da palavra "SENHA" */
+      font-size: 4.7vh;
       color: var(--amarelo-hcpa);
       font-weight: bold;
       margin: 1.7vh 0 1vh 0;
@@ -122,7 +122,7 @@
       line-height: 1;
     }
     .senha-numero {
-      font-size: 13.5vh; /* << AJUSTE tamanho do número da senha */
+      font-size: 13.5vh;
       font-weight: bold;
       color: var(--amarelo-hcpa);
       letter-spacing: 27px;
@@ -134,26 +134,7 @@
     }
     .senha-numero.azul { color: var(--azul-agendar);}
     .senha-numero.vermelho { color: var(--vermelho-agendados);}
-    /* === BARRA GUICHÊ (EMBAIXO À ESQUERDA) ============================================ */
-    .guiche-box {
-      width: 100%;
-      background: var(--preto);
-      color: #fff;
-      font-size: 7.2vh; /* << AJUSTE tamanho do texto Guichê */
-      font-weight: bold;
-      text-align: center;
-      padding: 2.2vh 0 2.2vh 0;
-      border-bottom: 5px solid var(--amarelo-hcpa);
-      letter-spacing: 2px;
-      text-shadow: var(--shadow);
-      line-height: 1;
-      position: absolute;
-      left: 0;
-      bottom: 0;
-      z-index: 2;
-      width: 63vw;
-    }
-    /* === LADO DIREITO - HISTÓRICO ===================================================== */
+    /* LADO DIREITO - HISTÓRICO */
     .direita {
       flex: 1;
       width: 37vw;
@@ -172,7 +153,7 @@
       align-items: center;
       background: var(--verde-hcpa);
       color: var(--amarelo-hcpa);
-      font-size: 3.8vh; /* << AJUSTE tamanho do cabeçalho do histórico */
+      font-size: 3.8vh;
       font-weight: bold;
       text-align: center;
       border-bottom: 2px solid var(--amarelo-hcpa);
@@ -191,7 +172,7 @@
       min-height: 37vh;
       background: var(--verde-hcpa);
       color: var(--amarelo-hcpa);
-      font-size: 4.2vh; /* << AJUSTE tamanho do histórico */
+      font-size: 4.2vh;
       text-align: left;
       padding: 0;
       margin: 0 0.5vw;
@@ -211,37 +192,62 @@
       color: var(--amarelo-hcpa);
       letter-spacing: 1px;
     }
-    /* === AGUARDE A CHAMADA (DIREITA, BARRA INFERIOR) ================================== */
-    .aguarde-row {
+    /* ====== FAIXA INFERIOR ====== */
+    .faixa-inferior {
+      width: 100vw;
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      z-index: 10;
+      /* Não mude a altura aqui, mude nas linhas internas */
+    }
+    .faixa-inferior-top {
+      width: 100vw;
+      height: 5px;
+      background: var(--amarelo-hcpa);
+    }
+    .faixa-inferior-centro {
+      width: 100vw;
       display: flex;
       flex-direction: row;
       align-items: stretch;
-      height: 11vh; /* << AJUSTE altura total da faixa inferior */
-      width: 100vw;
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      z-index: 10;
-   
-    }
-    .aguarde {
-      width: 37vw;
       background: var(--preto);
-      color: var(--amarelo-hcpa);
-      font-size: 6.7vh; /* << AJUSTE tamanho do texto AGUARDE */
+      height: 11vh; /* << AJUSTE altura da faixa preta inferior */
+      border-bottom: 5px solid var(--amarelo-hcpa); /* Linha amarela inferior */
+    }
+    .faixa-guiche {
+      width: 63vw;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      color: #fff;
+      font-size: 7.2vh; /* << AJUSTE tamanho do texto Guichê */
       font-weight: bold;
-      text-align: center;
+      padding-left: 3vw;
+      letter-spacing: 2px;
+      text-shadow: var(--shadow);
+      height: 100%;
+      background: none;
+    }
+    .faixa-aguarde {
+      width: 37vw;
       display: flex;
       align-items: center;
       justify-content: center;
-      border-top: 5px solid var(--amarelo-hcpa);
-      border-left: 5px solid var(--amarelo-hcpa);
+      color: var(--amarelo-hcpa);
+      font-size: 6.7vh; /* << AJUSTE tamanho do texto AGUARDE */
+      font-weight: bold;
       letter-spacing: 7px;
       text-shadow: var(--shadow);
-      line-height: 1;
       height: 100%;
+      background: none;
     }
-    /* === ANIMAÇÃO DE PISCAR =========================================================== */
+    .faixa-inferior-bottom {
+      width: 100vw;
+      height: 5px;
+      background: var(--amarelo-hcpa);
+    }
+    /* ANIMAÇÃO */
     .senha-area.piscando { animation: pisca-fundo 0.7s alternate 7; }
     @keyframes pisca-fundo {
       0%   { background: #d70000;}
@@ -293,6 +299,14 @@
       font-weight: bold;
       cursor: pointer;
     }
+    /* PARA RESPONSIVIDADE EM TELAS MENORES */
+    @media (max-width:1600px) {
+      .titulo { font-size: 4.5vh; }
+      .senha-numero { font-size: 8vh; letter-spacing: 16px;}
+      .faixa-guiche { font-size: 4.5vh; }
+      .faixa-aguarde { font-size: 4.5vh; }
+      .tipo-exame-bar { font-size: 3.2vh; }
+    }
   </style>
   <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-app-compat.js"></script>
@@ -312,26 +326,29 @@
       <img src="logo-hcpa.png" class="logo-hcpa" alt="Logo HCPA">
     </div>
     <div class="painel">
-      <div class="esquerda" style="position:relative;">
+      <div class="esquerda">
         <div id="tipoExame" class="tipo-exame-bar">---</div>
         <div id="senhaArea" class="senha-area">
           <div class="senha-label">SENHA</div>
           <div id="senhaAtual" class="senha-numero">---</div>
         </div>
-        <div id="guicheBox" class="guiche-box">Guichê --</div>
       </div>
-      <div class="direita" style="position:relative;">
+      <div class="direita">
         <div class="historico-header">
           <div>Senha Anterior</div>
           <div>Guichê Anterior</div>
         </div>
         <ul id="historicoLista" class="historico-lista"></ul>
       </div>
-      <!-- AGUARDE A CHAMADA BARRA INFERIOR -->
-      <div class="aguarde-row">
-        <div class="aguarde-fake-l"></div>
-        <div class="aguarde">AGUARDE A CHAMADA</div>
+    </div>
+    <!-- FAIXA INFERIOR -->
+    <div class="faixa-inferior">
+      <div class="faixa-inferior-top"></div>
+      <div class="faixa-inferior-centro">
+        <div class="faixa-guiche" id="guicheFaixa">Guichê --</div>
+        <div class="faixa-aguarde">AGUARDE A CHAMADA</div>
       </div>
+      <div class="faixa-inferior-bottom"></div>
     </div>
   </div>
   <script>
@@ -346,7 +363,6 @@
         document.getElementById("msgSenha").textContent = "Senha incorreta!";
       }
     }
-
     // Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyAsuP9gO2sBOmzBet2b7ijljMgTsXo29lE",
@@ -381,7 +397,7 @@
         document.getElementById('tipoExame').textContent = "---";
       }
       document.getElementById('senhaAtual').textContent = senha;
-      document.getElementById('guicheBox').textContent = `Guichê ${parseInt(guiche, 10)}`;
+      document.getElementById('guicheFaixa').textContent = `Guichê ${parseInt(guiche, 10)}`;
 
       // Remove cor fixa anterior
       document.getElementById('senhaAtual').classList.remove('azul', 'vermelho');
@@ -454,4 +470,3 @@
   </script>
 </body>
 </html>
-
