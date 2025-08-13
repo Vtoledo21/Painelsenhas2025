@@ -217,14 +217,14 @@
 
       // Atualiza histórico local (máx 4)
       historico.push({ tipo, senha, guiche });
-      if (historico.length > 4) historico = historico.slice(-4);
+      if (historico.length > 6) historico = historico.slice(-6);
 
       // Envia para Firebase
       db.ref("chamadaSenha").set({
         tipo,
         senha,
         guiche,
-        historico: historico.slice(-4)
+        historico: historico.slice(-6)
       });
     }
 
@@ -293,3 +293,4 @@
   </script>
 </body>
 </html>
+
