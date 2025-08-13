@@ -10,7 +10,7 @@
       --preto: #000;
       --azul-agendar: #0074d9;
       --vermelho-agendados: #d70000;
-      --shadow: 2px 4px 0px #222;
+      --shadow: 3px 5px 0px #222;
     }
     html, body {
       background: var(--verde-hcpa);
@@ -30,30 +30,28 @@
       display: flex;
       flex-direction: column;
     }
-    /* CABEÇALHO */
+    /* === CABEÇALHO ==================================================================== */
     .header {
       width: 100vw;
-      height: 19vh;         /* <-- Altere para altura do cabeçalho */
+      height: 17vh; /* << AJUSTE altura do cabeçalho */
       display: flex;
       justify-content: space-between;
       align-items: center;
       background: var(--verde-hcpa);
-      box-sizing: border-box;
       padding: 0 3vw;
-      border-bottom: 5px solid var(--amarelo-hcpa); /* <-- Linha amarela grossa */
-      position: relative;
+      border-bottom: 5px solid var(--amarelo-hcpa); /* Linha amarela principal no topo */
     }
     .logo {
-      height: 15vh;         /* <-- Altura do logo à esquerda */
-      width: 15vh;
+      height: 13vh;  /* << AJUSTE altura do logo esquerdo */
+      width: 13vh;
       min-height: 100px;
       object-fit: contain;
       background: #fff;
       border-radius: 12px;
     }
     .logo-hcpa {
-      height: 13vh;         /* <-- Altura do logo à direita */
-      width: 13vh;
+      height: 12vh;  /* << AJUSTE altura do logo direito */
+      width: 12vh;
       min-height: 90px;
       object-fit: contain;
       background: var(--verde-hcpa);
@@ -62,7 +60,7 @@
     .titulo {
       flex: 1;
       text-align: center;
-      font-size: 6.5vh;     /* <-- Tamanho do titulo principal */
+      font-size: 6.2vh; /* << AJUSTE tamanho do título */
       font-weight: bold;
       color: var(--amarelo-hcpa);
       letter-spacing: 3px;
@@ -70,34 +68,33 @@
       margin: 0 2vw;
       line-height: 1;
     }
-    /* PAINEL CENTRAL */
+    /* === PAINEL CENTRAL ================================================================ */
     .painel {
       flex: 1;
       display: flex;
       flex-direction: row;
       width: 100vw;
-      min-height: 80vh;
-      height: 80vh;
+      height: 76vh;
     }
     .esquerda {
-      width: 63vw;         /* <-- Largura da área esquerda */
+      width: 63vw;  /* << AJUSTE largura da área esquerda */
       display: flex;
       flex-direction: column;
       align-items: stretch;
-      border-right: 5px solid var(--amarelo-hcpa);
+      border-right: 5px solid var(--amarelo-hcpa); /* Linha amarela única à direita */
       box-sizing: border-box;
     }
-    /* BARRA DO TIPO DE EXAME */
+    /* === BARRA DO TIPO DE EXAME ("EXAMES AGENDADOS" etc) ============================== */
     .tipo-exame-bar {
       width: 100%;
       background: var(--preto);
       color: var(--amarelo-hcpa);
-      font-size: 8.7vh;     /* <-- Tamanho da fonte "Exames Agendados" */
+      font-size: 5.7vh; /* << AJUSTE tamanho da fonte do tipo de exame */
       font-weight: bold;
       text-align: center;
       letter-spacing: 2px;
-      padding: 1.2vh 0 1vh 0;  /* <-- Espaçamento acima/abaixo */
-      border-bottom: 5px solid var(--amarelo-hcpa); /* <-- Linha amarela ÚNICA */
+      padding: 1.2vh 0 1vh 0;
+      border-bottom: 5px solid var(--amarelo-hcpa);
       text-shadow: var(--shadow);
       margin: 0;
       line-height: 1.1;
@@ -115,9 +112,8 @@
       min-height: 33vh;
       justify-content: flex-start;
     }
-    /* TEXTO SENHA */
     .senha-label {
-      font-size: 4.7vh;    /* <-- Tamanho da palavra "SENHA" */
+      font-size: 4.7vh; /* << AJUSTE tamanho da palavra "SENHA" */
       color: var(--amarelo-hcpa);
       font-weight: bold;
       margin: 1.7vh 0 1vh 0;
@@ -125,12 +121,11 @@
       text-align: center;
       line-height: 1;
     }
-    /* NÚMERO DA SENHA */
     .senha-numero {
-      font-size: 28vh;     /* <-- Tamanho do número da senha */
+      font-size: 13.5vh; /* << AJUSTE tamanho do número da senha */
       font-weight: bold;
       color: var(--amarelo-hcpa);
-      letter-spacing: 27px; /* <-- Espaço entre dígitos */
+      letter-spacing: 27px;
       text-shadow: var(--shadow);
       margin: 0.1vh 0 1vh 0;
       text-align: center;
@@ -139,22 +134,26 @@
     }
     .senha-numero.azul { color: var(--azul-agendar);}
     .senha-numero.vermelho { color: var(--vermelho-agendados);}
-    /* BARRA GUICHÊ */
+    /* === BARRA GUICHÊ (EMBAIXO À ESQUERDA) ============================================ */
     .guiche-box {
       width: 100%;
       background: var(--preto);
       color: #fff;
-      font-size: 7.2vh;    /* <-- Tamanho de "Guichê X" */
+      font-size: 7.2vh; /* << AJUSTE tamanho do texto Guichê */
       font-weight: bold;
       text-align: center;
       padding: 2.2vh 0 2.2vh 0;
       border-bottom: 5px solid var(--amarelo-hcpa);
-      border-top: none;
       letter-spacing: 2px;
       text-shadow: var(--shadow);
       line-height: 1;
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      z-index: 2;
+      width: 63vw;
     }
-    /* LADO DIREITO - HISTÓRICO */
+    /* === LADO DIREITO - HISTÓRICO ===================================================== */
     .direita {
       flex: 1;
       width: 37vw;
@@ -164,6 +163,7 @@
       align-items: stretch;
       justify-content: flex-start;
       box-sizing: border-box;
+      position: relative;
     }
     .historico-header {
       display: flex;
@@ -172,11 +172,12 @@
       align-items: center;
       background: var(--verde-hcpa);
       color: var(--amarelo-hcpa);
-      font-size: 3.8vh;   /* <-- Tamanho do cabeçalho do histórico */
+      font-size: 3.8vh; /* << AJUSTE tamanho do cabeçalho do histórico */
       font-weight: bold;
       text-align: center;
       border-bottom: 2px solid var(--amarelo-hcpa);
-      border-left: 5px solid var(--amarelo-hcpa);
+      border-left: none;
+      border-right: none;
       padding: 1.7vh 0 1.7vh 0;
       margin: 0 0.5vw;
       text-shadow: var(--shadow);
@@ -190,12 +191,13 @@
       min-height: 37vh;
       background: var(--verde-hcpa);
       color: var(--amarelo-hcpa);
-      font-size: 4.2vh;    /* <-- Tamanho do histórico */
+      font-size: 4.2vh; /* << AJUSTE tamanho do histórico */
       text-align: left;
       padding: 0;
       margin: 0 0.5vw;
       list-style: none;
-      border-left: 5px solid var(--amarelo-hcpa);
+      border-left: none;
+      border-right: none;
     }
     .historico-lista li {
       display: flex;
@@ -209,22 +211,41 @@
       color: var(--amarelo-hcpa);
       letter-spacing: 1px;
     }
-    /* AGUARDE */
+    /* === AGUARDE A CHAMADA (DIREITA, BARRA INFERIOR) ================================== */
+    .aguarde-row {
+      display: flex;
+      flex-direction: row;
+      align-items: stretch;
+      height: 11vh; /* << AJUSTE altura total da faixa inferior */
+      width: 100vw;
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      z-index: 10;
+    }
+    .aguarde-fake-l { /* serve para alinhar exatamente com guichê-box */
+      width: 63vw;
+      background: none;
+      border: none;
+    }
     .aguarde {
-      width: 100%;
+      width: 37vw;
       background: var(--preto);
       color: var(--amarelo-hcpa);
-      font-size: 6.7vh;    /* <-- Tamanho de "AGUARDE A CHAMADA" */
+      font-size: 6.7vh; /* << AJUSTE tamanho do texto AGUARDE */
       font-weight: bold;
       text-align: center;
-      padding: 2.2vh 0 2.2vh 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       border-top: 5px solid var(--amarelo-hcpa);
       border-left: 5px solid var(--amarelo-hcpa);
       letter-spacing: 7px;
       text-shadow: var(--shadow);
       line-height: 1;
+      height: 100%;
     }
-    /* PISCAR ANIMAÇÃO */
+    /* === ANIMAÇÃO DE PISCAR =========================================================== */
     .senha-area.piscando { animation: pisca-fundo 0.7s alternate 7; }
     @keyframes pisca-fundo {
       0%   { background: #d70000;}
@@ -295,7 +316,7 @@
       <img src="logo-hcpa.png" class="logo-hcpa" alt="Logo HCPA">
     </div>
     <div class="painel">
-      <div class="esquerda">
+      <div class="esquerda" style="position:relative;">
         <div id="tipoExame" class="tipo-exame-bar">---</div>
         <div id="senhaArea" class="senha-area">
           <div class="senha-label">SENHA</div>
@@ -303,12 +324,16 @@
         </div>
         <div id="guicheBox" class="guiche-box">Guichê --</div>
       </div>
-      <div class="direita">
+      <div class="direita" style="position:relative;">
         <div class="historico-header">
           <div>Senha Anterior</div>
           <div>Guichê Anterior</div>
         </div>
         <ul id="historicoLista" class="historico-lista"></ul>
+      </div>
+      <!-- AGUARDE A CHAMADA BARRA INFERIOR -->
+      <div class="aguarde-row">
+        <div class="aguarde-fake-l"></div>
         <div class="aguarde">AGUARDE A CHAMADA</div>
       </div>
     </div>
@@ -433,5 +458,3 @@
   </script>
 </body>
 </html>
-
-
