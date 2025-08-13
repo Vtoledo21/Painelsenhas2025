@@ -5,213 +5,254 @@
   <title>Painel de Senhas - Radiologia HCPA</title>
   <style>
     :root {
-      --verde-hcpa: #276e5b;
+      --verde-hcpa: #337c6b;
       --amarelo-hcpa: #ffe900;
-      --laranja-chamada: #ffa500;
-      --vermelho-chamada: #d70000;
-      --azul-agendar: #0074d9;
-      --azul-pisca: #009fe3;
-      --vermelho-pisca: #ff4040;
-      --cinza-texto: #fffbe5;
       --preto: #000;
+      --branco: #fff;
+      --shadow: 2px 4px 0px #222;
+      --azul-agendar: #0074d9;
+      --vermelho-agendados: #d70000;
     }
-    body {
+    html, body {
       background: var(--verde-hcpa);
-      color: var(--amarelo-hcpa);
-      font-family: Arial, Helvetica, sans-serif;
+      width: 100vw;
+      height: 100vh;
       margin: 0;
       padding: 0;
       overflow: hidden;
-      width: 1920px;
-      height: 1080px;
+      font-family: Arial Black, Arial, Helvetica, sans-serif;
+    }
+    #painel-main {
+      width: 100vw;
+      height: 100vh;
+      min-width: 1280px;
+      min-height: 720px;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: flex-start;
     }
     .header {
+      width: 100vw;
+      height: 19vh;
+      min-height: 140px;
       display: flex;
-      align-items: center;
       justify-content: space-between;
+      align-items: center;
       background: var(--verde-hcpa);
-      padding: 0 60px;
+      box-sizing: border-box;
+      padding: 0 2vw 0 2vw;
       border-bottom: 4px solid var(--amarelo-hcpa);
-      height: 140px;
     }
     .logo {
-      height: 120px;
-      width: 120px;
+      height: 14vh;
+      width: 14vh;
+      min-height: 100px;
+      min-width: 100px;
+      max-height: 180px;
+      max-width: 180px;
       object-fit: contain;
-      background: var(--preto);
-      border-radius: 16px;
-      margin-right: 20px;
+      background: var(--branco);
+      border-radius: 12px;
+    }
+    .logo-hcpa {
+      height: 12vh;
+      width: 12vh;
+      min-height: 90px;
+      min-width: 90px;
+      max-height: 150px;
+      max-width: 150px;
+      object-fit: contain;
+      background: var(--verde-hcpa);
+      border-radius: 24px;
+      padding: 0.5vw;
+      box-sizing: border-box;
     }
     .titulo {
       flex: 1;
       text-align: center;
-      font-size: 3.7em;
+      font-size: 6vh;
       font-weight: bold;
       color: var(--amarelo-hcpa);
-      letter-spacing: 2px;
-      text-shadow: 2px 2px 4px var(--preto);
-    }
-    .logo-hcpa {
-      height: 110px;
-      width: 110px;
-      object-fit: contain;
-      background: var(--preto);
-      border-radius: 16px;
-      margin-left: 20px;
+      letter-spacing: 3px;
+      text-shadow: var(--shadow);
+      margin: 0 2vw;
     }
     .painel {
+      flex: 1;
       display: flex;
-      height: calc(100vh - 140px);
+      flex-direction: row;
       width: 100vw;
-      background: var(--verde-hcpa);
+      height: 81vh;
     }
     .esquerda {
-      flex: 1.6;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-      background: var(--verde-hcpa);
-      border-right: 4px solid var(--amarelo-hcpa);
+      width: 62vw;
       height: 100%;
-      padding-top: 0;
-    }
-    .tipo-exame {
-      font-size: 2.7em;
-      color: var(--amarelo-hcpa);
-      background: var(--preto);
-      text-align: left;
-      font-weight: bold;
-      padding: 10px 0 10px 48px;
-      letter-spacing: 1px;
-      border-bottom: 4px solid var(--amarelo-hcpa);
-      margin-bottom: 0;
-    }
-    .senha-box {
-      background: var(--verde-hcpa);
-      color: var(--amarelo-hcpa);
-      text-align: center;
-      padding: 0;
-      margin: 0;
-      font-size: 1.4em;
-      font-weight: bold;
-      border-top: none;
-      border-bottom: none;
-      min-height: 335px;
       display: flex;
       flex-direction: column;
-      justify-content: center;
+      align-items: stretch;
+      justify-content: flex-start;
+      box-sizing: border-box;
+      border-right: 4px solid var(--amarelo-hcpa);
+    }
+    .tipo-exame-bar {
+      width: 100%;
+      background: var(--preto);
+      color: var(--amarelo-hcpa);
+      font-size: 4.5vh;
+      font-weight: bold;
+      text-align: center;
+      letter-spacing: 2px;
+      padding: 0.6vh 0 0.6vh 0;
+      border-bottom: 4px solid var(--amarelo-hcpa);
+      text-shadow: var(--shadow);
+    }
+    .senha-area {
+      width: 100%;
+      background: var(--verde-hcpa);
+      display: flex;
+      flex-direction: column;
       align-items: center;
-      position: relative;
+      border-bottom: 4px solid var(--amarelo-hcpa);
+      border-top: 4px solid var(--amarelo-hcpa);
+      padding: 1vh 0 0.7vh 0;
+      flex: 1;
+      min-height: 33vh;
+      justify-content: flex-start;
     }
     .senha-label {
+      font-size: 4.3vh;
       color: var(--amarelo-hcpa);
-      font-size: 3em;
       font-weight: bold;
-      margin-top: 22px;
-      margin-bottom: 0px;
-      letter-spacing: 3px;
-      text-shadow: 2px 2px 4px var(--preto);
+      margin: 0.5vh 0 0 0;
+      letter-spacing: 2px;
+      text-shadow: var(--shadow);
+      text-align: center;
     }
     .senha-numero {
-      font-size: 7.5em;
+      font-size: 11vh;
       font-weight: bold;
-      letter-spacing: 10px;
-      margin: 0;
+      color: var(--amarelo-hcpa); /* default, but will be set by JS */
+      letter-spacing: 20px;
+      text-shadow: var(--shadow);
+      margin: 0.6vh 0 0.7vh 0;
+      text-align: center;
+      transition: color 0.2s;
+    }
+    .senha-numero.azul {
+      color: var(--azul-agendar);
+    }
+    .senha-numero.vermelho {
+      color: var(--vermelho-agendados);
+    }
+    .guiche-box {
+      width: 100%;
+      background: var(--preto);
+      color: var(--branco);
+      font-size: 5.3vh;
+      font-weight: bold;
+      text-align: center;
+      padding: 0.9vh 0 0.7vh 0;
+      border-bottom: 4px solid var(--amarelo-hcpa);
+      border-top: none;
+      height: 8.6vh;
+      letter-spacing: 2px;
+      text-shadow: var(--shadow);
+    }
+    .direita {
+      flex: 1;
+      width: 38vw;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      justify-content: flex-start;
+      box-sizing: border-box;
+    }
+    .historico-header {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--verde-hcpa);
+      color: var(--amarelo-hcpa);
+      font-size: 3.2vh;
+      font-weight: bold;
+      text-align: center;
+      border-bottom: 2px solid var(--amarelo-hcpa);
+      border-left: 4px solid var(--amarelo-hcpa);
+      padding: 1.2vh 0 1.2vh 0;
+      margin: 0 0.5vw;
+      letter-spacing: 1px;
+      text-shadow: var(--shadow);
+    }
+    .historico-header > div {
+      flex: 1;
+      text-align: center;
+    }
+    .historico-lista {
+      width: 100%;
+      min-height: 37vh;
+      background: var(--verde-hcpa);
+      color: var(--amarelo-hcpa);
+      font-size: 4vh;
+      text-align: left;
       padding: 0;
-      text-shadow: 2px 2px 7px var(--preto);
-      transition: color 0.3s, background 0.3s;
-      background: transparent;
+      margin: 0 0.5vw;
+      list-style: none;
+      border-left: 4px solid var(--amarelo-hcpa);
     }
-    .senha-box.piscando {
-      animation: pisca-fundo 0.7s alternate 7;
+    .historico-lista li {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.9vh 0.7vw;
+      border-bottom: 1px solid #ffe90055;
+      font-size: 3.2vh;
+      background: var(--verde-hcpa);
+      color: var(--amarelo-hcpa);
+      font-weight: normal;
+      letter-spacing: 1px;
     }
+    .aguarde {
+      width: 100%;
+      background: var(--preto);
+      color: var(--amarelo-hcpa);
+      font-size: 5.1vh;
+      font-weight: bold;
+      text-align: center;
+      padding: 1.5vh 0 1.5vh 0;
+      margin-top: auto;
+      border-top: 4px solid var(--amarelo-hcpa);
+      border-left: 4px solid var(--amarelo-hcpa);
+      letter-spacing: 4px;
+      text-shadow: var(--shadow);
+    }
+    /* Piscar efeito */
+    .senha-area.piscando { animation: pisca-fundo 0.7s alternate 7; }
     @keyframes pisca-fundo {
-      0%   { background: var(--vermelho-chamada);}
-      35%  { background: var(--laranja-chamada);}
-      65%  { background: var(--vermelho-chamada);}
-      100% { background: var(--laranja-chamada);}
+      0%   { background: #d70000;}
+      35%  { background: #ffa500;}
+      65%  { background: #d70000;}
+      100% { background: #ffa500;}
     }
     .senha-numero.piscando-agendar {
       animation: pisca-numero-azul 0.7s alternate 7;
     }
     @keyframes pisca-numero-azul {
-      0%   { color: var(--azul-agendar);}
-      50%  { color: var(--azul-pisca);}
-      100% { color: var(--azul-agendar);}
+      0%   { color: #0074d9;}
+      50%  { color: #009fe3;}
+      100% { color: #0074d9;}
     }
     .senha-numero.piscando-agendados {
       animation: pisca-numero-vermelho 0.7s alternate 7;
     }
     @keyframes pisca-numero-vermelho {
-      0%   { color: var(--vermelho-chamada);}
-      50%  { color: var(--vermelho-pisca);}
-      100% { color: var(--vermelho-chamada);}
-    }
-    .guiche-box {
-      background: var(--preto);
-      color: var(--cinza-texto);
-      text-align: center;
-      font-size: 3em;
-      font-weight: bold;
-      padding: 25px 0 13px 0;
-      border-bottom: 4px solid var(--amarelo-hcpa);
-      margin-bottom: 0px;
-      height: 90px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-    .direita {
-      flex: 1.1;
-      background: var(--verde-hcpa);
-      color: var(--amarelo-hcpa);
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-      align-items: stretch;
-      padding: 0 16px;
-    }
-    .historico-header {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      font-size: 1.5em;
-      font-weight: bold;
-      text-align: center;
-      background: var(--verde-hcpa);
-      margin-top: 12px;
-      padding-bottom: 8px;
-      border-bottom: 2px solid var(--amarelo-hcpa);
-    }
-    .historico-lista {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-      font-size: 2em;
-      text-align: left;
-      min-height: 265px;
-    }
-    .historico-lista li {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      padding: 7px 0;
-      border-bottom: 1px solid #ffe99c50;
-      color: var(--amarelo-hcpa);
-      background: var(--verde-hcpa);
-    }
-    .aguarde {
-      background: var(--preto);
-      color: var(--amarelo-hcpa);
-      text-align: center;
-      font-size: 2.3em;
-      font-weight: bold;
-      margin-top: 16px;
-      padding: 14px;
-      border-top: 2px solid var(--amarelo-hcpa);
-      height: 78px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      letter-spacing: 2px;
+      0%   { color: #d70000;}
+      50%  { color: #ff4040;}
+      100% { color: #d70000;}
     }
     .senha-form {
       position: absolute;
@@ -224,9 +265,7 @@
       box-shadow: 0 0 10px #0004;
       z-index: 10;
     }
-    .senha-form label, .senha-form input {
-      font-size: 1.2em;
-    }
+    .senha-form label, .senha-form input { font-size: 1.2em; }
     .senha-form input {
       margin-left: 10px;
       padding: 5px;
@@ -242,6 +281,14 @@
       color: #fff;
       font-weight: bold;
       cursor: pointer;
+    }
+    /* Para garantir responsividade em TVs */
+    @media (max-width:1600px) {
+      .titulo { font-size: 4.5vh; }
+      .senha-numero { font-size: 8vh; letter-spacing: 16px;}
+      .aguarde { font-size: 3.2vh; }
+      .guiche-box { font-size: 3.2vh; }
+      .tipo-exame-bar { font-size: 3.2vh; }
     }
   </style>
   <!-- Firebase -->
@@ -263,8 +310,8 @@
     </div>
     <div class="painel">
       <div class="esquerda">
-        <div id="tipoExame" class="tipo-exame">---</div>
-        <div id="senhaBox" class="senha-box">
+        <div id="tipoExame" class="tipo-exame-bar">---</div>
+        <div id="senhaArea" class="senha-area">
           <div class="senha-label">SENHA</div>
           <div id="senhaAtual" class="senha-numero">---</div>
         </div>
@@ -317,11 +364,10 @@
       atualizarHistorico(dados.historico || []);
     });
 
-    // Atualiza painel e anima chamado
     function atualizarPainel(tipo, senha, guiche) {
-      // Textos
+      // Textos tipo
       if(tipo === "Agendar") {
-        document.getElementById('tipoExame').textContent = "Exames para agendar";
+        document.getElementById('tipoExame').textContent = "Exames para Agendar";
       } else if(tipo === "Agendados") {
         document.getElementById('tipoExame').textContent = "Exames Agendados";
       } else {
@@ -329,11 +375,17 @@
       }
       document.getElementById('senhaAtual').textContent = senha;
       document.getElementById('guicheBox').textContent = `Guichê ${parseInt(guiche, 10)}`;
+
+      // Remove cor fixa anterior
+      document.getElementById('senhaAtual').classList.remove('azul', 'vermelho');
+
       // Pisca animação apenas se senha mudou
       if (senha !== ultimaSenha || tipo !== ultimaTipo) {
         piscarChamada(tipo);
         ultimaSenha = senha;
         ultimaTipo = tipo;
+      } else {
+        setCorNumero(tipo);
       }
       falarPainel(tipo, senha, guiche);
     }
@@ -350,19 +402,32 @@
 
     // Efeito de piscar
     function piscarChamada(tipo) {
-      const senhaBox = document.getElementById('senhaBox');
+      const senhaArea = document.getElementById('senhaArea');
       const senhaNum = document.getElementById('senhaAtual');
-      senhaBox.classList.add('piscando');
+      senhaArea.classList.add('piscando');
+      senhaNum.classList.remove('azul', 'vermelho');
       if (tipo === "Agendar") {
         senhaNum.classList.add('piscando-agendar');
       } else {
         senhaNum.classList.add('piscando-agendados');
       }
       setTimeout(() => {
-        senhaBox.classList.remove('piscando');
+        senhaArea.classList.remove('piscando');
         senhaNum.classList.remove('piscando-agendar');
         senhaNum.classList.remove('piscando-agendados');
+        setCorNumero(tipo);
       }, 4900); // 7x 0.7s ~5s
+    }
+
+    // Define cor fixa do número
+    function setCorNumero(tipo) {
+      const senhaNum = document.getElementById('senhaAtual');
+      senhaNum.classList.remove('azul', 'vermelho');
+      if (tipo === "Agendar") {
+        senhaNum.classList.add('azul');
+      } else if (tipo === "Agendados") {
+        senhaNum.classList.add('vermelho');
+      }
     }
 
     // Voz painel
