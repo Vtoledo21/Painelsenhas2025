@@ -4,9 +4,15 @@
   <meta charset="UTF-8">
   <title>Guichê - Painel de Senhas</title>
   <style>
+    :root {
+      --verde-hcpa: #276e5b;
+      --amarelo-hcpa: #ffe900;
+      --preto: #000;
+      --cinza-texto: #fffbe5;
+    }
     body {
-      background: #222;
-      color: #ffe99c;
+      background: var(--verde-hcpa);
+      color: var(--amarelo-hcpa);
       font-family: Arial, Helvetica, sans-serif;
       display: flex;
       justify-content: center;
@@ -15,7 +21,7 @@
       margin: 0;
     }
     .container {
-      background: #333;
+      background: var(--preto);
       border-radius: 15px;
       padding: 36px 40px;
       box-shadow: 0 0 12px #0007;
@@ -23,33 +29,93 @@
       min-width: 350px;
     }
     .titulo {
-      font-size: 2em;
-      color: #ffe900;
+      font-size: 2.2em;
+      color: var(--amarelo-hcpa);
       margin-bottom: 18px;
       font-weight: bold;
+      letter-spacing: 1px;
     }
-    label, input, select { font-size: 1.1em; margin: 4px 0; }
+    label, input, select { font-size: 1.2em; margin: 4px 0; }
     input, select {
       padding: 6px;
       border-radius: 6px;
       border: none;
-      margin-bottom: 12px;
+      margin-bottom: 14px;
       width: 80%;
     }
     .botao {
-      background: #ffe900;
-      color: #222;
+      background: var(--amarelo-hcpa);
+      color: var(--preto);
       border: none;
       border-radius: 8px;
-      font-size: 1.2em;
-      padding: 10px 24px;
+      font-size: 1.25em;
+      padding: 12px 24px;
       margin: 10px 8px;
       cursor: pointer;
       font-weight: bold;
       transition: background 0.2s;
     }
-    .botao:hover { background: #ffe99c; }
+    .botao:hover { background: #fffbe5; }
     .senha-form { margin-bottom: 22px; }
+    .admin-btn {
+      margin-top: 24px;
+      background: #2196F3;
+      color: #fff;
+      font-weight: bold;
+      border-radius: 8px;
+      padding: 8px 22px;
+      border: none;
+      cursor: pointer;
+      font-size: 1.1em;
+      transition: background 0.2s;
+    }
+    .admin-btn:hover { background: #1565c0; }
+    .admin-area {
+      background: #222;
+      border-radius: 10px;
+      padding: 24px 22px;
+      color: #ffe900;
+      font-size: 1.15em;
+      box-shadow: 0 0 8px #0004;
+      margin-top: 18px;
+      display: none;
+    }
+    .admin-area label {
+      display: block;
+      margin-bottom: 7px;
+      font-weight: bold;
+      font-size: 1.2em;
+    }
+    .admin-area input[type="number"] {
+      width: 110px;
+      margin-bottom: 12px;
+      font-size: 1.15em;
+      padding: 5px;
+    }
+    .admin-area .botao {
+      margin-top: 10px;
+      background: #0074d9;
+      color: #fff;
+      font-size: 1.15em;
+    }
+    .admin-area .botao:hover {
+      background: #004b8a;
+    }
+    .admin-area .fechar-btn {
+      background: #ff4040;
+      color: #fff;
+      font-size: 1em;
+      margin-left: 12px;
+    }
+    .admin-area .fechar-btn:hover {
+      background: #a90000;
+    }
+    .admin-area .msg-admin {
+      margin-top: 18px;
+      color: #fffbe5;
+      font-size: 1em;
+      font-weight: bold;
+    }
   </style>
   <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-app-compat.js"></script>
@@ -59,7 +125,7 @@
   <div class="container" id="guiche-container" style="display:none;">
     <div class="titulo">Guichê</div>
     <label for="guicheNum">Número do Guichê:</label>
-    <input type="number" id="guicheNum" min="1" max="6" value="1" required><br>
+    <input type="number" id="guicheNum" min="1" max="20" value="1" required><br>
     <label for="tipoSenha">Tipo de Senha:</label>
     <select id="tipoSenha">
       <option value="Agendar">Agendar</option>
@@ -69,6 +135,8 @@
     <button class="botao" onclick="chamarSenha('normal')">Chamar Senha</button>
     <button class="botao" onclick="chamarSenha('repetir')">Rechamar</button>
     <div id="msg" style="color:yellow;margin-top:10px;"></div>
+    <button class="admin-btn" onclick="abrirAdmin()">Administração</button>
+    <div id="adminArea" class="admin-area"></div>
   </div>
   <div id="senha-protect" class="senha-form">
     <label for="senha">Senha de acesso:</label>
@@ -77,8 +145,11 @@
     <div id="msgSenha" style="color:red;margin-top:8px;"></div>
   </div>
   <script>
-    // Senha de acesso
+    // Senha de acesso principal
     const senhaCorreta = "radiologia2025";
+    // Senha administrativa
+    const senhaAdmin = "admradio";
+
     function checarSenha() {
       const senhaInput = document.getElementById("senha").value;
       if (senhaInput === senhaCorreta) {
@@ -142,7 +213,7 @@
     }
 
     function enviarSenha(tipo, senha, guiche, repetir) {
-      document.getElementById("msg").textContent = `Chamando: ${tipo} - Senha ${senha} Guichê ${guiche}`;
+      document.getElementById("msg").textContent = `Chamando: ${tipo} - Senha ${senha} Guichê ${parseInt(guiche,10)}`;
 
       // Atualiza histórico local (máx 4)
       historico.push({ tipo, senha, guiche });
@@ -154,6 +225,69 @@
         senha,
         guiche,
         historico: historico.slice(-4)
+      });
+    }
+
+    // ADMINISTRAÇÃO
+    function abrirAdmin() {
+      const adminDiv = document.getElementById("adminArea");
+      adminDiv.innerHTML = `
+        <label for="adminSenha">Senha administrativa:</label>
+        <input type="password" id="adminSenha" autofocus>
+        <button class="botao" onclick="checarAdmin()">Entrar</button>
+        <button class="fechar-btn botao" onclick="fecharAdmin()">Fechar</button>
+        <div id="msgAdmin" class="msg-admin"></div>
+      `;
+      adminDiv.style.display = "block";
+    }
+
+    function fecharAdmin() {
+      document.getElementById("adminArea").style.display = "none";
+    }
+
+    // ADMIN
+    function checarAdmin() {
+      const senhaInput = document.getElementById("adminSenha").value;
+      const msgAdmin = document.getElementById("msgAdmin");
+      if (senhaInput === senhaAdmin) {
+        mostrarCamposAdmin();
+        msgAdmin.textContent = "";
+      } else {
+        msgAdmin.textContent = "Senha administrativa incorreta!";
+      }
+    }
+
+    function mostrarCamposAdmin() {
+      db.ref("contadoresSenha").once("value", snap => {
+        const val = snap.val() || {Agendar: 0, Agendados: 0};
+        const adminDiv = document.getElementById("adminArea");
+        adminDiv.innerHTML = `
+          <div style="margin-bottom:18px;font-size:1.2em;font-weight:bold;color:#ffe900;">Ajuste dos Contadores</div>
+          <label for="novoAgendar">Agendar: </label>
+          <input type="number" id="novoAgendar" min="0" max="999" value="${val.Agendar}">
+          <br>
+          <label for="novoAgendados">Agendados: </label>
+          <input type="number" id="novoAgendados" min="0" max="999" value="${val.Agendados}">
+          <br>
+          <button class="botao" onclick="atualizarContadores()">Atualizar</button>
+          <button class="fechar-btn botao" onclick="fecharAdmin()">Fechar</button>
+          <div id="msgAdmin" class="msg-admin"></div>
+        `;
+      });
+    }
+
+    function atualizarContadores() {
+      let novoAgendar = parseInt(document.getElementById("novoAgendar").value,10);
+      let novoAgendados = parseInt(document.getElementById("novoAgendados").value,10);
+      if (isNaN(novoAgendar) || novoAgendar < 0 || novoAgendar > 999 ||
+          isNaN(novoAgendados) || novoAgendados < 0 || novoAgendados > 999) {
+        document.getElementById("msgAdmin").textContent = "Digite números válidos entre 0 e 999.";
+        return;
+      }
+      contadores.Agendar = novoAgendar;
+      contadores.Agendados = novoAgendados;
+      db.ref("contadoresSenha").set(contadores, (err)=>{
+        document.getElementById("msgAdmin").textContent = err ? "Erro ao atualizar!" : "Contadores atualizados com sucesso!";
       });
     }
   </script>
