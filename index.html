@@ -4,145 +4,214 @@
   <meta charset="UTF-8">
   <title>Painel de Senhas - Radiologia HCPA</title>
   <style>
+    :root {
+      --verde-hcpa: #276e5b;
+      --amarelo-hcpa: #ffe900;
+      --laranja-chamada: #ffa500;
+      --vermelho-chamada: #d70000;
+      --azul-agendar: #0074d9;
+      --azul-pisca: #009fe3;
+      --vermelho-pisca: #ff4040;
+      --cinza-texto: #fffbe5;
+      --preto: #000;
+    }
     body {
-      background: #000;
-      color: #ffe99c;
+      background: var(--verde-hcpa);
+      color: var(--amarelo-hcpa);
       font-family: Arial, Helvetica, sans-serif;
       margin: 0;
       padding: 0;
       overflow: hidden;
+      width: 1920px;
+      height: 1080px;
     }
     .header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: #000;
-      padding: 10px 40px 0 40px;
-      border-bottom: 3px solid #ffe99c;
-      height: 96px;
+      background: var(--verde-hcpa);
+      padding: 0 60px;
+      border-bottom: 4px solid var(--amarelo-hcpa);
+      height: 140px;
     }
     .logo {
-      height: 96px;
-      width: 96px;
+      height: 120px;
+      width: 120px;
       object-fit: contain;
-      background: #000;
-      border-radius: 10px;
+      background: var(--preto);
+      border-radius: 16px;
+      margin-right: 20px;
     }
     .titulo {
       flex: 1;
       text-align: center;
-      font-size: 2.7em;
+      font-size: 3.7em;
       font-weight: bold;
-      color: #ffe900;
+      color: var(--amarelo-hcpa);
       letter-spacing: 2px;
-      text-shadow: 2px 2px 4px #222;
+      text-shadow: 2px 2px 4px var(--preto);
     }
     .logo-hcpa {
-      height: 78px;
-      width: 78px;
+      height: 110px;
+      width: 110px;
       object-fit: contain;
-      background: #000;
-      border-radius: 10px;
+      background: var(--preto);
+      border-radius: 16px;
+      margin-left: 20px;
     }
     .painel {
       display: flex;
-      height: calc(100vh - 96px);
+      height: calc(100vh - 140px);
       width: 100vw;
+      background: var(--verde-hcpa);
     }
     .esquerda {
-      flex: 1.5;
+      flex: 1.6;
       display: flex;
       flex-direction: column;
       justify-content: flex-start;
-      align-items: stretch;
-      background: #000;
-      border-right: 3px solid #ffe99c;
+      background: var(--verde-hcpa);
+      border-right: 4px solid var(--amarelo-hcpa);
       height: 100%;
+      padding-top: 0;
     }
     .tipo-exame {
-      font-size: 2.3em;
-      background: #000;
-      color: #ffe900;
-      text-align: center;
+      font-size: 2.7em;
+      color: var(--amarelo-hcpa);
+      background: var(--preto);
+      text-align: left;
       font-weight: bold;
-      padding: 15px 0;
+      padding: 10px 0 10px 48px;
       letter-spacing: 1px;
+      border-bottom: 4px solid var(--amarelo-hcpa);
+      margin-bottom: 0;
     }
     .senha-box {
-      background: #d70000;
-      color: #ffe900;
+      background: var(--verde-hcpa);
+      color: var(--amarelo-hcpa);
       text-align: center;
-      padding: 20px 0;
+      padding: 0;
       margin: 0;
-      font-size: 1.2em;
+      font-size: 1.4em;
       font-weight: bold;
-      border-top: 5px solid #ffe99c;
-      border-bottom: 5px solid #ffe99c;
+      border-top: none;
+      border-bottom: none;
+      min-height: 335px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+    .senha-label {
+      color: var(--amarelo-hcpa);
+      font-size: 3em;
+      font-weight: bold;
+      margin-top: 22px;
+      margin-bottom: 0px;
+      letter-spacing: 3px;
+      text-shadow: 2px 2px 4px var(--preto);
     }
     .senha-numero {
-      font-size: 7em;
+      font-size: 7.5em;
       font-weight: bold;
-      letter-spacing: 4px;
-      color: #ffe900;
+      letter-spacing: 10px;
       margin: 0;
-      text-shadow: 2px 2px 7px #222;
+      padding: 0;
+      text-shadow: 2px 2px 7px var(--preto);
+      transition: color 0.3s, background 0.3s;
+      background: transparent;
+    }
+    .senha-box.piscando {
+      animation: pisca-fundo 0.7s alternate 7;
+    }
+    @keyframes pisca-fundo {
+      0%   { background: var(--vermelho-chamada);}
+      35%  { background: var(--laranja-chamada);}
+      65%  { background: var(--vermelho-chamada);}
+      100% { background: var(--laranja-chamada);}
+    }
+    .senha-numero.piscando-agendar {
+      animation: pisca-numero-azul 0.7s alternate 7;
+    }
+    @keyframes pisca-numero-azul {
+      0%   { color: var(--azul-agendar);}
+      50%  { color: var(--azul-pisca);}
+      100% { color: var(--azul-agendar);}
+    }
+    .senha-numero.piscando-agendados {
+      animation: pisca-numero-vermelho 0.7s alternate 7;
+    }
+    @keyframes pisca-numero-vermelho {
+      0%   { color: var(--vermelho-chamada);}
+      50%  { color: var(--vermelho-pisca);}
+      100% { color: var(--vermelho-chamada);}
     }
     .guiche-box {
-      background: #000;
-      color: #fffbe5;
+      background: var(--preto);
+      color: var(--cinza-texto);
       text-align: center;
-      font-size: 3.7em;
+      font-size: 3em;
       font-weight: bold;
       padding: 25px 0 13px 0;
-      border-bottom: 5px solid #ffe99c;
+      border-bottom: 4px solid var(--amarelo-hcpa);
       margin-bottom: 0px;
+      height: 90px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
     .direita {
-      flex: 1.2;
-      background: #000;
-      color: #ffe99c;
+      flex: 1.1;
+      background: var(--verde-hcpa);
+      color: var(--amarelo-hcpa);
       display: flex;
       flex-direction: column;
       justify-content: flex-start;
       align-items: stretch;
-      padding: 0 10px;
+      padding: 0 16px;
     }
     .historico-header {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      font-size: 1.7em;
+      font-size: 1.5em;
       font-weight: bold;
       text-align: center;
-      background: #000;
-      margin-top: 18px;
+      background: var(--verde-hcpa);
+      margin-top: 12px;
       padding-bottom: 8px;
-      border-bottom: 2px solid #ffe99c;
+      border-bottom: 2px solid var(--amarelo-hcpa);
     }
     .historico-lista {
       list-style: none;
       margin: 0;
       padding: 0;
-      font-size: 2.2em;
+      font-size: 2em;
       text-align: left;
-      min-height: 270px;
+      min-height: 265px;
     }
     .historico-lista li {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      padding: 8px 0;
+      padding: 7px 0;
       border-bottom: 1px solid #ffe99c50;
-      color: #ffe99c;
-      background: #000;
+      color: var(--amarelo-hcpa);
+      background: var(--verde-hcpa);
     }
     .aguarde {
-      background: #000;
-      color: #ffe99c;
+      background: var(--preto);
+      color: var(--amarelo-hcpa);
       text-align: center;
-      font-size: 2.7em;
+      font-size: 2.3em;
       font-weight: bold;
-      margin-top: 26px;
-      padding: 18px;
-      border-top: 2px solid #ffe99c;
+      margin-top: 16px;
+      padding: 14px;
+      border-top: 2px solid var(--amarelo-hcpa);
+      height: 78px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      letter-spacing: 2px;
     }
     .senha-form {
       position: absolute;
@@ -195,8 +264,8 @@
     <div class="painel">
       <div class="esquerda">
         <div id="tipoExame" class="tipo-exame">---</div>
-        <div class="senha-box">
-          <div>SENHA</div>
+        <div id="senhaBox" class="senha-box">
+          <div class="senha-label">SENHA</div>
           <div id="senhaAtual" class="senha-numero">---</div>
         </div>
         <div id="guicheBox" class="guiche-box">Guichê --</div>
@@ -238,7 +307,9 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // Painel escuta as chamadas em tempo real
+    let ultimaSenha = "";
+    let ultimaTipo = "";
+
     db.ref("chamadaSenha").on("value", snapshot => {
       const dados = snapshot.val();
       if (!dados) return;
@@ -246,8 +317,9 @@
       atualizarHistorico(dados.historico || []);
     });
 
-    // Atualiza painel e fala senha
+    // Atualiza painel e anima chamado
     function atualizarPainel(tipo, senha, guiche) {
+      // Textos
       if(tipo === "Agendar") {
         document.getElementById('tipoExame').textContent = "Exames para agendar";
       } else if(tipo === "Agendados") {
@@ -257,8 +329,15 @@
       }
       document.getElementById('senhaAtual').textContent = senha;
       document.getElementById('guicheBox').textContent = `Guichê ${parseInt(guiche, 10)}`;
+      // Pisca animação apenas se senha mudou
+      if (senha !== ultimaSenha || tipo !== ultimaTipo) {
+        piscarChamada(tipo);
+        ultimaSenha = senha;
+        ultimaTipo = tipo;
+      }
       falarPainel(tipo, senha, guiche);
     }
+
     function atualizarHistorico(lista) {
       const historico = document.getElementById('historicoLista');
       historico.innerHTML = '';
@@ -268,6 +347,25 @@
         historico.appendChild(li);
       });
     }
+
+    // Efeito de piscar
+    function piscarChamada(tipo) {
+      const senhaBox = document.getElementById('senhaBox');
+      const senhaNum = document.getElementById('senhaAtual');
+      senhaBox.classList.add('piscando');
+      if (tipo === "Agendar") {
+        senhaNum.classList.add('piscando-agendar');
+      } else {
+        senhaNum.classList.add('piscando-agendados');
+      }
+      setTimeout(() => {
+        senhaBox.classList.remove('piscando');
+        senhaNum.classList.remove('piscando-agendar');
+        senhaNum.classList.remove('piscando-agendados');
+      }, 4900); // 7x 0.7s ~5s
+    }
+
+    // Voz painel
     function falarPainel(tipo, senha, guiche) {
       const guicheVoz = parseInt(guiche, 10);
       let frase = tipo === "Agendar"
@@ -278,7 +376,7 @@
       const synth = window.speechSynthesis;
       const utter = new SpeechSynthesisUtterance(frase);
       utter.lang = "pt-BR";
-      synth.cancel(); // Garante que não sobreponha falas
+      synth.cancel();
       synth.speak(utter);
     }
   </script>
