@@ -394,9 +394,9 @@
     function atualizarPainel(tipo, senha, guiche) {
       // Altera texto da barra preta conforme tipo
       if(tipo === "Agendar") {
-        document.getElementById('tipoExame').textContent = "Realizar Exames";
-      } else if(tipo === "Agendados") {
         document.getElementById('tipoExame').textContent = "Exames Agendados";
+      } else if(tipo === "Agendados") {
+        document.getElementById('tipoExame').textContent = "Realizar Exames";
       } else {
         document.getElementById('tipoExame').textContent = "---";
       }
@@ -477,6 +477,7 @@
   </script>
 </body>
 </html>
+
 
 
 
