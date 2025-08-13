@@ -233,7 +233,7 @@
       width: 37vw; min-width: 100px; max-width: 37vw;
       display: flex; align-items: center; justify-content: center;
       color: var(--amarelo-hcpa);
-      font-size: clamp(1.1rem, 3.2vh,2.5vw);
+      font-size: clamp(4.1rem, 4.2vh,5.5vw);
       font-weight: bold;
       letter-spacing: 0.11em; text-shadow: var(--shadow);
       height: 100%; background: none;
@@ -466,7 +466,7 @@
       let frase = tipo === "Agendar"
         ? `Exame para agendar, senha ${senha}, guichê ${guicheVoz}`
         : tipo === "Agendados"
-        ? `Exame agendado, senha ${senha}, guichê ${guicheVoz}`
+        ? `Realizar Exames, senha ${senha}, guichê ${guicheVoz}`
         : `Senha ${senha}, guichê ${guicheVoz}`;
       const synth = window.speechSynthesis;
       const utter = new SpeechSynthesisUtterance(frase);
@@ -477,6 +477,7 @@
   </script>
 </body>
 </html>
+
 
 
 
