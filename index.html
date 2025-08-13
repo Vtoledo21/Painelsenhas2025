@@ -394,9 +394,9 @@
     function atualizarPainel(tipo, senha, guiche) {
       // Altera texto da barra preta conforme tipo
       if(tipo === "Agendar") {
-        document.getElementById('tipoExame').textContent = "Exames para Agendar";
+        document.getElementById('tipoExame').textContent = "EXAMES PARA AGENDAR";
       } else if(tipo === "Agendados") {
-        document.getElementById('tipoExame').textContent = "Realizar Exames";
+        document.getElementById('tipoExame').textContent = "REALIZAR EXAMES";
       } else {
         document.getElementById('tipoExame').textContent = "---";
       }
@@ -464,9 +464,9 @@
     function falarPainel(tipo, senha, guiche) {
       const guicheVoz = parseInt(guiche, 10);
       let frase = tipo === "Agendar"
-        ? `Exames para agendar, senha ${senha}, guichê ${guicheVoz}`
+        ? `EXAMES PARA AGENDAR, senha ${senha}, guichê ${guicheVoz}`
         : tipo === "Agendados"
-        ? `Realizar Exames, senha ${senha}, guichê ${guicheVoz}`
+        ? `REALIZAR EXAMES, senha ${senha}, guichê ${guicheVoz}`
         : `Senha ${senha}, guichê ${guicheVoz}`;
       const synth = window.speechSynthesis;
       const utter = new SpeechSynthesisUtterance(frase);
@@ -477,6 +477,7 @@
   </script>
 </body>
 </html>
+
 
 
 
