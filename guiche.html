@@ -237,9 +237,7 @@
     <div id="msgSenha" style="color:red;margin-top:8px;"></div>
   </div>
   <script>
-    // Senha para usuários normais
     const senhaCorreta = "radiologia2025";
-    // Usuário e senha admin
     const usuarioAdmin = "vtcosta";
     const senhaAdmin = "admtoledo";
 
@@ -384,7 +382,6 @@
       document.getElementById("adminArea").style.display = "none";
     }
 
-    // Função para limpar todos os atendimentos do banco de dados
     function limparAtendimentos() {
       if (confirm("Tem certeza que deseja apagar TODOS os atendimentos registrados? Esta ação não pode ser desfeita.")) {
         db.ref("atendimentos").set(null, (err)=>{
@@ -465,11 +462,33 @@
         const agora = new Date();
         let workbook = XLSX.utils.book_new();
 
+        // Resumo para todos usuários - nova aba
+        let resumoDados = [["Usuário", "Atendimentos Dia", "Atendimentos Mês", "Atendimentos Ano"]];
+        for (let usuario in val) {
+          let atendimentos = Object.values(val[usuario]);
+          if (!atendimentos.length) continue;
+          let totalDia = atendimentos.filter(a=>{
+            let d = new Date(a.timestamp);
+            return d.toISOString().slice(0,10) === agora.toISOString().slice(0,10);
+          }).length;
+          let totalMes = atendimentos.filter(a=>{
+            let d = new Date(a.timestamp);
+            return d.getMonth() === agora.getMonth() && d.getFullYear() === agora.getFullYear();
+          }).length;
+          let totalAno = atendimentos.filter(a=>{
+            let d = new Date(a.timestamp);
+            return d.getFullYear() === agora.getFullYear();
+          }).length;
+          resumoDados.push([usuario, totalDia, totalMes, totalAno]);
+        }
+        let wsResumo = XLSX.utils.aoa_to_sheet(resumoDados);
+        XLSX.utils.book_append_sheet(workbook, wsResumo, "Resumo");
+
+        // Abas detalhadas por usuário
         for (let usuario in val) {
           let atendimentos = Object.values(val[usuario]);
           if (!atendimentos.length) continue;
 
-          // Detalhado filtrado conforme aba
           let atendimentosFiltrados = atendimentos.filter(a => {
             let d = new Date(a.timestamp);
             if (aba==='dia') return d.toISOString().slice(0,10) === agora.toISOString().slice(0,10);
@@ -479,7 +498,6 @@
           });
           atendimentosFiltrados.sort((a,b)=>a.timestamp-b.timestamp);
 
-          // Totais por dia, mês, ano
           let totalDia = atendimentos.filter(a=>{
             let d = new Date(a.timestamp);
             return d.toISOString().slice(0,10) === agora.toISOString().slice(0,10);
