@@ -4,8 +4,126 @@
   <meta charset="UTF-8">
   <title>Guichê - Painel de Senhas</title>
   <style>
-    /* ... (SEU CSS INTACTO, não removi nada) ... */
-    /* Adicionei só o bloco para o relatório */
+    :root {
+      --verde-hcpa: #276e5b;
+      --amarelo-hcpa: #ffe900;
+      --preto: #000;
+      --cinza-texto: #fffbe5;
+    }
+    body {
+      background: var(--verde-hcpa);
+      color: var(--amarelo-hcpa);
+      font-family: Arial, Helvetica, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .container {
+      background: var(--preto);
+      border-radius: 15px;
+      padding: 36px 40px;
+      box-shadow: 0 0 12px #0007;
+      text-align: center;
+      min-width: 350px;
+      max-width: 650px;
+      margin: auto;
+    }
+    .titulo {
+      font-size: 2.2em;
+      color: var(--amarelo-hcpa);
+      margin-bottom: 18px;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+    label, input, select { font-size: 1.2em; margin: 4px 0; }
+    input, select {
+      padding: 6px;
+      border-radius: 6px;
+      border: none;
+      margin-bottom: 14px;
+      width: 80%;
+      box-sizing: border-box;
+    }
+    .botao {
+      background: var(--amarelo-hcpa);
+      color: var(--preto);
+      border: none;
+      border-radius: 8px;
+      font-size: 1.25em;
+      padding: 12px 24px;
+      margin: 10px 8px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.2s;
+    }
+    .botao:hover { background: #fffbe5; }
+    .senha-form { margin-bottom: 22px; }
+    .admin-btn {
+      margin-top: 24px;
+      background: #2196F3;
+      color: #fff;
+      font-weight: bold;
+      border-radius: 8px;
+      padding: 8px 22px;
+      border: none;
+      cursor: pointer;
+      font-size: 1.1em;
+      transition: background 0.2s;
+    }
+    .admin-btn:hover { background: #1565c0; }
+    .admin-area {
+      background: #222;
+      border-radius: 10px;
+      padding: 24px 22px;
+      color: #ffe900;
+      font-size: 1.15em;
+      box-shadow: 0 0 8px #0004;
+      margin-top: 18px;
+      display: none;
+      text-align: left;
+      margin-left: auto;
+      margin-right: auto;
+      max-width: 420px;
+    }
+    .admin-area label {
+      display: block;
+      margin-bottom: 7px;
+      font-weight: bold;
+      font-size: 1.2em;
+    }
+    .admin-area input[type="number"] {
+      width: 110px;
+      margin-bottom: 12px;
+      font-size: 1.15em;
+      padding: 5px;
+    }
+    .admin-area .botao {
+      margin-top: 10px;
+      background: #0074d9;
+      color: #fff;
+      font-size: 1.15em;
+    }
+    .admin-area .botao:hover {
+      background: #004b8a;
+    }
+    .admin-area .fechar-btn {
+      background: #ff4040;
+      color: #fff;
+      font-size: 1em;
+      margin-left: 12px;
+    }
+    .admin-area .fechar-btn:hover {
+      background: #a90000;
+    }
+    .admin-area .msg-admin {
+      margin-top: 18px;
+      color: #fffbe5;
+      font-size: 1em;
+      font-weight: bold;
+    }
+    /* Relatório */
     .relatorio-area {
       background: #222;
       border-radius: 10px;
@@ -17,10 +135,14 @@
       display: none;
       max-width: 600px;
       overflow-x: auto;
+      margin-left: auto;
+      margin-right: auto;
+      text-align: left;
     }
     .relatorio-table th, .relatorio-table td {
       padding: 7px 11px;
       border-bottom: 1px solid #ffe90044;
+      text-align: center;
     }
     .relatorio-table th {
       background: #276e5b;
@@ -45,6 +167,9 @@
       transition: background 0.2s;
     }
     .aba-btn.active { background: #ffe900; color: #276e5b; }
+    @media (max-width: 700px) {
+      .container, .admin-area, .relatorio-area { min-width: 95vw; max-width: 97vw; padding-left: 4vw; padding-right: 4vw;}
+    }
   </style>
   <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-app-compat.js"></script>
@@ -70,7 +195,6 @@
     <div id="adminArea" class="admin-area"></div>
     <div id="relatorioArea" class="relatorio-area"></div>
   </div>
-  <!-- MODIFICADO: Login agora pede usuário e senha -->
   <div id="senha-protect" class="senha-form">
     <label for="usuario">Usuário:</label>
     <input type="text" id="usuario" autofocus>
@@ -118,7 +242,7 @@
       Agendar: 0,
       Agendados: 0
     };
-    // Histórico local para o painel (máx 4)
+    // Histórico local para o painel (máx 6)
     let historico = [];
 
     // Ao carregar, busca contadores no Firebase
