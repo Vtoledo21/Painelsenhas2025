@@ -123,6 +123,22 @@
       font-size: 1em;
       font-weight: bold;
     }
+    .admin-area .limpar-btn {
+      background: #ff9800;
+      color: #fff;
+      margin-top: 14px;
+      margin-left: 0;
+      font-size: 1.1em;
+      border-radius: 8px;
+      padding: 8px 18px;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.2s;
+    }
+    .admin-area .limpar-btn:hover {
+      background: #b36a00;
+    }
     /* Relatório */
     .relatorio-area {
       background: #222;
@@ -227,14 +243,10 @@
     const usuarioAdmin = "vtcosta";
     const senhaAdmin = "admtoledo";
 
-    // Lista de usuários autorizados (será salva no Firebase)
     let usuariosAutorizados = [];
-
-    // Usuário logado atual
     let usuarioLogado = null;
     let isAdmin = false;
 
-    // Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyAsuP9gO2sBOmzBet2b7ijljMgTsXo29lE",
       authDomain: "painel-senhas-hcpa.firebaseapp.com",
@@ -372,6 +384,15 @@
       document.getElementById("adminArea").style.display = "none";
     }
 
+    // Função para limpar todos os atendimentos do banco de dados
+    function limparAtendimentos() {
+      if (confirm("Tem certeza que deseja apagar TODOS os atendimentos registrados? Esta ação não pode ser desfeita.")) {
+        db.ref("atendimentos").set(null, (err)=>{
+          document.getElementById("msgAdmin").textContent = err ? "Erro ao limpar!" : "Dados de atendimentos apagados!";
+        });
+      }
+    }
+
     function mostrarCamposAdmin() {
       db.ref("contadoresSenha").once("value", snap => {
         const val = snap.val() || {Agendar: 0, Agendados: 0};
@@ -395,6 +416,7 @@
           ${usuariosHtml}
           <input type="text" id="novoUsuario" placeholder="Novo usuário">
           <button class="botao" onclick="adicionarUsuarioAutorizado()">Adicionar</button>
+          <button class="limpar-btn botao" onclick="limparAtendimentos()">Limpar Dados</button>
           <button class="fechar-btn botao" onclick="fecharAdmin()">Fechar</button>
           <div id="msgAdmin" class="msg-admin"></div>
         `;
@@ -416,7 +438,6 @@
       });
     }
 
-    // --------- RELATÓRIO E EXPORTAÇÃO ---------
     function abrirRelatorio() {
       if (!isAdmin) {
         document.getElementById("relatorioArea").innerHTML = `<div style="color:red;">Acesso restrito ao administrador!</div>`;
