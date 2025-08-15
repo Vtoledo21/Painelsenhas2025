@@ -188,6 +188,8 @@
   <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-database-compat.js"></script>
+  <!-- SheetJS para exportação Excel com várias abas -->
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
 </head>
 <body>
   <div class="container" id="guiche-container" style="display:none;">
@@ -430,19 +432,19 @@
       document.getElementById("relatorioArea").style.display = "none";
     }
 
-    // FORMATAR TEMPO PARA SEGUNDOS/MINUTOS/HORAS
     function formatTempo(segundos) {
       if (segundos < 60) return segundos + "s";
       if (segundos < 3600) return (segundos/60).toFixed(1) + "min";
       return (segundos/3600).toFixed(2) + "h";
     }
 
-    // Gerar e baixar relatório em Excel (CSV)
-    function exportarRelatorioExcel(aba) {
+    // Exportação Excel com abas (SheetJS)
+    function exportarRelatorioExcelDetalhado(aba) {
       db.ref("atendimentos").once("value", snap => {
         const val = snap.val() || {};
         const agora = new Date();
-        let linhas = ["Usuário,Hora,Tipo,Senha,Guichê,Intervalo"];
+        let workbook = XLSX.utils.book_new();
+
         for (let usuario in val) {
           let atendimentos = Object.values(val[usuario]);
           if (!atendimentos.length) continue;
@@ -454,22 +456,21 @@
             return true;
           });
           atendimentosFiltrados.sort((a,b)=>a.timestamp-b.timestamp);
-          let prev=null;
+
+          let dados = [["Hora", "Tipo", "Senha", "Guichê", "Intervalo"]];
+          let prev = null;
           atendimentosFiltrados.forEach(a=>{
             let tempo = prev ? formatTempo(Math.round((a.timestamp-prev.timestamp)/1000)) : "--";
-            linhas.push(`${usuario},"${new Date(a.timestamp).toLocaleString()}","${a.tipo}","${a.senha}","${a.guiche}","${tempo}"`);
+            dados.push([
+              new Date(a.timestamp).toLocaleString(),
+              a.tipo, a.senha, a.guiche, tempo
+            ]);
             prev = a;
           });
+          let ws = XLSX.utils.aoa_to_sheet(dados);
+          XLSX.utils.book_append_sheet(workbook, ws, usuario.substring(0,31));
         }
-        let csv = linhas.join("\n");
-        let blob = new Blob([csv], {type: 'text/csv'});
-        let url = URL.createObjectURL(blob);
-        let a = document.createElement("a");
-        a.href = url;
-        a.download = "relatorio_atendimentos.csv";
-        document.body.appendChild(a);
-        a.click();
-        setTimeout(()=>{document.body.removeChild(a); URL.revokeObjectURL(url);}, 2000);
+        XLSX.writeFile(workbook, "relatorio_atendimentos.xlsx");
       });
     }
 
@@ -482,7 +483,7 @@
           <button class="aba-btn ${aba==='dia'?'active':''}" onclick="mostrarRelatorio('dia')">Dia</button>
           <button class="aba-btn ${aba==='mes'?'active':''}" onclick="mostrarRelatorio('mes')">Mês</button>
           <button class="aba-btn ${aba==='ano'?'active':''}" onclick="mostrarRelatorio('ano')">Ano</button>
-          <button class="excel-btn" onclick="exportarRelatorioExcel('${aba}')">Exportar Excel</button>
+          <button class="excel-btn" onclick="exportarRelatorioExcelDetalhado('${aba}')">Exportar Excel</button>
           <button class="fechar-btn aba-btn" onclick="fecharRelatorio()">Fechar</button>
           <table class="relatorio-table">
             <tr>
