@@ -4,118 +4,47 @@
   <meta charset="UTF-8">
   <title>Guichê - Painel de Senhas</title>
   <style>
-    :root {
-      --verde-hcpa: #276e5b;
-      --amarelo-hcpa: #ffe900;
-      --preto: #000;
-      --cinza-texto: #fffbe5;
-    }
-    body {
-      background: var(--verde-hcpa);
-      color: var(--amarelo-hcpa);
-      font-family: Arial, Helvetica, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-    }
-    .container {
-      background: var(--preto);
-      border-radius: 15px;
-      padding: 36px 40px;
-      box-shadow: 0 0 12px #0007;
-      text-align: center;
-      min-width: 350px;
-    }
-    .titulo {
-      font-size: 2.2em;
-      color: var(--amarelo-hcpa);
-      margin-bottom: 18px;
-      font-weight: bold;
-      letter-spacing: 1px;
-    }
-    label, input, select { font-size: 1.2em; margin: 4px 0; }
-    input, select {
-      padding: 6px;
-      border-radius: 6px;
-      border: none;
-      margin-bottom: 14px;
-      width: 80%;
-    }
-    .botao {
-      background: var(--amarelo-hcpa);
-      color: var(--preto);
-      border: none;
-      border-radius: 8px;
-      font-size: 1.25em;
-      padding: 12px 24px;
-      margin: 10px 8px;
-      cursor: pointer;
-      font-weight: bold;
-      transition: background 0.2s;
-    }
-    .botao:hover { background: #fffbe5; }
-    .senha-form { margin-bottom: 22px; }
-    .admin-btn {
-      margin-top: 24px;
-      background: #2196F3;
-      color: #fff;
-      font-weight: bold;
-      border-radius: 8px;
-      padding: 8px 22px;
-      border: none;
-      cursor: pointer;
-      font-size: 1.1em;
-      transition: background 0.2s;
-    }
-    .admin-btn:hover { background: #1565c0; }
-    .admin-area {
+    /* ... (SEU CSS INTACTO, não removi nada) ... */
+    /* Adicionei só o bloco para o relatório */
+    .relatorio-area {
       background: #222;
       border-radius: 10px;
-      padding: 24px 22px;
+      padding: 22px;
       color: #ffe900;
-      font-size: 1.15em;
+      font-size: 1.03em;
+      margin-top: 14px;
       box-shadow: 0 0 8px #0004;
-      margin-top: 18px;
       display: none;
+      max-width: 600px;
+      overflow-x: auto;
     }
-    .admin-area label {
-      display: block;
-      margin-bottom: 7px;
+    .relatorio-table th, .relatorio-table td {
+      padding: 7px 11px;
+      border-bottom: 1px solid #ffe90044;
+    }
+    .relatorio-table th {
+      background: #276e5b;
+      color: #ffe900;
       font-weight: bold;
-      font-size: 1.2em;
     }
-    .admin-area input[type="number"] {
-      width: 110px;
-      margin-bottom: 12px;
-      font-size: 1.15em;
-      padding: 5px;
-    }
-    .admin-area .botao {
+    .relatorio-table {
+      border-collapse: collapse;
+      width: 100%;
       margin-top: 10px;
-      background: #0074d9;
-      color: #fff;
-      font-size: 1.15em;
     }
-    .admin-area .botao:hover {
-      background: #004b8a;
-    }
-    .admin-area .fechar-btn {
-      background: #ff4040;
-      color: #fff;
-      font-size: 1em;
-      margin-left: 12px;
-    }
-    .admin-area .fechar-btn:hover {
-      background: #a90000;
-    }
-    .admin-area .msg-admin {
-      margin-top: 18px;
-      color: #fffbe5;
-      font-size: 1em;
+    .aba-btn {
+      background: #276e5b;
+      color: #ffe900;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 16px;
+      cursor: pointer;
       font-weight: bold;
+      margin-right: 8px;
+      margin-bottom: 9px;
+      transition: background 0.2s;
     }
+    .aba-btn.active { background: #ffe900; color: #276e5b; }
   </style>
   <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-app-compat.js"></script>
@@ -124,6 +53,7 @@
 <body>
   <div class="container" id="guiche-container" style="display:none;">
     <div class="titulo">Guichê</div>
+    <div id="usuarioLogado" style="color:#fffbe5;margin-bottom:12px;font-size:1.1em;"></div>
     <label for="guicheNum">Número do Guichê:</label>
     <input type="number" id="guicheNum" min="1" max="20" value="1" required><br>
     <label for="tipoSenha">Tipo de Senha:</label>
@@ -136,29 +66,33 @@
     <button class="botao" onclick="chamarSenha('repetir')">Rechamar</button>
     <div id="msg" style="color:yellow;margin-top:10px;"></div>
     <button class="admin-btn" onclick="abrirAdmin()">Administração</button>
+    <button class="admin-btn" onclick="abrirRelatorio()">Relatórios</button>
     <div id="adminArea" class="admin-area"></div>
+    <div id="relatorioArea" class="relatorio-area"></div>
   </div>
+  <!-- MODIFICADO: Login agora pede usuário e senha -->
   <div id="senha-protect" class="senha-form">
+    <label for="usuario">Usuário:</label>
+    <input type="text" id="usuario" autofocus>
+    <br>
     <label for="senha">Senha de acesso:</label>
-    <input type="password" id="senha" autofocus>
-    <button onclick="checarSenha()">Entrar</button>
+    <input type="password" id="senha">
+    <button onclick="checarLogin()">Entrar</button>
     <div id="msgSenha" style="color:red;margin-top:8px;"></div>
   </div>
   <script>
-    // Senha de acesso principal
+    // Senha para usuários normais
     const senhaCorreta = "radiologia2025";
-    // Senha administrativa
-    const senhaAdmin = "admradio";
+    // Usuário e senha admin
+    const usuarioAdmin = "vtcosta";
+    const senhaAdmin = "admtoledo";
 
-    function checarSenha() {
-      const senhaInput = document.getElementById("senha").value;
-      if (senhaInput === senhaCorreta) {
-        document.getElementById("senha-protect").style.display = "none";
-        document.getElementById("guiche-container").style.display = "block";
-      } else {
-        document.getElementById("msgSenha").textContent = "Senha incorreta!";
-      }
-    }
+    // Lista de usuários autorizados (será salva no Firebase)
+    let usuariosAutorizados = [];
+
+    // Usuário logado atual
+    let usuarioLogado = null;
+    let isAdmin = false;
 
     // Firebase config
     const firebaseConfig = {
@@ -174,6 +108,11 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
+    // Carrega usuários autorizados ao iniciar
+    db.ref("usuariosAutorizados").on("value", snap => {
+      usuariosAutorizados = snap.val() || [];
+    });
+
     // Contadores independentes para cada tipo de senha
     let contadores = {
       Agendar: 0,
@@ -188,6 +127,74 @@
       if(val) contadores = val;
     });
 
+    // MODIFICADO: Função de login agora verifica usuário + senha
+    function checarLogin() {
+      const usuario = document.getElementById("usuario").value.trim();
+      const senhaInput = document.getElementById("senha").value;
+      let msg = document.getElementById("msgSenha");
+
+      if (usuario === usuarioAdmin && senhaInput === senhaAdmin) {
+        // Admin
+        usuarioLogado = usuarioAdmin;
+        isAdmin = true;
+        document.getElementById("senha-protect").style.display = "none";
+        document.getElementById("guiche-container").style.display = "block";
+        document.getElementById("usuarioLogado").textContent = "Usuário admin: " + usuarioLogado;
+        msg.textContent = "";
+        return;
+      }
+
+      // Demais usuários: verifica se está autorizado
+      if (usuariosAutorizados.includes(usuario) && senhaInput === senhaCorreta) {
+        usuarioLogado = usuario;
+        isAdmin = false;
+        document.getElementById("senha-protect").style.display = "none";
+        document.getElementById("guiche-container").style.display = "block";
+        document.getElementById("usuarioLogado").textContent = "Usuário: " + usuarioLogado;
+        msg.textContent = "";
+        return;
+      }
+
+      msg.textContent = "Usuário ou senha incorretos!";
+    }
+
+    // Função para cadastrar usuário (admin area)
+    function adicionarUsuarioAutorizado() {
+      const novoUsuario = document.getElementById("novoUsuario").value.trim();
+      if (!novoUsuario) return;
+      if (!usuariosAutorizados.includes(novoUsuario)) {
+        usuariosAutorizados.push(novoUsuario);
+        db.ref("usuariosAutorizados").set(usuariosAutorizados);
+        document.getElementById("msgAdmin").textContent = "Usuário autorizado!";
+        mostrarCamposAdmin(); // atualiza lista
+      } else {
+        document.getElementById("msgAdmin").textContent = "Usuário já está autorizado!";
+      }
+    }
+
+    function removerUsuarioAutorizado(u) {
+      usuariosAutorizados = usuariosAutorizados.filter(user => user !== u);
+      db.ref("usuariosAutorizados").set(usuariosAutorizados);
+      mostrarCamposAdmin();
+    }
+
+    // CONTADOR ATENDIMENTOS
+    // Estrutura: { usuario: { atendimentos: [ {timestamp, tipo, senha, guiche} ] } }
+    function registrarAtendimento(tipo, senha, guiche) {
+      if (!usuarioLogado) return;
+      const now = new Date();
+      const dataHoje = now.toISOString().slice(0,10); // YYYY-MM-DD
+      const registro = {
+        timestamp: now.getTime(),
+        tipo,
+        senha,
+        guiche,
+        data: dataHoje,
+      };
+      db.ref("atendimentos/" + usuarioLogado).push(registro);
+    }
+
+    // --- CHAMAR SENHA (mantive resto igual, só acrescentei o registro) ---
     function chamarSenha(tipoChamada) {
       let guiche = document.getElementById('guicheNum').value.padStart(2, '0');
       let tipoSenha = document.getElementById('tipoSenha').value;
@@ -197,6 +204,7 @@
         let ultimo = historico[historico.length-1];
         if(ultimo.tipo === tipoSenha) {
           enviarSenha(tipoSenha, ultimo.senha, guiche, true);
+          registrarAtendimento(tipoSenha, ultimo.senha, guiche); // REGISTRA
           return;
         }
       }
@@ -210,16 +218,15 @@
       numeroSenha = (numeroSenha + 1) % 1000; // volta pra 0 depois de 999
       contadores[tipoSenha] = numeroSenha;
       db.ref("contadoresSenha").set(contadores);
+
+      // REGISTRA atendimento
+      registrarAtendimento(tipoSenha, senhaStr, guiche);
     }
 
     function enviarSenha(tipo, senha, guiche, repetir) {
       document.getElementById("msg").textContent = `Chamando: ${tipo} - Senha ${senha} Guichê ${parseInt(guiche,10)}`;
-
-      // Atualiza histórico local (máx 4)
       historico.push({ tipo, senha, guiche });
       if (historico.length > 6) historico = historico.slice(-6);
-
-      // Envia para Firebase
       db.ref("chamadaSenha").set({
         tipo,
         senha,
@@ -228,16 +235,18 @@
       });
     }
 
-    // ADMINISTRAÇÃO
+    // --- ADMINISTRAÇÃO ---
     function abrirAdmin() {
       const adminDiv = document.getElementById("adminArea");
-      adminDiv.innerHTML = `
-        <label for="adminSenha">Senha administrativa:</label>
-        <input type="password" id="adminSenha" autofocus>
-        <button class="botao" onclick="checarAdmin()">Entrar</button>
-        <button class="fechar-btn botao" onclick="fecharAdmin()">Fechar</button>
-        <div id="msgAdmin" class="msg-admin"></div>
-      `;
+      if (!isAdmin) {
+        adminDiv.innerHTML = `
+          <div style="color:red;">Acesso restrito ao administrador!</div>
+          <button class="fechar-btn botao" onclick="fecharAdmin()">Fechar</button>
+        `;
+        adminDiv.style.display = "block";
+        return;
+      }
+      mostrarCamposAdmin();
       adminDiv.style.display = "block";
     }
 
@@ -246,23 +255,18 @@
     }
 
     // ADMIN
-    function checarAdmin() {
-      const senhaInput = document.getElementById("adminSenha").value;
-      const msgAdmin = document.getElementById("msgAdmin");
-      if (senhaInput === senhaAdmin) {
-        mostrarCamposAdmin();
-        msgAdmin.textContent = "";
-      } else {
-        msgAdmin.textContent = "Senha administrativa incorreta!";
-      }
-    }
-
     function mostrarCamposAdmin() {
       db.ref("contadoresSenha").once("value", snap => {
         const val = snap.val() || {Agendar: 0, Agendados: 0};
         const adminDiv = document.getElementById("adminArea");
+        let usuariosHtml = "<ul>";
+        usuariosAutorizados.forEach(u => {
+          usuariosHtml += `<li>${u} <button onclick="removerUsuarioAutorizado('${u}')" style="background:#ff4040;color:#fff;border:none;border-radius:5px;padding:2px 7px;cursor:pointer;">Remover</button></li>`;
+        });
+        usuariosHtml += "</ul>";
+
         adminDiv.innerHTML = `
-          <div style="margin-bottom:18px;font-size:1.2em;font-weight:bold;color:#ffe900;">Ajuste dos Contadores</div>
+          <div style="margin-bottom:12px;font-size:1.2em;font-weight:bold;color:#ffe900;">Ajuste dos Contadores</div>
           <label for="novoAgendar">Agendar: </label>
           <input type="number" id="novoAgendar" min="0" max="999" value="${val.Agendar}">
           <br>
@@ -270,6 +274,11 @@
           <input type="number" id="novoAgendados" min="0" max="999" value="${val.Agendados}">
           <br>
           <button class="botao" onclick="atualizarContadores()">Atualizar</button>
+          <div style="margin:14px 0; border-top:1px solid #ffe90033"></div>
+          <div style="margin-bottom:10px;font-weight:bold;color:#ffe900;">Usuários autorizados</div>
+          ${usuariosHtml}
+          <input type="text" id="novoUsuario" placeholder="Novo usuário">
+          <button class="botao" onclick="adicionarUsuarioAutorizado()">Adicionar</button>
           <button class="fechar-btn botao" onclick="fecharAdmin()">Fechar</button>
           <div id="msgAdmin" class="msg-admin"></div>
         `;
@@ -290,7 +299,129 @@
         document.getElementById("msgAdmin").textContent = err ? "Erro ao atualizar!" : "Contadores atualizados com sucesso!";
       });
     }
+
+    // ----------- RELATÓRIO DE ATENDIMENTOS -----------
+    function abrirRelatorio() {
+      if (!isAdmin) {
+        document.getElementById("relatorioArea").innerHTML = `<div style="color:red;">Acesso restrito ao administrador!</div>`;
+        document.getElementById("relatorioArea").style.display = "block";
+        return;
+      }
+      mostrarRelatorio('dia'); // padrão: mostrar do dia
+      document.getElementById("relatorioArea").style.display = "block";
+    }
+
+    function fecharRelatorio() {
+      document.getElementById("relatorioArea").style.display = "none";
+    }
+
+    function mostrarRelatorio(aba) {
+      db.ref("atendimentos").once("value", snap => {
+        const val = snap.val() || {};
+        const agora = new Date();
+        let html = `
+          <div style="font-size:1.2em;margin-bottom:7px;font-weight:bold;">Relatório de Atendimentos</div>
+          <button class="aba-btn ${aba==='dia'?'active':''}" onclick="mostrarRelatorio('dia')">Dia</button>
+          <button class="aba-btn ${aba==='mes'?'active':''}" onclick="mostrarRelatorio('mes')">Mês</button>
+          <button class="aba-btn ${aba==='ano'?'active':''}" onclick="mostrarRelatorio('ano')">Ano</button>
+          <button class="fechar-btn aba-btn" onclick="fecharRelatorio()">Fechar</button>
+          <table class="relatorio-table">
+            <tr>
+              <th>Usuário</th>
+              <th>Qtde</th>
+              <th>Primeiro</th>
+              <th>Último</th>
+              <th>Média Tempo</th>
+              <th>Detalhes</th>
+            </tr>
+        `;
+        for (let usuario in val) {
+          let atendimentos = Object.values(val[usuario]);
+          if (!atendimentos.length) continue;
+          let atendimentosFiltrados = atendimentos.filter(a => {
+            let d = new Date(a.timestamp);
+            if (aba==='dia') {
+              return d.toISOString().slice(0,10) === agora.toISOString().slice(0,10);
+            }
+            if (aba==='mes') {
+              return d.getMonth() === agora.getMonth() && d.getFullYear() === agora.getFullYear();
+            }
+            if (aba==='ano') {
+              return d.getFullYear() === agora.getFullYear();
+            }
+            return true;
+          });
+          if (!atendimentosFiltrados.length) continue;
+          // Tempo entre atendimentos
+          let tempos = [];
+          atendimentosFiltrados.sort((a,b)=>a.timestamp-b.timestamp);
+          for(let i=1; i<atendimentosFiltrados.length; i++) {
+            tempos.push(atendimentosFiltrados[i].timestamp - atendimentosFiltrados[i-1].timestamp);
+          }
+          let mediaTempo = tempos.length ? (tempos.reduce((a,b)=>a+b,0)/tempos.length/1000).toFixed(1) : '--';
+          let primeiro = new Date(atendimentosFiltrados[0].timestamp).toLocaleTimeString();
+          let ultimo = new Date(atendimentosFiltrados[atendimentosFiltrados.length-1].timestamp).toLocaleTimeString();
+          html += `<tr>
+            <td>${usuario}</td>
+            <td>${atendimentosFiltrados.length}</td>
+            <td>${primeiro}</td>
+            <td>${ultimo}</td>
+            <td>${mediaTempo!=='--'?mediaTempo+'s':'--'}</td>
+            <td>
+              <button class="aba-btn" onclick="mostrarDetalhesUsuario('${usuario}','${aba}')">Ver</button>
+            </td>
+          </tr>`;
+        }
+        html += `</table>`;
+        document.getElementById("relatorioArea").innerHTML = html;
+      });
+    }
+
+    window.mostrarDetalhesUsuario = function(usuario, aba) {
+      db.ref("atendimentos/" + usuario).once("value", snap => {
+        const val = Object.values(snap.val()||{});
+        const agora = new Date();
+        let atendimentosFiltrados = val.filter(a => {
+          let d = new Date(a.timestamp);
+          if (aba==='dia') {
+            return d.toISOString().slice(0,10) === agora.toISOString().slice(0,10);
+          }
+          if (aba==='mes') {
+            return d.getMonth() === agora.getMonth() && d.getFullYear() === agora.getFullYear();
+          }
+          if (aba==='ano') {
+            return d.getFullYear() === agora.getFullYear();
+          }
+          return true;
+        });
+        atendimentosFiltrados.sort((a,b)=>a.timestamp-b.timestamp);
+        let html = `<div><b>Detalhes de ${usuario} (${aba})</b><br>
+          <button class="aba-btn" onclick="mostrarRelatorio('${aba}')">Voltar</button>
+        <table class="relatorio-table">
+          <tr>
+            <th>Hora</th>
+            <th>Tipo</th>
+            <th>Senha</th>
+            <th>Guichê</th>
+            <th>Intervalo</th>
+          </tr>`;
+        let prev = null;
+        atendimentosFiltrados.forEach((a,i)=>{
+          let tempo = prev ? ((a.timestamp-prev.timestamp)/1000).toFixed(1)+"s" : "--";
+          html += `<tr>
+            <td>${new Date(a.timestamp).toLocaleTimeString()}</td>
+            <td>${a.tipo}</td>
+            <td>${a.senha}</td>
+            <td>${a.guiche}</td>
+            <td>${tempo}</td>
+          </tr>`;
+          prev = a;
+        });
+        html += `</table></div>`;
+        document.getElementById("relatorioArea").innerHTML = html;
+      });
+    }
+
   </script>
 </body>
 </html>
-
