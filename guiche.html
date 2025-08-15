@@ -167,6 +167,20 @@
       transition: background 0.2s;
     }
     .aba-btn.active { background: #ffe900; color: #276e5b; }
+    .excel-btn {
+      background: #4caf50;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 18px;
+      cursor: pointer;
+      font-weight: bold;
+      margin-right: 8px;
+      margin-bottom: 9px;
+      font-size: 1em;
+      transition: background 0.2s;
+    }
+    .excel-btn:hover { background: #1b5e20; }
     @media (max-width: 700px) {
       .container, .admin-area, .relatorio-area { min-width: 95vw; max-width: 97vw; padding-left: 4vw; padding-right: 4vw;}
     }
@@ -237,28 +251,23 @@
       usuariosAutorizados = snap.val() || [];
     });
 
-    // Contadores independentes para cada tipo de senha
     let contadores = {
       Agendar: 0,
       Agendados: 0
     };
-    // Histórico local para o painel (máx 6)
     let historico = [];
 
-    // Ao carregar, busca contadores no Firebase
     db.ref("contadoresSenha").once("value", snap => {
       const val = snap.val();
       if(val) contadores = val;
     });
 
-    // MODIFICADO: Função de login agora verifica usuário + senha
     function checarLogin() {
       const usuario = document.getElementById("usuario").value.trim();
       const senhaInput = document.getElementById("senha").value;
       let msg = document.getElementById("msgSenha");
 
       if (usuario === usuarioAdmin && senhaInput === senhaAdmin) {
-        // Admin
         usuarioLogado = usuarioAdmin;
         isAdmin = true;
         document.getElementById("senha-protect").style.display = "none";
@@ -267,8 +276,6 @@
         msg.textContent = "";
         return;
       }
-
-      // Demais usuários: verifica se está autorizado
       if (usuariosAutorizados.includes(usuario) && senhaInput === senhaCorreta) {
         usuarioLogado = usuario;
         isAdmin = false;
@@ -278,11 +285,9 @@
         msg.textContent = "";
         return;
       }
-
       msg.textContent = "Usuário ou senha incorretos!";
     }
 
-    // Função para cadastrar usuário (admin area)
     function adicionarUsuarioAutorizado() {
       const novoUsuario = document.getElementById("novoUsuario").value.trim();
       if (!novoUsuario) return;
@@ -290,7 +295,7 @@
         usuariosAutorizados.push(novoUsuario);
         db.ref("usuariosAutorizados").set(usuariosAutorizados);
         document.getElementById("msgAdmin").textContent = "Usuário autorizado!";
-        mostrarCamposAdmin(); // atualiza lista
+        mostrarCamposAdmin();
       } else {
         document.getElementById("msgAdmin").textContent = "Usuário já está autorizado!";
       }
@@ -302,12 +307,10 @@
       mostrarCamposAdmin();
     }
 
-    // CONTADOR ATENDIMENTOS
-    // Estrutura: { usuario: { atendimentos: [ {timestamp, tipo, senha, guiche} ] } }
     function registrarAtendimento(tipo, senha, guiche) {
       if (!usuarioLogado) return;
       const now = new Date();
-      const dataHoje = now.toISOString().slice(0,10); // YYYY-MM-DD
+      const dataHoje = now.toISOString().slice(0,10);
       const registro = {
         timestamp: now.getTime(),
         tipo,
@@ -318,32 +321,23 @@
       db.ref("atendimentos/" + usuarioLogado).push(registro);
     }
 
-    // --- CHAMAR SENHA (mantive resto igual, só acrescentei o registro) ---
     function chamarSenha(tipoChamada) {
       let guiche = document.getElementById('guicheNum').value.padStart(2, '0');
       let tipoSenha = document.getElementById('tipoSenha').value;
-
-      // Se for rechamar, só repete a última senha do tipo escolhido
       if(tipoChamada === 'repetir' && historico.length > 0) {
         let ultimo = historico[historico.length-1];
         if(ultimo.tipo === tipoSenha) {
           enviarSenha(tipoSenha, ultimo.senha, guiche, true);
-          registrarAtendimento(tipoSenha, ultimo.senha, guiche); // REGISTRA
+          registrarAtendimento(tipoSenha, ultimo.senha, guiche);
           return;
         }
       }
-
-      // Gera próxima senha para o tipo selecionado
       let numeroSenha = contadores[tipoSenha];
       let senhaStr = String(numeroSenha).padStart(3, '0');
       enviarSenha(tipoSenha, senhaStr, guiche, false);
-
-      // Atualiza contador do tipo selecionado
-      numeroSenha = (numeroSenha + 1) % 1000; // volta pra 0 depois de 999
+      numeroSenha = (numeroSenha + 1) % 1000;
       contadores[tipoSenha] = numeroSenha;
       db.ref("contadoresSenha").set(contadores);
-
-      // REGISTRA atendimento
       registrarAtendimento(tipoSenha, senhaStr, guiche);
     }
 
@@ -359,7 +353,6 @@
       });
     }
 
-    // --- ADMINISTRAÇÃO ---
     function abrirAdmin() {
       const adminDiv = document.getElementById("adminArea");
       if (!isAdmin) {
@@ -378,7 +371,6 @@
       document.getElementById("adminArea").style.display = "none";
     }
 
-    // ADMIN
     function mostrarCamposAdmin() {
       db.ref("contadoresSenha").once("value", snap => {
         const val = snap.val() || {Agendar: 0, Agendados: 0};
@@ -388,7 +380,6 @@
           usuariosHtml += `<li>${u} <button onclick="removerUsuarioAutorizado('${u}')" style="background:#ff4040;color:#fff;border:none;border-radius:5px;padding:2px 7px;cursor:pointer;">Remover</button></li>`;
         });
         usuariosHtml += "</ul>";
-
         adminDiv.innerHTML = `
           <div style="margin-bottom:12px;font-size:1.2em;font-weight:bold;color:#ffe900;">Ajuste dos Contadores</div>
           <label for="novoAgendar">Agendar: </label>
@@ -424,19 +415,62 @@
       });
     }
 
-    // ----------- RELATÓRIO DE ATENDIMENTOS -----------
+    // --------- RELATÓRIO E EXPORTAÇÃO ---------
     function abrirRelatorio() {
       if (!isAdmin) {
         document.getElementById("relatorioArea").innerHTML = `<div style="color:red;">Acesso restrito ao administrador!</div>`;
         document.getElementById("relatorioArea").style.display = "block";
         return;
       }
-      mostrarRelatorio('dia'); // padrão: mostrar do dia
+      mostrarRelatorio('dia');
       document.getElementById("relatorioArea").style.display = "block";
     }
 
     function fecharRelatorio() {
       document.getElementById("relatorioArea").style.display = "none";
+    }
+
+    // FORMATAR TEMPO PARA SEGUNDOS/MINUTOS/HORAS
+    function formatTempo(segundos) {
+      if (segundos < 60) return segundos + "s";
+      if (segundos < 3600) return (segundos/60).toFixed(1) + "min";
+      return (segundos/3600).toFixed(2) + "h";
+    }
+
+    // Gerar e baixar relatório em Excel (CSV)
+    function exportarRelatorioExcel(aba) {
+      db.ref("atendimentos").once("value", snap => {
+        const val = snap.val() || {};
+        const agora = new Date();
+        let linhas = ["Usuário,Hora,Tipo,Senha,Guichê,Intervalo"];
+        for (let usuario in val) {
+          let atendimentos = Object.values(val[usuario]);
+          if (!atendimentos.length) continue;
+          let atendimentosFiltrados = atendimentos.filter(a => {
+            let d = new Date(a.timestamp);
+            if (aba==='dia') return d.toISOString().slice(0,10) === agora.toISOString().slice(0,10);
+            if (aba==='mes') return d.getMonth() === agora.getMonth() && d.getFullYear() === agora.getFullYear();
+            if (aba==='ano') return d.getFullYear() === agora.getFullYear();
+            return true;
+          });
+          atendimentosFiltrados.sort((a,b)=>a.timestamp-b.timestamp);
+          let prev=null;
+          atendimentosFiltrados.forEach(a=>{
+            let tempo = prev ? formatTempo(Math.round((a.timestamp-prev.timestamp)/1000)) : "--";
+            linhas.push(`${usuario},"${new Date(a.timestamp).toLocaleString()}","${a.tipo}","${a.senha}","${a.guiche}","${tempo}"`);
+            prev = a;
+          });
+        }
+        let csv = linhas.join("\n");
+        let blob = new Blob([csv], {type: 'text/csv'});
+        let url = URL.createObjectURL(blob);
+        let a = document.createElement("a");
+        a.href = url;
+        a.download = "relatorio_atendimentos.csv";
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(()=>{document.body.removeChild(a); URL.revokeObjectURL(url);}, 2000);
+      });
     }
 
     function mostrarRelatorio(aba) {
@@ -448,6 +482,7 @@
           <button class="aba-btn ${aba==='dia'?'active':''}" onclick="mostrarRelatorio('dia')">Dia</button>
           <button class="aba-btn ${aba==='mes'?'active':''}" onclick="mostrarRelatorio('mes')">Mês</button>
           <button class="aba-btn ${aba==='ano'?'active':''}" onclick="mostrarRelatorio('ano')">Ano</button>
+          <button class="excel-btn" onclick="exportarRelatorioExcel('${aba}')">Exportar Excel</button>
           <button class="fechar-btn aba-btn" onclick="fecharRelatorio()">Fechar</button>
           <table class="relatorio-table">
             <tr>
@@ -476,13 +511,12 @@
             return true;
           });
           if (!atendimentosFiltrados.length) continue;
-          // Tempo entre atendimentos
           let tempos = [];
           atendimentosFiltrados.sort((a,b)=>a.timestamp-b.timestamp);
           for(let i=1; i<atendimentosFiltrados.length; i++) {
             tempos.push(atendimentosFiltrados[i].timestamp - atendimentosFiltrados[i-1].timestamp);
           }
-          let mediaTempo = tempos.length ? (tempos.reduce((a,b)=>a+b,0)/tempos.length/1000).toFixed(1) : '--';
+          let mediaTempo = tempos.length ? formatTempo(Math.round(tempos.reduce((a,b)=>a+b,0)/tempos.length/1000)) : '--';
           let primeiro = new Date(atendimentosFiltrados[0].timestamp).toLocaleTimeString();
           let ultimo = new Date(atendimentosFiltrados[atendimentosFiltrados.length-1].timestamp).toLocaleTimeString();
           html += `<tr>
@@ -490,7 +524,7 @@
             <td>${atendimentosFiltrados.length}</td>
             <td>${primeiro}</td>
             <td>${ultimo}</td>
-            <td>${mediaTempo!=='--'?mediaTempo+'s':'--'}</td>
+            <td>${mediaTempo}</td>
             <td>
               <button class="aba-btn" onclick="mostrarDetalhesUsuario('${usuario}','${aba}')">Ver</button>
             </td>
@@ -531,7 +565,7 @@
           </tr>`;
         let prev = null;
         atendimentosFiltrados.forEach((a,i)=>{
-          let tempo = prev ? ((a.timestamp-prev.timestamp)/1000).toFixed(1)+"s" : "--";
+          let tempo = prev ? formatTempo(Math.round((a.timestamp-prev.timestamp)/1000)) : "--";
           html += `<tr>
             <td>${new Date(a.timestamp).toLocaleTimeString()}</td>
             <td>${a.tipo}</td>
