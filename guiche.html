@@ -248,7 +248,6 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // Carrega usuários autorizados ao iniciar
     db.ref("usuariosAutorizados").on("value", snap => {
       usuariosAutorizados = snap.val() || [];
     });
@@ -438,7 +437,7 @@
       return (segundos/3600).toFixed(2) + "h";
     }
 
-    // Exportação Excel com abas (SheetJS)
+    // Exportação Excel com abas (SheetJS) e totais Dia/Mês/Ano
     function exportarRelatorioExcelDetalhado(aba) {
       db.ref("atendimentos").once("value", snap => {
         const val = snap.val() || {};
@@ -448,6 +447,8 @@
         for (let usuario in val) {
           let atendimentos = Object.values(val[usuario]);
           if (!atendimentos.length) continue;
+
+          // Detalhado filtrado conforme aba
           let atendimentosFiltrados = atendimentos.filter(a => {
             let d = new Date(a.timestamp);
             if (aba==='dia') return d.toISOString().slice(0,10) === agora.toISOString().slice(0,10);
@@ -457,7 +458,27 @@
           });
           atendimentosFiltrados.sort((a,b)=>a.timestamp-b.timestamp);
 
-          let dados = [["Hora", "Tipo", "Senha", "Guichê", "Intervalo"]];
+          // Totais por dia, mês, ano
+          let totalDia = atendimentos.filter(a=>{
+            let d = new Date(a.timestamp);
+            return d.toISOString().slice(0,10) === agora.toISOString().slice(0,10);
+          }).length;
+          let totalMes = atendimentos.filter(a=>{
+            let d = new Date(a.timestamp);
+            return d.getMonth() === agora.getMonth() && d.getFullYear() === agora.getFullYear();
+          }).length;
+          let totalAno = atendimentos.filter(a=>{
+            let d = new Date(a.timestamp);
+            return d.getFullYear() === agora.getFullYear();
+          }).length;
+
+          let dados = [
+            [`Total atendimentos Dia`, totalDia],
+            [`Total atendimentos Mês`, totalMes],
+            [`Total atendimentos Ano`, totalAno],
+            [],
+            ["Hora", "Tipo", "Senha", "Guichê", "Intervalo"]
+          ];
           let prev = null;
           atendimentosFiltrados.forEach(a=>{
             let tempo = prev ? formatTempo(Math.round((a.timestamp-prev.timestamp)/1000)) : "--";
