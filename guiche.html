@@ -139,7 +139,6 @@
     .admin-area .limpar-btn:hover {
       background: #b36a00;
     }
-    /* Relatório */
     .relatorio-area {
       background: #222;
       border-radius: 10px;
@@ -266,7 +265,8 @@
       Agendar: 0,
       Agendados: 0
     };
-    let historico = [];
+    // Histórico por guichê e tipo
+    let historicoGuiche = {}; // { guiche: {tipo: {senha, timestamp}} }
 
     db.ref("contadoresSenha").once("value", snap => {
       const val = snap.val();
@@ -332,35 +332,43 @@
       db.ref("atendimentos/" + usuarioLogado).push(registro);
     }
 
+    // Função corrigida com transação para garantir senha única por tipo
     function chamarSenha(tipoChamada) {
       let guiche = document.getElementById('guicheNum').value.padStart(2, '0');
       let tipoSenha = document.getElementById('tipoSenha').value;
-      if(tipoChamada === 'repetir' && historico.length > 0) {
-        let ultimo = historico[historico.length-1];
-        if(ultimo.tipo === tipoSenha) {
-          enviarSenha(tipoSenha, ultimo.senha, guiche, true);
-          registrarAtendimento(tipoSenha, ultimo.senha, guiche);
-          return;
+      historicoGuiche[guiche] = historicoGuiche[guiche] || {};
+
+      // Rechamar: só pode rechamar a senha que ESTE guichê chamou deste tipo
+      if (tipoChamada === 'repetir') {
+        let ultimoChamado = historicoGuiche[guiche][tipoSenha];
+        if (ultimoChamado) {
+          enviarSenha(tipoSenha, ultimoChamado.senha, guiche, true);
+          registrarAtendimento(tipoSenha, ultimoChamado.senha, guiche);
+        } else {
+          document.getElementById("msg").textContent = "Nenhuma senha para rechamar neste guichê/tipo!";
         }
+        return;
       }
-      let numeroSenha = contadores[tipoSenha];
-      let senhaStr = String(numeroSenha).padStart(3, '0');
-      enviarSenha(tipoSenha, senhaStr, guiche, false);
-      numeroSenha = (numeroSenha + 1) % 1000;
-      contadores[tipoSenha] = numeroSenha;
-      db.ref("contadoresSenha").set(contadores);
-      registrarAtendimento(tipoSenha, senhaStr, guiche);
+
+      // Chamada normal: transação
+      db.ref("contadoresSenha/" + tipoSenha).transaction(function (currentValue) {
+        if (currentValue === null || isNaN(currentValue)) currentValue = 0;
+        let senhaStr = String(currentValue).padStart(3, '0');
+        // Salva no histórico do guichê
+        historicoGuiche[guiche][tipoSenha] = { senha: senhaStr, timestamp: Date.now() };
+        enviarSenha(tipoSenha, senhaStr, guiche, false);
+        registrarAtendimento(tipoSenha, senhaStr, guiche);
+        // Retorna novo valor para salvar
+        return (currentValue + 1) % 1000;
+      });
     }
 
     function enviarSenha(tipo, senha, guiche, repetir) {
       document.getElementById("msg").textContent = `Chamando: ${tipo} - Senha ${senha} Guichê ${parseInt(guiche,10)}`;
-      historico.push({ tipo, senha, guiche });
-      if (historico.length > 6) historico = historico.slice(-6);
       db.ref("chamadaSenha").set({
         tipo,
         senha,
-        guiche,
-        historico: historico.slice(-6)
+        guiche
       });
     }
 
