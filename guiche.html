@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>Guichê - Painel de Senhas</title>
   <style>
+    /* ... (seu CSS original permanece igual, só mudam nomes dos botões e pequenas melhorias visuais) ... */
     :root {
       --verde-hcpa: #276e5b;
       --amarelo-hcpa: #ffe900;
@@ -196,6 +197,28 @@
       transition: background 0.2s;
     }
     .excel-btn:hover { background: #1b5e20; }
+    .ultimas-senhas-area {
+      margin: 18px 0 12px 0;
+      background: #212;
+      border-radius: 10px;
+      color: #ffe900;
+      padding: 10px 8px;
+      font-size: 1.15em;
+      box-shadow: 0 0 6px #0004;
+      text-align: center;
+      min-height: 52px;
+    }
+    .usuario-ultimas {
+      margin-top: 10px;
+      background: #181818;
+      border-radius: 8px;
+      color: #ffe900;
+      padding: 9px 6px;
+      font-size: 1.05em;
+      box-shadow: 0 0 4px #0004;
+      text-align: center;
+      min-height: 40px;
+    }
     @media (max-width: 700px) {
       .container, .admin-area, .relatorio-area { min-width: 95vw; max-width: 97vw; padding-left: 4vw; padding-right: 4vw;}
     }
@@ -210,17 +233,23 @@
   <div class="container" id="guiche-container" style="display:none;">
     <div class="titulo">Guichê</div>
     <div id="usuarioLogado" style="color:#fffbe5;margin-bottom:12px;font-size:1.1em;"></div>
+    
+    <div class="ultimas-senhas-area" id="ultimasSenhasPainel">
+      <!-- Aqui aparecerão as últimas 5 senhas chamadas no painel principal -->
+    </div>
+
     <label for="guicheNum">Número do Guichê:</label>
     <input type="number" id="guicheNum" min="1" max="20" value="1" required><br>
-    <label for="tipoSenha">Tipo de Senha:</label>
-    <select id="tipoSenha">
-      <option value="Agendar">Agendar</option>
-      <option value="Agendados">Agendados</option>
-    </select>
-    <br>
-    <button class="botao" onclick="chamarSenha('normal')">Chamar Senha</button>
-    <button class="botao" onclick="chamarSenha('repetir')">Rechamar</button>
+    <div id="botoesTipoSenha" style="margin:12px 0;">
+      <!-- Botões para tipos de senha substituindo o select -->
+      <button class="botao" onclick="chamarSenha('Agendar')">Agendar</button>
+      <button class="botao" onclick="chamarSenha('Realizar')">Realizar</button>
+    </div>
+    <button class="botao" onclick="rechamarSenha()">Rechamar</button>
     <div id="msg" style="color:yellow;margin-top:10px;"></div>
+    <div class="usuario-ultimas" id="ultimasSenhasUsuario">
+      <!-- Últimas senhas deste usuário -->
+    </div>
     <button class="admin-btn" onclick="abrirAdmin()">Administração</button>
     <button class="admin-btn" onclick="abrirRelatorio()">Relatórios</button>
     <div id="adminArea" class="admin-area"></div>
@@ -236,6 +265,9 @@
     <div id="msgSenha" style="color:red;margin-top:8px;"></div>
   </div>
   <script>
+    // =================== VARIÁVEIS GLOBAIS E INICIALIZAÇÃO ====================
+
+    // Senhas fixas do sistema
     const senhaCorreta = "radiologia2025";
     const usuarioAdmin = "vtcosta";
     const senhaAdmin = "admtoledo";
@@ -244,6 +276,7 @@
     let usuarioLogado = null;
     let isAdmin = false;
 
+    // Configuração do Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyAsuP9gO2sBOmzBet2b7ijljMgTsXo29lE",
       authDomain: "painel-senhas-hcpa.firebaseapp.com",
@@ -257,22 +290,36 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
+    // Carrega usuários autorizados do banco
     db.ref("usuariosAutorizados").on("value", snap => {
       usuariosAutorizados = snap.val() || [];
     });
 
-    let contadores = {
-      Agendar: 0,
-      Agendados: 0
-    };
+    // Contadores de senha para Agendar e Realizar
+    let contadores = { Agendar: 0, Realizar: 0 };
+
     // Histórico por guichê e tipo
     let historicoGuiche = {}; // { guiche: {tipo: {senha, timestamp}} }
 
+    // Últimas senhas chamadas (para painel e usuário)
+    let ultimasSenhasGlobais = []; // [{tipo, senha, guiche, timestamp}]
+    let ultimasSenhasUsuario = [];  // [{tipo, senha, guiche, timestamp}]
+
+    // Carrega contadores do banco
     db.ref("contadoresSenha").once("value", snap => {
       const val = snap.val();
       if(val) contadores = val;
     });
 
+    // Carrega as últimas 5 senhas chamadas globais (ao abrir)
+    db.ref("ultimasSenhas").on("value", snap => {
+      ultimasSenhasGlobais = snap.val() || [];
+      mostrarUltimasSenhasPainel();
+    });
+
+    // =================== AUTENTICAÇÃO =====================
+
+    // Função para entrar no sistema
     function checarLogin() {
       const usuario = document.getElementById("usuario").value.trim();
       const senhaInput = document.getElementById("senha").value;
@@ -285,6 +332,7 @@
         document.getElementById("guiche-container").style.display = "block";
         document.getElementById("usuarioLogado").textContent = "Usuário admin: " + usuarioLogado;
         msg.textContent = "";
+        mostrarUltimasSenhasUsuario();
         return;
       }
       if (usuariosAutorizados.includes(usuario) && senhaInput === senhaCorreta) {
@@ -294,11 +342,15 @@
         document.getElementById("guiche-container").style.display = "block";
         document.getElementById("usuarioLogado").textContent = "Usuário: " + usuarioLogado;
         msg.textContent = "";
+        mostrarUltimasSenhasUsuario();
         return;
       }
       msg.textContent = "Usuário ou senha incorretos!";
     }
 
+    // =================== CONTROLE DE USUÁRIOS =====================
+
+    // Adicionar novo usuário autorizado
     function adicionarUsuarioAutorizado() {
       const novoUsuario = document.getElementById("novoUsuario").value.trim();
       if (!novoUsuario) return;
@@ -312,65 +364,192 @@
       }
     }
 
+    // Remover usuário autorizado
     function removerUsuarioAutorizado(u) {
       usuariosAutorizados = usuariosAutorizados.filter(user => user !== u);
       db.ref("usuariosAutorizados").set(usuariosAutorizados);
       mostrarCamposAdmin();
     }
 
-    function registrarAtendimento(tipo, senha, guiche) {
-      if (!usuarioLogado) return;
+    // =================== REGISTRO DE ATENDIMENTOS =====================
+
+    /**
+     * Registra um atendimento no banco de dados.
+     * Só registra se não for duplicado (menos de 1 min entre chamadas).
+     * @param {string} tipo Tipo da senha
+     * @param {string} senha Número da senha
+     * @param {string} guiche Número do guichê
+     * @param {boolean} registrar Se deve registrar (controle para não duplicar)
+     */
+    function registrarAtendimento(tipo, senha, guiche, registrar = true) {
+      if (!usuarioLogado || !registrar) return;
       const now = new Date();
       const dataHoje = now.toISOString().slice(0,10);
-      const registro = {
-        timestamp: now.getTime(),
-        tipo,
-        senha,
-        guiche,
-        data: dataHoje,
-      };
-      db.ref("atendimentos/" + usuarioLogado).push(registro);
+      // Busca os últimos atendimentos do usuário
+      db.ref("atendimentos/" + usuarioLogado).orderByChild("timestamp").limitToLast(1).once("value", snap => {
+        let bloquear = false;
+        let items = Object.values(snap.val() || {});
+        if (items.length > 0) {
+          let ultimo = items[0];
+          // Se a senha for igual e menos de 1 minuto, não registra!
+          if (ultimo.senha === senha && ultimo.tipo === tipo && ultimo.guiche === guiche) {
+            bloquear = true;
+          }
+          // Se o último atendimento for há menos de 60 segundos, não registra!
+          if ((now.getTime() - ultimo.timestamp) < 60000) {
+            bloquear = true;
+          }
+        }
+        if (!bloquear) {
+          // Registra no banco
+          const registro = {
+            timestamp: now.getTime(),
+            tipo,
+            senha,
+            guiche,
+            data: dataHoje,
+          };
+          db.ref("atendimentos/" + usuarioLogado).push(registro);
+          atualizarUltimasSenhasUsuario(tipo, senha, guiche);
+        }
+      });
     }
 
-    // Função corrigida com transação para garantir senha única por tipo
-    function chamarSenha(tipoChamada) {
+    // Atualiza a lista de últimas senhas do usuário (local, não no banco)
+    function atualizarUltimasSenhasUsuario(tipo, senha, guiche) {
+      if (!usuarioLogado) return;
+      // Adiciona no início da lista
+      ultimasSenhasUsuario.unshift({tipo, senha, guiche, timestamp: Date.now()});
+      // Limita a 5 senhas
+      ultimasSenhasUsuario = ultimasSenhasUsuario.slice(0, 5);
+      mostrarUltimasSenhasUsuario();
+    }
+
+    // =================== CHAMADA DE SENHAS =====================
+
+    /**
+     * Chama uma senha do tipo selecionado.
+     * @param {string} tipoSenha Tipo de senha ("Agendar" ou "Realizar")
+     */
+    function chamarSenha(tipoSenha) {
       let guiche = document.getElementById('guicheNum').value.padStart(2, '0');
-      let tipoSenha = document.getElementById('tipoSenha').value;
       historicoGuiche[guiche] = historicoGuiche[guiche] || {};
 
-      // Rechamar: só pode rechamar a senha que ESTE guichê chamou deste tipo
-      if (tipoChamada === 'repetir') {
-        let ultimoChamado = historicoGuiche[guiche][tipoSenha];
-        if (ultimoChamado) {
-          enviarSenha(tipoSenha, ultimoChamado.senha, guiche, true);
-          registrarAtendimento(tipoSenha, ultimoChamado.senha, guiche);
-        } else {
-          document.getElementById("msg").textContent = "Nenhuma senha para rechamar neste guichê/tipo!";
-        }
+      // Impede duplicidade de chamada para o mesmo guichê/tipo em menos de 1 min
+      let last = historicoGuiche[guiche][tipoSenha];
+      if (last && (Date.now() - last.timestamp) < 60000) {
+        document.getElementById("msg").textContent = "Espere pelo menos 1 minuto para chamar uma nova senha!";
         return;
       }
 
-      // Chamada normal: transação
+      // Faz a transação para garantir senha única por tipo
       db.ref("contadoresSenha/" + tipoSenha).transaction(function (currentValue) {
         if (currentValue === null || isNaN(currentValue)) currentValue = 0;
         let senhaStr = String(currentValue).padStart(3, '0');
         // Salva no histórico do guichê
         historicoGuiche[guiche][tipoSenha] = { senha: senhaStr, timestamp: Date.now() };
+        // Envia senha para painel e registra atendimento
         enviarSenha(tipoSenha, senhaStr, guiche, false);
-        registrarAtendimento(tipoSenha, senhaStr, guiche);
+        // Registra o atendimento apenas se passar checagem
+        registrarAtendimento(tipoSenha, senhaStr, guiche, true);
+        // Atualiza últimas senhas globais (painel)
+        atualizarUltimasSenhasGlobais(tipoSenha, senhaStr, guiche);
         // Retorna novo valor para salvar
         return (currentValue + 1) % 1000;
       });
     }
 
+    // Botão de rechamar
+    function rechamarSenha() {
+      let guiche = document.getElementById('guicheNum').value.padStart(2, '0');
+      if (!historicoGuiche[guiche]) {
+        document.getElementById("msg").textContent = "Nenhuma senha chamada neste guichê ainda!";
+        return;
+      }
+      // Pega o tipo da última senha chamada por esse guichê
+      let tipos = Object.keys(historicoGuiche[guiche]);
+      if (tipos.length === 0) {
+        document.getElementById("msg").textContent = "Nenhuma senha chamada neste guichê ainda!";
+        return;
+      }
+      // Pega o último tipo chamado
+      let tipoSenha = tipos.reduce((a, b) => historicoGuiche[guiche][a].timestamp > historicoGuiche[guiche][b].timestamp ? a : b);
+      let ultimoChamado = historicoGuiche[guiche][tipoSenha];
+      if (ultimoChamado) {
+        enviarSenha(tipoSenha, ultimoChamado.senha, guiche, true);
+        // Não registra novo atendimento para rechamar
+      } else {
+        document.getElementById("msg").textContent = "Nenhuma senha para rechamar neste guichê!";
+      }
+    }
+
+    /**
+     * Envia senha para o painel e exibe mensagem
+     * @param {string} tipo Tipo da senha
+     * @param {string} senha Número da senha
+     * @param {string} guiche Número do guichê
+     * @param {boolean} repetir Se é uma rechamada
+     */
     function enviarSenha(tipo, senha, guiche, repetir) {
       document.getElementById("msg").textContent = `Chamando: ${tipo} - Senha ${senha} Guichê ${parseInt(guiche,10)}`;
+      // Atualiza no banco a senha chamada (para o painel)
       db.ref("chamadaSenha").set({
         tipo,
         senha,
         guiche
       });
+      // Atualiza lista de últimas senhas globais
+      atualizarUltimasSenhasGlobais(tipo, senha, guiche);
+      // Atualiza lista do usuário
+      atualizarUltimasSenhasUsuario(tipo, senha, guiche);
     }
+
+    // =================== ÚLTIMAS SENHAS CHAMADAS (painel e usuário) =====================
+
+    // Atualiza as últimas 5 senhas chamadas globalmente (painel principal)
+    function atualizarUltimasSenhasGlobais(tipo, senha, guiche) {
+      db.ref("ultimasSenhas").once("value", snap => {
+        let ultimas = snap.val() || [];
+        // Adiciona no início
+        ultimas.unshift({tipo, senha, guiche, timestamp: Date.now()});
+        // Limita a 5 senhas
+        ultimas = ultimas.slice(0,5);
+        db.ref("ultimasSenhas").set(ultimas);
+      });
+    }
+
+    // Mostra as últimas senhas no painel principal (para todos)
+    function mostrarUltimasSenhasPainel() {
+      let html = "<b>Últimas 5 senhas chamadas:</b><br>";
+      if (ultimasSenhasGlobais.length === 0) {
+        html += "<span style='color:#ccc;'>Nenhuma senha chamada ainda</span>";
+      } else {
+        ultimasSenhasGlobais.forEach(s => {
+          html += `${s.tipo} - Senha <b>${s.senha}</b> (Guichê ${parseInt(s.guiche,10)})<br>`;
+        });
+      }
+      document.getElementById("ultimasSenhasPainel").innerHTML = html;
+    }
+
+    // Mostra as últimas senhas chamadas por este usuário (área do usuário)
+    function mostrarUltimasSenhasUsuario() {
+      // Carrega do banco os últimos 5 registros deste usuário
+      if (!usuarioLogado) return;
+      db.ref("atendimentos/" + usuarioLogado).orderByChild("timestamp").limitToLast(5).once("value", snap => {
+        let values = Object.values(snap.val() || {}).sort((a, b) => b.timestamp - a.timestamp);
+        let html = "<b>Suas últimas senhas chamadas:</b><br>";
+        if (values.length === 0) {
+          html += "<span style='color:#ccc;'>Nenhuma senha chamada ainda</span>";
+        } else {
+          values.forEach(s => {
+            html += `${s.tipo} - Senha <b>${s.senha}</b> (Guichê ${parseInt(s.guiche,10)})<br>`;
+          });
+        }
+        document.getElementById("ultimasSenhasUsuario").innerHTML = html;
+      });
+    }
+
+    // =================== ÁREA ADMINISTRATIVA =====================
 
     function abrirAdmin() {
       const adminDiv = document.getElementById("adminArea");
@@ -400,7 +579,7 @@
 
     function mostrarCamposAdmin() {
       db.ref("contadoresSenha").once("value", snap => {
-        const val = snap.val() || {Agendar: 0, Agendados: 0};
+        const val = snap.val() || {Agendar: 0, Realizar: 0};
         const adminDiv = document.getElementById("adminArea");
         let usuariosHtml = "<ul>";
         usuariosAutorizados.forEach(u => {
@@ -412,8 +591,8 @@
           <label for="novoAgendar">Agendar: </label>
           <input type="number" id="novoAgendar" min="0" max="999" value="${val.Agendar}">
           <br>
-          <label for="novoAgendados">Agendados: </label>
-          <input type="number" id="novoAgendados" min="0" max="999" value="${val.Agendados}">
+          <label for="novoRealizar">Realizar: </label>
+          <input type="number" id="novoRealizar" min="0" max="999" value="${val.Realizar}">
           <br>
           <button class="botao" onclick="atualizarContadores()">Atualizar</button>
           <div style="margin:14px 0; border-top:1px solid #ffe90033"></div>
@@ -430,18 +609,20 @@
 
     function atualizarContadores() {
       let novoAgendar = parseInt(document.getElementById("novoAgendar").value,10);
-      let novoAgendados = parseInt(document.getElementById("novoAgendados").value,10);
+      let novoRealizar = parseInt(document.getElementById("novoRealizar").value,10);
       if (isNaN(novoAgendar) || novoAgendar < 0 || novoAgendar > 999 ||
-          isNaN(novoAgendados) || novoAgendados < 0 || novoAgendados > 999) {
+          isNaN(novoRealizar) || novoRealizar < 0 || novoRealizar > 999) {
         document.getElementById("msgAdmin").textContent = "Digite números válidos entre 0 e 999.";
         return;
       }
       contadores.Agendar = novoAgendar;
-      contadores.Agendados = novoAgendados;
+      contadores.Realizar = novoRealizar;
       db.ref("contadoresSenha").set(contadores, (err)=>{
         document.getElementById("msgAdmin").textContent = err ? "Erro ao atualizar!" : "Contadores atualizados com sucesso!";
       });
     }
+
+    // =================== RELATÓRIOS E EXPORTAÇÃO =====================
 
     function abrirRelatorio() {
       if (!isAdmin) {
