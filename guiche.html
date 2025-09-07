@@ -1,666 +1,666 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <title>Guichê - Painel de Senhas</title>
-  <style>
-    :root {
-      --verde-hcpa: #276e5b;
-      --amarelo-hcpa: #ffe900;
-      --preto: #000;
-      --cinza-texto: #fffbe5;
-    }
-    body {
-      background: var(--verde-hcpa);
-      color: var(--amarelo-hcpa);
-      font-family: Arial, Helvetica, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-    }
-    .container {
-      background: var(--preto);
-      border-radius: 15px;
-      padding: 36px 40px;
-      box-shadow: 0 0 12px #0007;
-      text-align: center;
-      min-width: 350px;
-      max-width: 650px;
-      margin: auto;
-    }
-    .titulo {
-      font-size: 2.2em;
-      color: var(--amarelo-hcpa);
-      margin-bottom: 18px;
-      font-weight: bold;
-      letter-spacing: 1px;
-    }
-    label, input, select { font-size: 1.2em; margin: 4px 0; }
-    input, select {
-      padding: 6px;
-      border-radius: 6px;
-      border: none;
-      margin-bottom: 14px;
-      width: 80%;
-      box-sizing: border-box;
-    }
-    .botao {
-      background: var(--amarelo-hcpa);
-      color: var(--preto);
-      border: none;
-      border-radius: 8px;
-      font-size: 1.25em;
-      padding: 12px 24px;
-      margin: 10px 8px;
-      cursor: pointer;
-      font-weight: bold;
-      transition: background 0.2s;
-    }
-    .botao:hover { background: #fffbe5; }
-    .senha-form { margin-bottom: 22px; }
-    .admin-btn {
-      margin-top: 24px;
-      background: #2196F3;
-      color: #fff;
-      font-weight: bold;
-      border-radius: 8px;
-      padding: 8px 22px;
-      border: none;
-      cursor: pointer;
-      font-size: 1.1em;
-      transition: background 0.2s;
-    }
-    .admin-btn:hover { background: #1565c0; }
-    .admin-area {
-      background: #222;
-      border-radius: 10px;
-      padding: 24px 22px;
-      color: #ffe900;
-      font-size: 1.15em;
-      box-shadow: 0 0 8px #0004;
-      margin-top: 18px;
-      display: none;
-      text-align: left;
-      margin-left: auto;
-      margin-right: auto;
-      max-width: 420px;
-    }
-    .admin-area label {
-      display: block;
-      margin-bottom: 7px;
-      font-weight: bold;
-      font-size: 1.2em;
-    }
-    .admin-area input[type="number"] {
-      width: 110px;
-      margin-bottom: 12px;
-      font-size: 1.15em;
-      padding: 5px;
-    }
-    .admin-area .botao {
-      margin-top: 10px;
-      background: #0074d9;
-      color: #fff;
-      font-size: 1.15em;
-    }
-    .admin-area .botao:hover {
-      background: #004b8a;
-    }
-    .admin-area .fechar-btn {
-      background: #ff4040;
-      color: #fff;
-      font-size: 1em;
-      margin-left: 12px;
-    }
-    .admin-area .fechar-btn:hover {
-      background: #a90000;
-    }
-    .admin-area .msg-admin {
-      margin-top: 18px;
-      color: #fffbe5;
-      font-size: 1em;
-      font-weight: bold;
-    }
-    .admin-area .limpar-btn {
-      background: #ff9800;
-      color: #fff;
-      margin-top: 14px;
-      margin-left: 0;
-      font-size: 1.1em;
-      border-radius: 8px;
-      padding: 8px 18px;
-      border: none;
-      cursor: pointer;
-      font-weight: bold;
-      transition: background 0.2s;
-    }
-    .admin-area .limpar-btn:hover {
-      background: #b36a00;
-    }
-    .relatorio-area {
-      background: #222;
-      border-radius: 10px;
-      padding: 22px;
-      color: #ffe900;
-      font-size: 1.03em;
-      margin-top: 14px;
-      box-shadow: 0 0 8px #0004;
-      display: none;
-      max-width: 600px;
-      overflow-x: auto;
-      margin-left: auto;
-      margin-right: auto;
-      text-align: left;
-    }
-    .relatorio-table th, .relatorio-table td {
-      padding: 7px 11px;
-      border-bottom: 1px solid #ffe90044;
-      text-align: center;
-    }
-    .relatorio-table th {
-      background: #276e5b;
-      color: #ffe900;
-      font-weight: bold;
-    }
-    .relatorio-table {
-      border-collapse: collapse;
-      width: 100%;
-      margin-top: 10px;
-    }
-    .aba-btn {
-      background: #276e5b;
-      color: #ffe900;
-      border: none;
-      border-radius: 6px;
-      padding: 8px 16px;
-      cursor: pointer;
-      font-weight: bold;
-      margin-right: 8px;
-      margin-bottom: 9px;
-      transition: background 0.2s;
-    }
-    .aba-btn.active { background: #ffe900; color: #276e5b; }
-    .excel-btn {
-      background: #4caf50;
-      color: #fff;
-      border: none;
-      border-radius: 6px;
-      padding: 8px 18px;
-      cursor: pointer;
-      font-weight: bold;
-      margin-right: 8px;
-      margin-bottom: 9px;
-      font-size: 1em;
-      transition: background 0.2s;
-    }
-    .excel-btn:hover { background: #1b5e20; }
-    @media (max-width: 700px) {
-      .container, .admin-area, .relatorio-area { min-width: 95vw; max-width: 97vw; padding-left: 4vw; padding-right: 4vw;}
-    }
-  </style>
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-database-compat.js"></script>
-  <!-- SheetJS para exportação Excel com várias abas -->
-  <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+  <meta charset="UTF-8">
+  <title>Guichê - Painel de Senhas</title>
+  <style>
+    :root {
+      --verde-hcpa: #276e5b;
+      --amarelo-hcpa: #ffe900;
+      --preto: #000;
+      --cinza-texto: #fffbe5;
+    }
+    body {
+      background: var(--verde-hcpa);
+      color: var(--amarelo-hcpa);
+      font-family: Arial, Helvetica, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .container {
+      background: var(--preto);
+      border-radius: 15px;
+      padding: 36px 40px;
+      box-shadow: 0 0 12px #0007;
+      text-align: center;
+      min-width: 350px;
+      max-width: 650px;
+      margin: auto;
+    }
+    .titulo {
+      font-size: 2.2em;
+      color: var(--amarelo-hcpa);
+      margin-bottom: 18px;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+    label, input, select { font-size: 1.2em; margin: 4px 0; }
+    input, select {
+      padding: 6px;
+      border-radius: 6px;
+      border: none;
+      margin-bottom: 14px;
+      width: 80%;
+      box-sizing: border-box;
+    }
+    .botao {
+      background: var(--amarelo-hcpa);
+      color: var(--preto);
+      border: none;
+      border-radius: 8px;
+      font-size: 1.25em;
+      padding: 12px 24px;
+      margin: 10px 8px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.2s;
+    }
+    .botao:hover { background: #fffbe5; }
+    .senha-form { margin-bottom: 22px; }
+    .admin-btn {
+      margin-top: 24px;
+      background: #2196F3;
+      color: #fff;
+      font-weight: bold;
+      border-radius: 8px;
+      padding: 8px 22px;
+      border: none;
+      cursor: pointer;
+      font-size: 1.1em;
+      transition: background 0.2s;
+    }
+    .admin-btn:hover { background: #1565c0; }
+    .admin-area {
+      background: #222;
+      border-radius: 10px;
+      padding: 24px 22px;
+      color: #ffe900;
+      font-size: 1.15em;
+      box-shadow: 0 0 8px #0004;
+      margin-top: 18px;
+      display: none;
+      text-align: left;
+      margin-left: auto;
+      margin-right: auto;
+      max-width: 420px;
+    }
+    .admin-area label {
+      display: block;
+      margin-bottom: 7px;
+      font-weight: bold;
+      font-size: 1.2em;
+    }
+    .admin-area input[type="number"] {
+      width: 110px;
+      margin-bottom: 12px;
+      font-size: 1.15em;
+      padding: 5px;
+    }
+    .admin-area .botao {
+      margin-top: 10px;
+      background: #0074d9;
+      color: #fff;
+      font-size: 1.15em;
+    }
+    .admin-area .botao:hover {
+      background: #004b8a;
+    }
+    .admin-area .fechar-btn {
+      background: #ff4040;
+      color: #fff;
+      font-size: 1em;
+      margin-left: 12px;
+    }
+    .admin-area .fechar-btn:hover {
+      background: #a90000;
+    }
+    .admin-area .msg-admin {
+      margin-top: 18px;
+      color: #fffbe5;
+      font-size: 1em;
+      font-weight: bold;
+    }
+    .admin-area .limpar-btn {
+      background: #ff9800;
+      color: #fff;
+      margin-top: 14px;
+      margin-left: 0;
+      font-size: 1.1em;
+      border-radius: 8px;
+      padding: 8px 18px;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.2s;
+    }
+    .admin-area .limpar-btn:hover {
+      background: #b36a00;
+    }
+    .relatorio-area {
+      background: #222;
+      border-radius: 10px;
+      padding: 22px;
+      color: #ffe900;
+      font-size: 1.03em;
+      margin-top: 14px;
+      box-shadow: 0 0 8px #0004;
+      display: none;
+      max-width: 600px;
+      overflow-x: auto;
+      margin-left: auto;
+      margin-right: auto;
+      text-align: left;
+    }
+    .relatorio-table th, .relatorio-table td {
+      padding: 7px 11px;
+      border-bottom: 1px solid #ffe90044;
+      text-align: center;
+    }
+    .relatorio-table th {
+      background: #276e5b;
+      color: #ffe900;
+      font-weight: bold;
+    }
+    .relatorio-table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-top: 10px;
+    }
+    .aba-btn {
+      background: #276e5b;
+      color: #ffe900;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 16px;
+      cursor: pointer;
+      font-weight: bold;
+      margin-right: 8px;
+      margin-bottom: 9px;
+      transition: background 0.2s;
+    }
+    .aba-btn.active { background: #ffe900; color: #276e5b; }
+    .excel-btn {
+      background: #4caf50;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 18px;
+      cursor: pointer;
+      font-weight: bold;
+      margin-right: 8px;
+      margin-bottom: 9px;
+      font-size: 1em;
+      transition: background 0.2s;
+    }
+    .excel-btn:hover { background: #1b5e20; }
+    @media (max-width: 700px) {
+      .container, .admin-area, .relatorio-area { min-width: 95vw; max-width: 97vw; padding-left: 4vw; padding-right: 4vw;}
+    }
+  </style>
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-database-compat.js"></script>
+  <!-- SheetJS para exportação Excel com várias abas -->
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
 </head>
 <body>
-  <div class="container" id="guiche-container" style="display:none;">
-    <div class="titulo">Guichê</div>
-    <div id="usuarioLogado" style="color:#fffbe5;margin-bottom:12px;font-size:1.1em;"></div>
-    <label for="guicheNum">Número do Guichê:</label>
-    <input type="number" id="guicheNum" min="1" max="20" value="1" required><br>
-    <label for="tipoSenha">Tipo de Senha:</label>
-    <select id="tipoSenha">
-      <option value="Agendar">Agendar</option>
-      <option value="Agendados">Agendados</option>
-    </select>
-    <br>
-    <button class="botao" onclick="chamarSenha('normal')">Chamar Senha</button>
-    <button class="botao" onclick="chamarSenha('repetir')">Rechamar</button>
-    <div id="msg" style="color:yellow;margin-top:10px;"></div>
-    <button class="admin-btn" onclick="abrirAdmin()">Administração</button>
-    <button class="admin-btn" onclick="abrirRelatorio()">Relatórios</button>
-    <div id="adminArea" class="admin-area"></div>
-    <div id="relatorioArea" class="relatorio-area"></div>
-  </div>
-  <div id="senha-protect" class="senha-form">
-    <label for="usuario">Usuário:</label>
-    <input type="text" id="usuario" autofocus>
-    <br>
-    <label for="senha">Senha de acesso:</label>
-    <input type="password" id="senha">
-    <button onclick="checarLogin()">Entrar</button>
-    <div id="msgSenha" style="color:red;margin-top:8px;"></div>
-  </div>
-  <script>
-    const senhaCorreta = "radiologia2025";
-    const usuarioAdmin = "vtcosta";
-    const senhaAdmin = "admtoledo";
+  <div class="container" id="guiche-container" style="display:none;">
+    <div class="titulo">Guichê</div>
+    <div id="usuarioLogado" style="color:#fffbe5;margin-bottom:12px;font-size:1.1em;"></div>
+    <label for="guicheNum">Número do Guichê:</label>
+    <input type="number" id="guicheNum" min="1" max="20" value="1" required><br>
+    <label for="tipoSenha">Tipo de Senha:</label>
+    <select id="tipoSenha">
+      <option value="Agendar">Agendar</option>
+      <option value="Agendados">Agendados</option>
+    </select>
+    <br>
+    <button class="botao" onclick="chamarSenha('normal')">Chamar Senha</button>
+    <button class="botao" onclick="chamarSenha('repetir')">Rechamar</button>
+    <div id="msg" style="color:yellow;margin-top:10px;"></div>
+    <button class="admin-btn" onclick="abrirAdmin()">Administração</button>
+    <button class="admin-btn" onclick="abrirRelatorio()">Relatórios</button>
+    <div id="adminArea" class="admin-area"></div>
+    <div id="relatorioArea" class="relatorio-area"></div>
+  </div>
+  <div id="senha-protect" class="senha-form">
+    <label for="usuario">Usuário:</label>
+    <input type="text" id="usuario" autofocus>
+    <br>
+    <label for="senha">Senha de acesso:</label>
+    <input type="password" id="senha">
+    <button onclick="checarLogin()">Entrar</button>
+    <div id="msgSenha" style="color:red;margin-top:8px;"></div>
+  </div>
+  <script>
+    const senhaCorreta = "radiologia2025";
+    const usuarioAdmin = "vtcosta";
+    const senhaAdmin = "admtoledo";
 
-    let usuariosAutorizados = [];
-    let usuarioLogado = null;
-    let isAdmin = false;
+    let usuariosAutorizados = [];
+    let usuarioLogado = null;
+    let isAdmin = false;
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyAsuP9gO2sBOmzBet2b7ijljMgTsXo29lE",
-      authDomain: "painel-senhas-hcpa.firebaseapp.com",
-      databaseURL: "https://painel-senhas-hcpa-default-rtdb.firebaseio.com",
-      projectId: "painel-senhas-hcpa",
-      storageBucket: "painel-senhas-hcpa.firebasestorage.app",
-      messagingSenderId: "164117661743",
-      appId: "1:164117661743:web:c82a42d485af05ecd71eda",
-      measurementId: "G-92XCSNDE54"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+    const firebaseConfig = {
+      apiKey: "AIzaSyAsuP9gO2sBOmzBet2b7ijljMgTsXo29lE",
+      authDomain: "painel-senhas-hcpa.firebaseapp.com",
+      databaseURL: "https://painel-senhas-hcpa-default-rtdb.firebaseio.com",
+      projectId: "painel-senhas-hcpa",
+      storageBucket: "painel-senhas-hcpa.firebasestorage.app",
+      messagingSenderId: "164117661743",
+      appId: "1:164117661743:web:c82a42d485af05ecd71eda",
+      measurementId: "G-92XCSNDE54"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
 
-    db.ref("usuariosAutorizados").on("value", snap => {
-      usuariosAutorizados = snap.val() || [];
-    });
+    db.ref("usuariosAutorizados").on("value", snap => {
+      usuariosAutorizados = snap.val() || [];
+    });
 
-    let contadores = {
-      Agendar: 0,
-      Agendados: 0
-    };
-    // Histórico por guichê e tipo
-    let historicoGuiche = {}; // { guiche: {tipo: {senha, timestamp}} }
+    let contadores = {
+      Agendar: 0,
+      Agendados: 0
+    };
+    // Histórico por guichê e tipo
+    let historicoGuiche = {}; // { guiche: {tipo: {senha, timestamp}} }
 
-    db.ref("contadoresSenha").once("value", snap => {
-      const val = snap.val();
-      if(val) contadores = val;
-    });
+    db.ref("contadoresSenha").once("value", snap => {
+      const val = snap.val();
+      if(val) contadores = val;
+    });
 
-    function checarLogin() {
-      const usuario = document.getElementById("usuario").value.trim();
-      const senhaInput = document.getElementById("senha").value;
-      let msg = document.getElementById("msgSenha");
+    function checarLogin() {
+      const usuario = document.getElementById("usuario").value.trim();
+      const senhaInput = document.getElementById("senha").value;
+      let msg = document.getElementById("msgSenha");
 
-      if (usuario === usuarioAdmin && senhaInput === senhaAdmin) {
-        usuarioLogado = usuarioAdmin;
-        isAdmin = true;
-        document.getElementById("senha-protect").style.display = "none";
-        document.getElementById("guiche-container").style.display = "block";
-        document.getElementById("usuarioLogado").textContent = "Usuário admin: " + usuarioLogado;
-        msg.textContent = "";
-        return;
-      }
-      if (usuariosAutorizados.includes(usuario) && senhaInput === senhaCorreta) {
-        usuarioLogado = usuario;
-        isAdmin = false;
-        document.getElementById("senha-protect").style.display = "none";
-        document.getElementById("guiche-container").style.display = "block";
-        document.getElementById("usuarioLogado").textContent = "Usuário: " + usuarioLogado;
-        msg.textContent = "";
-        return;
-      }
-      msg.textContent = "Usuário ou senha incorretos!";
-    }
+      if (usuario === usuarioAdmin && senhaInput === senhaAdmin) {
+        usuarioLogado = usuarioAdmin;
+        isAdmin = true;
+        document.getElementById("senha-protect").style.display = "none";
+        document.getElementById("guiche-container").style.display = "block";
+        document.getElementById("usuarioLogado").textContent = "Usuário admin: " + usuarioLogado;
+        msg.textContent = "";
+        return;
+      }
+      if (usuariosAutorizados.includes(usuario) && senhaInput === senhaCorreta) {
+        usuarioLogado = usuario;
+        isAdmin = false;
+        document.getElementById("senha-protect").style.display = "none";
+        document.getElementById("guiche-container").style.display = "block";
+        document.getElementById("usuarioLogado").textContent = "Usuário: " + usuarioLogado;
+        msg.textContent = "";
+        return;
+      }
+      msg.textContent = "Usuário ou senha incorretos!";
+    }
 
-    function adicionarUsuarioAutorizado() {
-      const novoUsuario = document.getElementById("novoUsuario").value.trim();
-      if (!novoUsuario) return;
-      if (!usuariosAutorizados.includes(novoUsuario)) {
-        usuariosAutorizados.push(novoUsuario);
-        db.ref("usuariosAutorizados").set(usuariosAutorizados);
-        document.getElementById("msgAdmin").textContent = "Usuário autorizado!";
-        mostrarCamposAdmin();
-      } else {
-        document.getElementById("msgAdmin").textContent = "Usuário já está autorizado!";
-      }
-    }
+    function adicionarUsuarioAutorizado() {
+      const novoUsuario = document.getElementById("novoUsuario").value.trim();
+      if (!novoUsuario) return;
+      if (!usuariosAutorizados.includes(novoUsuario)) {
+        usuariosAutorizados.push(novoUsuario);
+        db.ref("usuariosAutorizados").set(usuariosAutorizados);
+        document.getElementById("msgAdmin").textContent = "Usuário autorizado!";
+        mostrarCamposAdmin();
+      } else {
+        document.getElementById("msgAdmin").textContent = "Usuário já está autorizado!";
+      }
+    }
 
-    function removerUsuarioAutorizado(u) {
-      usuariosAutorizados = usuariosAutorizados.filter(user => user !== u);
-      db.ref("usuariosAutorizados").set(usuariosAutorizados);
-      mostrarCamposAdmin();
-    }
+    function removerUsuarioAutorizado(u) {
+      usuariosAutorizados = usuariosAutorizados.filter(user => user !== u);
+      db.ref("usuariosAutorizados").set(usuariosAutorizados);
+      mostrarCamposAdmin();
+    }
 
-    function registrarAtendimento(tipo, senha, guiche) {
-      if (!usuarioLogado) return;
-      const now = new Date();
-      const dataHoje = now.toISOString().slice(0,10);
-      const registro = {
-        timestamp: now.getTime(),
-        tipo,
-        senha,
-        guiche,
-        data: dataHoje,
-      };
-      db.ref("atendimentos/" + usuarioLogado).push(registro);
-    }
+    function registrarAtendimento(tipo, senha, guiche) {
+      if (!usuarioLogado) return;
+      const now = new Date();
+      const dataHoje = now.toISOString().slice(0,10);
+      const registro = {
+        timestamp: now.getTime(),
+        tipo,
+        senha,
+        guiche,
+        data: dataHoje,
+      };
+      db.ref("atendimentos/" + usuarioLogado).push(registro);
+    }
 
-    // Função corrigida com transação para garantir senha única por tipo
-    function chamarSenha(tipoChamada) {
-      let guiche = document.getElementById('guicheNum').value.padStart(2, '0');
-      let tipoSenha = document.getElementById('tipoSenha').value;
-      historicoGuiche[guiche] = historicoGuiche[guiche] || {};
+    // Função corrigida com transação para garantir senha única por tipo
+    function chamarSenha(tipoChamada) {
+      let guiche = document.getElementById('guicheNum').value.padStart(2, '0');
+      let tipoSenha = document.getElementById('tipoSenha').value;
+      historicoGuiche[guiche] = historicoGuiche[guiche] || {};
 
-      // Rechamar: só pode rechamar a senha que ESTE guichê chamou deste tipo
-      if (tipoChamada === 'repetir') {
-        let ultimoChamado = historicoGuiche[guiche][tipoSenha];
-        if (ultimoChamado) {
-          enviarSenha(tipoSenha, ultimoChamado.senha, guiche, true);
-          registrarAtendimento(tipoSenha, ultimoChamado.senha, guiche);
-        } else {
-          document.getElementById("msg").textContent = "Nenhuma senha para rechamar neste guichê/tipo!";
-        }
-        return;
-      }
+      // Rechamar: só pode rechamar a senha que ESTE guichê chamou deste tipo
+      if (tipoChamada === 'repetir') {
+        let ultimoChamado = historicoGuiche[guiche][tipoSenha];
+        if (ultimoChamado) {
+          enviarSenha(tipoSenha, ultimoChamado.senha, guiche, true);
+          registrarAtendimento(tipoSenha, ultimoChamado.senha, guiche);
+        } else {
+          document.getElementById("msg").textContent = "Nenhuma senha para rechamar neste guichê/tipo!";
+        }
+        return;
+      }
 
-      // Chamada normal: transação
-      db.ref("contadoresSenha/" + tipoSenha).transaction(function (currentValue) {
-        if (currentValue === null || isNaN(currentValue)) currentValue = 0;
-        let senhaStr = String(currentValue).padStart(3, '0');
-        // Salva no histórico do guichê
-        historicoGuiche[guiche][tipoSenha] = { senha: senhaStr, timestamp: Date.now() };
-        enviarSenha(tipoSenha, senhaStr, guiche, false);
-        registrarAtendimento(tipoSenha, senhaStr, guiche);
-        // Retorna novo valor para salvar
-        return (currentValue + 1) % 1000;
-      });
-    }
+      // Chamada normal: transação
+      db.ref("contadoresSenha/" + tipoSenha).transaction(function (currentValue) {
+        if (currentValue === null || isNaN(currentValue)) currentValue = 0;
+        let senhaStr = String(currentValue).padStart(3, '0');
+        // Salva no histórico do guichê
+        historicoGuiche[guiche][tipoSenha] = { senha: senhaStr, timestamp: Date.now() };
+        enviarSenha(tipoSenha, senhaStr, guiche, false);
+        registrarAtendimento(tipoSenha, senhaStr, guiche);
+        // Retorna novo valor para salvar
+        return (currentValue + 1) % 1000;
+      });
+    }
 
-    function enviarSenha(tipo, senha, guiche, repetir) {
-      document.getElementById("msg").textContent = `Chamando: ${tipo} - Senha ${senha} Guichê ${parseInt(guiche,10)}`;
-      db.ref("chamadaSenha").set({
-        tipo,
-        senha,
-        guiche
-      });
-    }
+    function enviarSenha(tipo, senha, guiche, repetir) {
+      document.getElementById("msg").textContent = `Chamando: ${tipo} - Senha ${senha} Guichê ${parseInt(guiche,10)}`;
+      db.ref("chamadaSenha").set({
+        tipo,
+        senha,
+        guiche
+      });
+    }
 
-    function abrirAdmin() {
-      const adminDiv = document.getElementById("adminArea");
-      if (!isAdmin) {
-        adminDiv.innerHTML = `
-          <div style="color:red;">Acesso restrito ao administrador!</div>
-          <button class="fechar-btn botao" onclick="fecharAdmin()">Fechar</button>
-        `;
-        adminDiv.style.display = "block";
-        return;
-      }
-      mostrarCamposAdmin();
-      adminDiv.style.display = "block";
-    }
+    function abrirAdmin() {
+      const adminDiv = document.getElementById("adminArea");
+      if (!isAdmin) {
+        adminDiv.innerHTML = `
+          <div style="color:red;">Acesso restrito ao administrador!</div>
+          <button class="fechar-btn botao" onclick="fecharAdmin()">Fechar</button>
+        `;
+        adminDiv.style.display = "block";
+        return;
+      }
+      mostrarCamposAdmin();
+      adminDiv.style.display = "block";
+    }
 
-    function fecharAdmin() {
-      document.getElementById("adminArea").style.display = "none";
-    }
+    function fecharAdmin() {
+      document.getElementById("adminArea").style.display = "none";
+    }
 
-    function limparAtendimentos() {
-      if (confirm("Tem certeza que deseja apagar TODOS os atendimentos registrados? Esta ação não pode ser desfeita.")) {
-        db.ref("atendimentos").set(null, (err)=>{
-          document.getElementById("msgAdmin").textContent = err ? "Erro ao limpar!" : "Dados de atendimentos apagados!";
-        });
-      }
-    }
+    function limparAtendimentos() {
+      if (confirm("Tem certeza que deseja apagar TODOS os atendimentos registrados? Esta ação não pode ser desfeita.")) {
+        db.ref("atendimentos").set(null, (err)=>{
+          document.getElementById("msgAdmin").textContent = err ? "Erro ao limpar!" : "Dados de atendimentos apagados!";
+        });
+      }
+    }
 
-    function mostrarCamposAdmin() {
-      db.ref("contadoresSenha").once("value", snap => {
-        const val = snap.val() || {Agendar: 0, Agendados: 0};
-        const adminDiv = document.getElementById("adminArea");
-        let usuariosHtml = "<ul>";
-        usuariosAutorizados.forEach(u => {
-          usuariosHtml += `<li>${u} <button onclick="removerUsuarioAutorizado('${u}')" style="background:#ff4040;color:#fff;border:none;border-radius:5px;padding:2px 7px;cursor:pointer;">Remover</button></li>`;
-        });
-        usuariosHtml += "</ul>";
-        adminDiv.innerHTML = `
-          <div style="margin-bottom:12px;font-size:1.2em;font-weight:bold;color:#ffe900;">Ajuste dos Contadores</div>
-          <label for="novoAgendar">Agendar: </label>
-          <input type="number" id="novoAgendar" min="0" max="999" value="${val.Agendar}">
-          <br>
-          <label for="novoAgendados">Agendados: </label>
-          <input type="number" id="novoAgendados" min="0" max="999" value="${val.Agendados}">
-          <br>
-          <button class="botao" onclick="atualizarContadores()">Atualizar</button>
-          <div style="margin:14px 0; border-top:1px solid #ffe90033"></div>
-          <div style="margin-bottom:10px;font-weight:bold;color:#ffe900;">Usuários autorizados</div>
-          ${usuariosHtml}
-          <input type="text" id="novoUsuario" placeholder="Novo usuário">
-          <button class="botao" onclick="adicionarUsuarioAutorizado()">Adicionar</button>
-          <button class="limpar-btn botao" onclick="limparAtendimentos()">Limpar Dados</button>
-          <button class="fechar-btn botao" onclick="fecharAdmin()">Fechar</button>
-          <div id="msgAdmin" class="msg-admin"></div>
-        `;
-      });
-    }
+    function mostrarCamposAdmin() {
+      db.ref("contadoresSenha").once("value", snap => {
+        const val = snap.val() || {Agendar: 0, Agendados: 0};
+        const adminDiv = document.getElementById("adminArea");
+        let usuariosHtml = "<ul>";
+        usuariosAutorizados.forEach(u => {
+          usuariosHtml += `<li>${u} <button onclick="removerUsuarioAutorizado('${u}')" style="background:#ff4040;color:#fff;border:none;border-radius:5px;padding:2px 7px;cursor:pointer;">Remover</button></li>`;
+        });
+        usuariosHtml += "</ul>";
+        adminDiv.innerHTML = `
+          <div style="margin-bottom:12px;font-size:1.2em;font-weight:bold;color:#ffe900;">Ajuste dos Contadores</div>
+          <label for="novoAgendar">Agendar: </label>
+          <input type="number" id="novoAgendar" min="0" max="999" value="${val.Agendar}">
+          <br>
+          <label for="novoAgendados">Agendados: </label>
+          <input type="number" id="novoAgendados" min="0" max="999" value="${val.Agendados}">
+          <br>
+          <button class="botao" onclick="atualizarContadores()">Atualizar</button>
+          <div style="margin:14px 0; border-top:1px solid #ffe90033"></div>
+          <div style="margin-bottom:10px;font-weight:bold;color:#ffe900;">Usuários autorizados</div>
+          ${usuariosHtml}
+          <input type="text" id="novoUsuario" placeholder="Novo usuário">
+          <button class="botao" onclick="adicionarUsuarioAutorizado()">Adicionar</button>
+          <button class="limpar-btn botao" onclick="limparAtendimentos()">Limpar Dados</button>
+          <button class="fechar-btn botao" onclick="fecharAdmin()">Fechar</button>
+          <div id="msgAdmin" class="msg-admin"></div>
+        `;
+      });
+    }
 
-    function atualizarContadores() {
-      let novoAgendar = parseInt(document.getElementById("novoAgendar").value,10);
-      let novoAgendados = parseInt(document.getElementById("novoAgendados").value,10);
-      if (isNaN(novoAgendar) || novoAgendar < 0 || novoAgendar > 999 ||
-          isNaN(novoAgendados) || novoAgendados < 0 || novoAgendados > 999) {
-        document.getElementById("msgAdmin").textContent = "Digite números válidos entre 0 e 999.";
-        return;
-      }
-      contadores.Agendar = novoAgendar;
-      contadores.Agendados = novoAgendados;
-      db.ref("contadoresSenha").set(contadores, (err)=>{
-        document.getElementById("msgAdmin").textContent = err ? "Erro ao atualizar!" : "Contadores atualizados com sucesso!";
-      });
-    }
+    function atualizarContadores() {
+      let novoAgendar = parseInt(document.getElementById("novoAgendar").value,10);
+      let novoAgendados = parseInt(document.getElementById("novoAgendados").value,10);
+      if (isNaN(novoAgendar) || novoAgendar < 0 || novoAgendar > 999 ||
+          isNaN(novoAgendados) || novoAgendados < 0 || novoAgendados > 999) {
+        document.getElementById("msgAdmin").textContent = "Digite números válidos entre 0 e 999.";
+        return;
+      }
+      contadores.Agendar = novoAgendar;
+      contadores.Agendados = novoAgendados;
+      db.ref("contadoresSenha").set(contadores, (err)=>{
+        document.getElementById("msgAdmin").textContent = err ? "Erro ao atualizar!" : "Contadores atualizados com sucesso!";
+      });
+    }
 
-    function abrirRelatorio() {
-      if (!isAdmin) {
-        document.getElementById("relatorioArea").innerHTML = `<div style="color:red;">Acesso restrito ao administrador!</div>`;
-        document.getElementById("relatorioArea").style.display = "block";
-        return;
-      }
-      mostrarRelatorio('dia');
-      document.getElementById("relatorioArea").style.display = "block";
-    }
+    function abrirRelatorio() {
+      if (!isAdmin) {
+        document.getElementById("relatorioArea").innerHTML = `<div style="color:red;">Acesso restrito ao administrador!</div>`;
+        document.getElementById("relatorioArea").style.display = "block";
+        return;
+      }
+      mostrarRelatorio('dia');
+      document.getElementById("relatorioArea").style.display = "block";
+    }
 
-    function fecharRelatorio() {
-      document.getElementById("relatorioArea").style.display = "none";
-    }
+    function fecharRelatorio() {
+      document.getElementById("relatorioArea").style.display = "none";
+    }
 
-    function formatTempo(segundos) {
-      if (segundos < 60) return segundos + "s";
-      if (segundos < 3600) return (segundos/60).toFixed(1) + "min";
-      return (segundos/3600).toFixed(2) + "h";
-    }
+    function formatTempo(segundos) {
+      if (segundos < 60) return segundos + "s";
+      if (segundos < 3600) return (segundos/60).toFixed(1) + "min";
+      return (segundos/3600).toFixed(2) + "h";
+    }
 
-    // Exportação Excel com abas (SheetJS) e totais Dia/Mês/Ano + RESUMO GERAL
-    function exportarRelatorioExcelDetalhado(aba) {
-      db.ref("atendimentos").once("value", snap => {
-        const val = snap.val() || {};
-        const agora = new Date();
-        let workbook = XLSX.utils.book_new();
+    // Exportação Excel com abas (SheetJS) e totais Dia/Mês/Ano + RESUMO GERAL
+    function exportarRelatorioExcelDetalhado(aba) {
+      db.ref("atendimentos").once("value", snap => {
+        const val = snap.val() || {};
+        const agora = new Date();
+        let workbook = XLSX.utils.book_new();
 
-        // Resumo para todos usuários - nova aba
-        let resumoDados = [["Usuário", "Atendimentos Dia", "Atendimentos Mês", "Atendimentos Ano"]];
-        let totalDiaGeral = 0, totalMesGeral = 0, totalAnoGeral = 0;
-        for (let usuario in val) {
-          let atendimentos = Object.values(val[usuario]);
-          if (!atendimentos.length) continue;
-          let totalDia = atendimentos.filter(a=>{
-            let d = new Date(a.timestamp);
-            return d.toISOString().slice(0,10) === agora.toISOString().slice(0,10);
-          }).length;
-          let totalMes = atendimentos.filter(a=>{
-            let d = new Date(a.timestamp);
-            return d.getMonth() === agora.getMonth() && d.getFullYear() === agora.getFullYear();
-          }).length;
-          let totalAno = atendimentos.filter(a=>{
-            let d = new Date(a.timestamp);
-            return d.getFullYear() === agora.getFullYear();
-          }).length;
-          resumoDados.push([usuario, totalDia, totalMes, totalAno]);
-          totalDiaGeral += totalDia;
-          totalMesGeral += totalMes;
-          totalAnoGeral += totalAno;
-        }
-        let wsResumo = XLSX.utils.aoa_to_sheet(resumoDados);
-        XLSX.utils.book_append_sheet(workbook, wsResumo, "Resumo");
+        // Resumo para todos usuários - nova aba
+        let resumoDados = [["Usuário", "Atendimentos Dia", "Atendimentos Mês", "Atendimentos Ano"]];
+        let totalDiaGeral = 0, totalMesGeral = 0, totalAnoGeral = 0;
+        for (let usuario in val) {
+          let atendimentos = Object.values(val[usuario]);
+          if (!atendimentos.length) continue;
+          let totalDia = atendimentos.filter(a=>{
+            let d = new Date(a.timestamp);
+            return d.toISOString().slice(0,10) === agora.toISOString().slice(0,10);
+          }).length;
+          let totalMes = atendimentos.filter(a=>{
+            let d = new Date(a.timestamp);
+            return d.getMonth() === agora.getMonth() && d.getFullYear() === agora.getFullYear();
+          }).length;
+          let totalAno = atendimentos.filter(a=>{
+            let d = new Date(a.timestamp);
+            return d.getFullYear() === agora.getFullYear();
+          }).length;
+          resumoDados.push([usuario, totalDia, totalMes, totalAno]);
+          totalDiaGeral += totalDia;
+          totalMesGeral += totalMes;
+          totalAnoGeral += totalAno;
+        }
+        let wsResumo = XLSX.utils.aoa_to_sheet(resumoDados);
+        XLSX.utils.book_append_sheet(workbook, wsResumo, "Resumo");
 
-        // Resumo TOTAL - nova aba
-        let resumoTotal = [
-          ["Atendimentos Dia", "Atendimentos Mês", "Atendimentos Ano"],
-          [totalDiaGeral, totalMesGeral, totalAnoGeral]
-        ];
-        let wsTotal = XLSX.utils.aoa_to_sheet(resumoTotal);
-        XLSX.utils.book_append_sheet(workbook, wsTotal, "Resumo Total");
+        // Resumo TOTAL - nova aba
+        let resumoTotal = [
+          ["Atendimentos Dia", "Atendimentos Mês", "Atendimentos Ano"],
+          [totalDiaGeral, totalMesGeral, totalAnoGeral]
+        ];
+        let wsTotal = XLSX.utils.aoa_to_sheet(resumoTotal);
+        XLSX.utils.book_append_sheet(workbook, wsTotal, "Resumo Total");
 
-        // Abas detalhadas por usuário
-        for (let usuario in val) {
-          let atendimentos = Object.values(val[usuario]);
-          if (!atendimentos.length) continue;
+        // Abas detalhadas por usuário
+        for (let usuario in val) {
+          let atendimentos = Object.values(val[usuario]);
+          if (!atendimentos.length) continue;
 
-          let atendimentosFiltrados = atendimentos.filter(a => {
-            let d = new Date(a.timestamp);
-            if (aba==='dia') return d.toISOString().slice(0,10) === agora.toISOString().slice(0,10);
-            if (aba==='mes') return d.getMonth() === agora.getMonth() && d.getFullYear() === agora.getFullYear();
-            if (aba==='ano') return d.getFullYear() === agora.getFullYear();
-            return true;
-          });
-          atendimentosFiltrados.sort((a,b)=>a.timestamp-b.timestamp);
+          let atendimentosFiltrados = atendimentos.filter(a => {
+            let d = new Date(a.timestamp);
+            if (aba==='dia') return d.toISOString().slice(0,10) === agora.toISOString().slice(0,10);
+            if (aba==='mes') return d.getMonth() === agora.getMonth() && d.getFullYear() === agora.getFullYear();
+            if (aba==='ano') return d.getFullYear() === agora.getFullYear();
+            return true;
+          });
+          atendimentosFiltrados.sort((a,b)=>a.timestamp-b.timestamp);
 
-          let totalDia = atendimentos.filter(a=>{
-            let d = new Date(a.timestamp);
-            return d.toISOString().slice(0,10) === agora.toISOString().slice(0,10);
-          }).length;
-          let totalMes = atendimentos.filter(a=>{
-            let d = new Date(a.timestamp);
-            return d.getMonth() === agora.getMonth() && d.getFullYear() === agora.getFullYear();
-          }).length;
-          let totalAno = atendimentos.filter(a=>{
-            let d = new Date(a.timestamp);
-            return d.getFullYear() === agora.getFullYear();
-          }).length;
+          let totalDia = atendimentos.filter(a=>{
+            let d = new Date(a.timestamp);
+            return d.toISOString().slice(0,10) === agora.toISOString().slice(0,10);
+          }).length;
+          let totalMes = atendimentos.filter(a=>{
+            let d = new Date(a.timestamp);
+            return d.getMonth() === agora.getMonth() && d.getFullYear() === agora.getFullYear();
+          }).length;
+          let totalAno = atendimentos.filter(a=>{
+            let d = new Date(a.timestamp);
+            return d.getFullYear() === agora.getFullYear();
+          }).length;
 
-          let dados = [
-            [`Total atendimentos Dia`, totalDia],
-            [`Total atendimentos Mês`, totalMes],
-            [`Total atendimentos Ano`, totalAno],
-            [],
-            ["Hora", "Tipo", "Senha", "Guichê", "Intervalo"]
-          ];
-          let prev = null;
-          atendimentosFiltrados.forEach(a=>{
-            let tempo = prev ? formatTempo(Math.round((a.timestamp-prev.timestamp)/1000)) : "--";
-            dados.push([
-              new Date(a.timestamp).toLocaleString(),
-              a.tipo, a.senha, a.guiche, tempo
-            ]);
-            prev = a;
-          });
-          let ws = XLSX.utils.aoa_to_sheet(dados);
-          XLSX.utils.book_append_sheet(workbook, ws, usuario.substring(0,31));
-        }
-        XLSX.writeFile(workbook, "relatorio_atendimentos.xlsx");
-      });
-    }
+          let dados = [
+            [`Total atendimentos Dia`, totalDia],
+            [`Total atendimentos Mês`, totalMes],
+            [`Total atendimentos Ano`, totalAno],
+            [],
+            ["Hora", "Tipo", "Senha", "Guichê", "Intervalo"]
+          ];
+          let prev = null;
+          atendimentosFiltrados.forEach(a=>{
+            let tempo = prev ? formatTempo(Math.round((a.timestamp-prev.timestamp)/1000)) : "--";
+            dados.push([
+              new Date(a.timestamp).toLocaleString(),
+              a.tipo, a.senha, a.guiche, tempo
+            ]);
+            prev = a;
+          });
+          let ws = XLSX.utils.aoa_to_sheet(dados);
+          XLSX.utils.book_append_sheet(workbook, ws, usuario.substring(0,31));
+        }
+        XLSX.writeFile(workbook, "relatorio_atendimentos.xlsx");
+      });
+    }
 
-    function mostrarRelatorio(aba) {
-      db.ref("atendimentos").once("value", snap => {
-        const val = snap.val() || {};
-        const agora = new Date();
-        let html = `
-          <div style="font-size:1.2em;margin-bottom:7px;font-weight:bold;">Relatório de Atendimentos</div>
-          <button class="aba-btn ${aba==='dia'?'active':''}" onclick="mostrarRelatorio('dia')">Dia</button>
-          <button class="aba-btn ${aba==='mes'?'active':''}" onclick="mostrarRelatorio('mes')">Mês</button>
-          <button class="aba-btn ${aba==='ano'?'active':''}" onclick="mostrarRelatorio('ano')">Ano</button>
-          <button class="excel-btn" onclick="exportarRelatorioExcelDetalhado('${aba}')">Exportar Excel</button>
-          <button class="fechar-btn aba-btn" onclick="fecharRelatorio()">Fechar</button>
-          <table class="relatorio-table">
-            <tr>
-              <th>Usuário</th>
-              <th>Qtde</th>
-              <th>Primeiro</th>
-              <th>Último</th>
-              <th>Média Tempo</th>
-              <th>Detalhes</th>
-            </tr>
-        `;
-        for (let usuario in val) {
-          let atendimentos = Object.values(val[usuario]);
-          if (!atendimentos.length) continue;
-          let atendimentosFiltrados = atendimentos.filter(a => {
-            let d = new Date(a.timestamp);
-            if (aba==='dia') {
-              return d.toISOString().slice(0,10) === agora.toISOString().slice(0,10);
-            }
-            if (aba==='mes') {
-              return d.getMonth() === agora.getMonth() && d.getFullYear() === agora.getFullYear();
-            }
-            if (aba==='ano') {
-              return d.getFullYear() === agora.getFullYear();
-            }
-            return true;
-          });
-          if (!atendimentosFiltrados.length) continue;
-          let tempos = [];
-          atendimentosFiltrados.sort((a,b)=>a.timestamp-b.timestamp);
-          for(let i=1; i<atendimentosFiltrados.length; i++) {
-            tempos.push(atendimentosFiltrados[i].timestamp - atendimentosFiltrados[i-1].timestamp);
-          }
-          let mediaTempo = tempos.length ? formatTempo(Math.round(tempos.reduce((a,b)=>a+b,0)/tempos.length/1000)) : '--';
-          let primeiro = new Date(atendimentosFiltrados[0].timestamp).toLocaleTimeString();
-          let ultimo = new Date(atendimentosFiltrados[atendimentosFiltrados.length-1].timestamp).toLocaleTimeString();
-          html += `<tr>
-            <td>${usuario}</td>
-            <td>${atendimentosFiltrados.length}</td>
-            <td>${primeiro}</td>
-            <td>${ultimo}</td>
-            <td>${mediaTempo}</td>
-            <td>
-              <button class="aba-btn" onclick="mostrarDetalhesUsuario('${usuario}','${aba}')">Ver</button>
-            </td>
-          </tr>`;
-        }
-        html += `</table>`;
-        document.getElementById("relatorioArea").innerHTML = html;
-      });
-    }
+    function mostrarRelatorio(aba) {
+      db.ref("atendimentos").once("value", snap => {
+        const val = snap.val() || {};
+        const agora = new Date();
+        let html = `
+          <div style="font-size:1.2em;margin-bottom:7px;font-weight:bold;">Relatório de Atendimentos</div>
+          <button class="aba-btn ${aba==='dia'?'active':''}" onclick="mostrarRelatorio('dia')">Dia</button>
+          <button class="aba-btn ${aba==='mes'?'active':''}" onclick="mostrarRelatorio('mes')">Mês</button>
+          <button class="aba-btn ${aba==='ano'?'active':''}" onclick="mostrarRelatorio('ano')">Ano</button>
+          <button class="excel-btn" onclick="exportarRelatorioExcelDetalhado('${aba}')">Exportar Excel</button>
+          <button class="fechar-btn aba-btn" onclick="fecharRelatorio()">Fechar</button>
+          <table class="relatorio-table">
+            <tr>
+              <th>Usuário</th>
+              <th>Qtde</th>
+              <th>Primeiro</th>
+              <th>Último</th>
+              <th>Média Tempo</th>
+              <th>Detalhes</th>
+            </tr>
+        `;
+        for (let usuario in val) {
+          let atendimentos = Object.values(val[usuario]);
+          if (!atendimentos.length) continue;
+          let atendimentosFiltrados = atendimentos.filter(a => {
+            let d = new Date(a.timestamp);
+            if (aba==='dia') {
+              return d.toISOString().slice(0,10) === agora.toISOString().slice(0,10);
+            }
+            if (aba==='mes') {
+              return d.getMonth() === agora.getMonth() && d.getFullYear() === agora.getFullYear();
+            }
+            if (aba==='ano') {
+              return d.getFullYear() === agora.getFullYear();
+            }
+            return true;
+          });
+          if (!atendimentosFiltrados.length) continue;
+          let tempos = [];
+          atendimentosFiltrados.sort((a,b)=>a.timestamp-b.timestamp);
+          for(let i=1; i<atendimentosFiltrados.length; i++) {
+            tempos.push(atendimentosFiltrados[i].timestamp - atendimentosFiltrados[i-1].timestamp);
+          }
+          let mediaTempo = tempos.length ? formatTempo(Math.round(tempos.reduce((a,b)=>a+b,0)/tempos.length/1000)) : '--';
+          let primeiro = new Date(atendimentosFiltrados[0].timestamp).toLocaleTimeString();
+          let ultimo = new Date(atendimentosFiltrados[atendimentosFiltrados.length-1].timestamp).toLocaleTimeString();
+          html += `<tr>
+            <td>${usuario}</td>
+            <td>${atendimentosFiltrados.length}</td>
+            <td>${primeiro}</td>
+            <td>${ultimo}</td>
+            <td>${mediaTempo}</td>
+            <td>
+              <button class="aba-btn" onclick="mostrarDetalhesUsuario('${usuario}','${aba}')">Ver</button>
+            </td>
+          </tr>`;
+        }
+        html += `</table>`;
+        document.getElementById("relatorioArea").innerHTML = html;
+      });
+    }
 
-    window.mostrarDetalhesUsuario = function(usuario, aba) {
-      db.ref("atendimentos/" + usuario).once("value", snap => {
-        const val = Object.values(snap.val()||{});
-        const agora = new Date();
-        let atendimentosFiltrados = val.filter(a => {
-          let d = new Date(a.timestamp);
-          if (aba==='dia') {
-            return d.toISOString().slice(0,10) === agora.toISOString().slice(0,10);
-          }
-          if (aba==='mes') {
-            return d.getMonth() === agora.getMonth() && d.getFullYear() === agora.getFullYear();
-          }
-          if (aba==='ano') {
-            return d.getFullYear() === agora.getFullYear();
-          }
-          return true;
-        });
-        atendimentosFiltrados.sort((a,b)=>a.timestamp-b.timestamp);
-        let html = `<div><b>Detalhes de ${usuario} (${aba})</b><br>
-          <button class="aba-btn" onclick="mostrarRelatorio('${aba}')">Voltar</button>
-        <table class="relatorio-table">
-          <tr>
-            <th>Hora</th>
-            <th>Tipo</th>
-            <th>Senha</th>
-            <th>Guichê</th>
-            <th>Intervalo</th>
-          </tr>`;
-        let prev = null;
-        atendimentosFiltrados.forEach((a,i)=>{
-          let tempo = prev ? formatTempo(Math.round((a.timestamp-prev.timestamp)/1000)) : "--";
-          html += `<tr>
-            <td>${new Date(a.timestamp).toLocaleTimeString()}</td>
-            <td>${a.tipo}</td>
-            <td>${a.senha}</td>
-            <td>${a.guiche}</td>
-            <td>${tempo}</td>
-          </tr>`;
-          prev = a;
-        });
-        html += `</table></div>`;
-        document.getElementById("relatorioArea").innerHTML = html;
-      });
-    }
+    window.mostrarDetalhesUsuario = function(usuario, aba) {
+      db.ref("atendimentos/" + usuario).once("value", snap => {
+        const val = Object.values(snap.val()||{});
+        const agora = new Date();
+        let atendimentosFiltrados = val.filter(a => {
+          let d = new Date(a.timestamp);
+          if (aba==='dia') {
+            return d.toISOString().slice(0,10) === agora.toISOString().slice(0,10);
+          }
+          if (aba==='mes') {
+            return d.getMonth() === agora.getMonth() && d.getFullYear() === agora.getFullYear();
+          }
+          if (aba==='ano') {
+            return d.getFullYear() === agora.getFullYear();
+          }
+          return true;
+        });
+        atendimentosFiltrados.sort((a,b)=>a.timestamp-b.timestamp);
+        let html = `<div><b>Detalhes de ${usuario} (${aba})</b><br>
+          <button class="aba-btn" onclick="mostrarRelatorio('${aba}')">Voltar</button>
+        <table class="relatorio-table">
+          <tr>
+            <th>Hora</th>
+            <th>Tipo</th>
+            <th>Senha</th>
+            <th>Guichê</th>
+            <th>Intervalo</th>
+          </tr>`;
+        let prev = null;
+        atendimentosFiltrados.forEach((a,i)=>{
+          let tempo = prev ? formatTempo(Math.round((a.timestamp-prev.timestamp)/1000)) : "--";
+          html += `<tr>
+            <td>${new Date(a.timestamp).toLocaleTimeString()}</td>
+            <td>${a.tipo}</td>
+            <td>${a.senha}</td>
+            <td>${a.guiche}</td>
+            <td>${tempo}</td>
+          </tr>`;
+          prev = a;
+        });
+        html += `</table></div>`;
+        document.getElementById("relatorioArea").innerHTML = html;
+      });
+    }
 
-  </script>
+  </script>
 </body>
 </html>
