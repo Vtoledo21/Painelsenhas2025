@@ -1,3 +1,4 @@
+55555555
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -10,6 +11,7 @@
       --preto: #000;
       --cinza-texto: #fffbe5;
     }
+
     body {
       background: var(--verde-hcpa);
       color: var(--amarelo-hcpa);
@@ -53,7 +55,7 @@
       border-radius: 8px;
       font-size: 1.25em;
       padding: 12px 24px;
-      margin: 10px 8px;
+      margin: 10px 8px 10px 0;
       cursor: pointer;
       font-weight: bold;
       transition: background 0.2s;
@@ -200,10 +202,8 @@
       .container, .admin-area, .relatorio-area { min-width: 95vw; max-width: 97vw; padding-left: 4vw; padding-right: 4vw;}
     }
   </style>
-  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-database-compat.js"></script>
-  <!-- SheetJS para exportação Excel com várias abas -->
   <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
 </head>
 <body>
@@ -212,13 +212,8 @@
     <div id="usuarioLogado" style="color:#fffbe5;margin-bottom:12px;font-size:1.1em;"></div>
     <label for="guicheNum">Número do Guichê:</label>
     <input type="number" id="guicheNum" min="1" max="20" value="1" required><br>
-    <label for="tipoSenha">Tipo de Senha:</label>
-    <select id="tipoSenha">
-      <option value="Agendar">Agendar</option>
-      <option value="Agendados">Agendados</option>
-    </select>
-    <br>
-    <button class="botao" onclick="chamarSenha('normal')">Chamar Senha</button>
+    <button class="botao" onclick="chamarSenhaDireto('Agendar')">Senha Agendar</button>
+    <button class="botao" onclick="chamarSenhaDireto('Agendados')">Senha Realizar</button>
     <button class="botao" onclick="chamarSenha('repetir')">Rechamar</button>
     <div id="msg" style="color:yellow;margin-top:10px;"></div>
     <button class="admin-btn" onclick="abrirAdmin()">Administração</button>
@@ -265,8 +260,7 @@
       Agendar: 0,
       Agendados: 0
     };
-    // Histórico por guichê e tipo
-    let historicoGuiche = {}; // { guiche: {tipo: {senha, timestamp}} }
+    let historicoGuiche = {};
 
     db.ref("contadoresSenha").once("value", snap => {
       const val = snap.val();
@@ -299,6 +293,81 @@
       msg.textContent = "Usuário ou senha incorretos!";
     }
 
+    function chamarSenhaDireto(tipoSenha) {
+      let guiche = document.getElementById('guicheNum').value.padStart(2, '0');
+      historicoGuiche[guiche] = historicoGuiche[guiche] || {};
+      document.querySelectorAll('.botao').forEach(btn => btn.disabled = true);
+
+      db.ref("contadoresSenha/" + tipoSenha).transaction(function (currentValue) {
+        if (currentValue === null || isNaN(currentValue)) currentValue = 0;
+        return (currentValue + 1) % 1000;
+      }, function(error, committed, snapshot) {
+        document.querySelectorAll('.botao').forEach(btn => btn.disabled = false);
+        if (error || !committed) {
+          document.getElementById("msg").textContent = "Erro ao chamar senha, tente novamente!";
+          return;
+        }
+        let senhaAtual = snapshot.val();
+        let senhaStr = String(senhaAtual === 0 ? 999 : senhaAtual - 1).padStart(3, '0');
+        if (senhaAtual === 0) senhaStr = "999";
+        historicoGuiche[guiche][tipoSenha] = { senha: senhaStr, timestamp: Date.now() };
+        enviarSenha(tipoSenha, senhaStr, guiche, false);
+        registrarAtendimento(tipoSenha, senhaStr, guiche);
+      }, false);
+    }
+
+    function chamarSenha(tipoChamada) {
+      let guiche = document.getElementById('guicheNum').value.padStart(2, '0');
+      let tipoSenha = null;
+      if (tipoChamada === 'repetir') {
+        if (historicoGuiche[guiche] && historicoGuiche[guiche]["Agendados"]) {
+          tipoSenha = "Agendados";
+        } else if (historicoGuiche[guiche] && historicoGuiche[guiche]["Agendar"]) {
+          tipoSenha = "Agendar";
+        }
+        if (tipoSenha) {
+          let ultimoChamado = historicoGuiche[guiche][tipoSenha];
+          enviarSenha(tipoSenha, ultimoChamado.senha, guiche, true);
+          registrarAtendimento(tipoSenha, ultimoChamado.senha, guiche);
+        } else {
+          document.getElementById("msg").textContent = "Nenhuma senha para rechamar neste guichê!";
+        }
+      }
+    }
+
+    function enviarSenha(tipo, senha, guiche, repetir) {
+      document.getElementById("msg").textContent = `Chamando: ${tipo} - Senha ${senha} Guichê ${parseInt(guiche,10)}`;
+      db.ref("chamadaSenha").set({
+        tipo,
+        senha,
+        guiche,
+        repetir: !!repetir, // true para rechamada, false para chamada normal
+        ts: Date.now()      // timestamp para garantir mudança sempre
+      });
+      db.ref("historicoChamadas").once("value", snap=>{
+        let lista = snap.val() || [];
+        lista.push({tipo, senha, guiche, timestamp: Date.now()});
+        if(lista.length>10) lista = lista.slice(-10);
+        db.ref("historicoChamadas").set(lista);
+      });
+    }
+
+    // Função para contar apenas atendimentos válidos (diferença >= 60s)
+    function contarAtendimentosValidos(lista) {
+      if(!lista || lista.length === 0) return 0;
+      lista.sort((a, b) => a.timestamp - b.timestamp);
+      let count = 1;
+      let ultimo = lista[0].timestamp;
+      for(let i=1; i<lista.length; i++) {
+        if(lista[i].timestamp - ultimo >= 60000) { // 60.000 ms = 60s
+          count++;
+          ultimo = lista[i].timestamp;
+        }
+      }
+      return count;
+    }
+
+    // ... Todo o restante do código de administração, relatórios, etc, permanece igual ...
     function adicionarUsuarioAutorizado() {
       const novoUsuario = document.getElementById("novoUsuario").value.trim();
       if (!novoUsuario) return;
@@ -330,46 +399,6 @@
         data: dataHoje,
       };
       db.ref("atendimentos/" + usuarioLogado).push(registro);
-    }
-
-    // Função corrigida com transação para garantir senha única por tipo
-    function chamarSenha(tipoChamada) {
-      let guiche = document.getElementById('guicheNum').value.padStart(2, '0');
-      let tipoSenha = document.getElementById('tipoSenha').value;
-      historicoGuiche[guiche] = historicoGuiche[guiche] || {};
-
-      // Rechamar: só pode rechamar a senha que ESTE guichê chamou deste tipo
-      if (tipoChamada === 'repetir') {
-        let ultimoChamado = historicoGuiche[guiche][tipoSenha];
-        if (ultimoChamado) {
-          enviarSenha(tipoSenha, ultimoChamado.senha, guiche, true);
-          registrarAtendimento(tipoSenha, ultimoChamado.senha, guiche);
-        } else {
-          document.getElementById("msg").textContent = "Nenhuma senha para rechamar neste guichê/tipo!";
-        }
-        return;
-      }
-
-      // Chamada normal: transação
-      db.ref("contadoresSenha/" + tipoSenha).transaction(function (currentValue) {
-        if (currentValue === null || isNaN(currentValue)) currentValue = 0;
-        let senhaStr = String(currentValue).padStart(3, '0');
-        // Salva no histórico do guichê
-        historicoGuiche[guiche][tipoSenha] = { senha: senhaStr, timestamp: Date.now() };
-        enviarSenha(tipoSenha, senhaStr, guiche, false);
-        registrarAtendimento(tipoSenha, senhaStr, guiche);
-        // Retorna novo valor para salvar
-        return (currentValue + 1) % 1000;
-      });
-    }
-
-    function enviarSenha(tipo, senha, guiche, repetir) {
-      document.getElementById("msg").textContent = `Chamando: ${tipo} - Senha ${senha} Guichê ${parseInt(guiche,10)}`;
-      db.ref("chamadaSenha").set({
-        tipo,
-        senha,
-        guiche
-      });
     }
 
     function abrirAdmin() {
@@ -463,31 +492,32 @@
       return (segundos/3600).toFixed(2) + "h";
     }
 
-    // Exportação Excel com abas (SheetJS) e totais Dia/Mês/Ano + RESUMO GERAL
     function exportarRelatorioExcelDetalhado(aba) {
       db.ref("atendimentos").once("value", snap => {
         const val = snap.val() || {};
         const agora = new Date();
         let workbook = XLSX.utils.book_new();
 
-        // Resumo para todos usuários - nova aba
         let resumoDados = [["Usuário", "Atendimentos Dia", "Atendimentos Mês", "Atendimentos Ano"]];
         let totalDiaGeral = 0, totalMesGeral = 0, totalAnoGeral = 0;
         for (let usuario in val) {
           let atendimentos = Object.values(val[usuario]);
           if (!atendimentos.length) continue;
-          let totalDia = atendimentos.filter(a=>{
+          let listaDia = atendimentos.filter(a=>{
             let d = new Date(a.timestamp);
             return d.toISOString().slice(0,10) === agora.toISOString().slice(0,10);
-          }).length;
-          let totalMes = atendimentos.filter(a=>{
+          });
+          let listaMes = atendimentos.filter(a=>{
             let d = new Date(a.timestamp);
             return d.getMonth() === agora.getMonth() && d.getFullYear() === agora.getFullYear();
-          }).length;
-          let totalAno = atendimentos.filter(a=>{
+          });
+          let listaAno = atendimentos.filter(a=>{
             let d = new Date(a.timestamp);
             return d.getFullYear() === agora.getFullYear();
-          }).length;
+          });
+          let totalDia = contarAtendimentosValidos(listaDia);
+          let totalMes = contarAtendimentosValidos(listaMes);
+          let totalAno = contarAtendimentosValidos(listaAno);
           resumoDados.push([usuario, totalDia, totalMes, totalAno]);
           totalDiaGeral += totalDia;
           totalMesGeral += totalMes;
@@ -495,8 +525,6 @@
         }
         let wsResumo = XLSX.utils.aoa_to_sheet(resumoDados);
         XLSX.utils.book_append_sheet(workbook, wsResumo, "Resumo");
-
-        // Resumo TOTAL - nova aba
         let resumoTotal = [
           ["Atendimentos Dia", "Atendimentos Mês", "Atendimentos Ano"],
           [totalDiaGeral, totalMesGeral, totalAnoGeral]
@@ -504,11 +532,9 @@
         let wsTotal = XLSX.utils.aoa_to_sheet(resumoTotal);
         XLSX.utils.book_append_sheet(workbook, wsTotal, "Resumo Total");
 
-        // Abas detalhadas por usuário
         for (let usuario in val) {
           let atendimentos = Object.values(val[usuario]);
           if (!atendimentos.length) continue;
-
           let atendimentosFiltrados = atendimentos.filter(a => {
             let d = new Date(a.timestamp);
             if (aba==='dia') return d.toISOString().slice(0,10) === agora.toISOString().slice(0,10);
@@ -518,18 +544,21 @@
           });
           atendimentosFiltrados.sort((a,b)=>a.timestamp-b.timestamp);
 
-          let totalDia = atendimentos.filter(a=>{
+          let listaDia = atendimentos.filter(a=>{
             let d = new Date(a.timestamp);
             return d.toISOString().slice(0,10) === agora.toISOString().slice(0,10);
-          }).length;
-          let totalMes = atendimentos.filter(a=>{
+          });
+          let listaMes = atendimentos.filter(a=>{
             let d = new Date(a.timestamp);
             return d.getMonth() === agora.getMonth() && d.getFullYear() === agora.getFullYear();
-          }).length;
-          let totalAno = atendimentos.filter(a=>{
+          });
+          let listaAno = atendimentos.filter(a=>{
             let d = new Date(a.timestamp);
             return d.getFullYear() === agora.getFullYear();
-          }).length;
+          });
+          let totalDia = contarAtendimentosValidos(listaDia);
+          let totalMes = contarAtendimentosValidos(listaMes);
+          let totalAno = contarAtendimentosValidos(listaAno);
 
           let dados = [
             [`Total atendimentos Dia`, totalDia],
@@ -592,6 +621,9 @@
             return true;
           });
           if (!atendimentosFiltrados.length) continue;
+          let listaValidos = atendimentosFiltrados;
+          let totalValidos = contarAtendimentosValidos(listaValidos);
+
           let tempos = [];
           atendimentosFiltrados.sort((a,b)=>a.timestamp-b.timestamp);
           for(let i=1; i<atendimentosFiltrados.length; i++) {
@@ -602,7 +634,7 @@
           let ultimo = new Date(atendimentosFiltrados[atendimentosFiltrados.length-1].timestamp).toLocaleTimeString();
           html += `<tr>
             <td>${usuario}</td>
-            <td>${atendimentosFiltrados.length}</td>
+            <td>${totalValidos}</td>
             <td>${primeiro}</td>
             <td>${ultimo}</td>
             <td>${mediaTempo}</td>
@@ -660,8 +692,76 @@
         document.getElementById("relatorioArea").innerHTML = html;
       });
     }
+    // Olhinho para mostrar/ocultar senha
+function toggleSenhaVisivel() {
+  let input = document.getElementById("senha");
+  input.type = input.type === "password" ? "text" : "password";
+}
 
+// Enter faz login
+document.getElementById("senha").addEventListener("keyup",function(e){
+  if(e.key === "Enter"){ checarLogin(); }
+});
+document.getElementById("usuario").addEventListener("keyup",function(e){
+  if(e.key === "Enter"){ checarLogin(); }
+});
+
+// Mini painel de histórico de senhas chamadas (últimas 6, em tempo real)
+function atualizarMiniHistorico(){
+  if(!window.usuarioLogado) return;
+  if(window._miniHistRef) window._miniHistRef.off();
+  window._miniHistRef = db.ref("atendimentos/"+window.usuarioLogado).orderByChild("timestamp").limitToLast(6);
+  window._miniHistRef.on("value", snap=>{
+    const val = snap.val();
+    let lista = val ? Object.values(val).sort((a, b) => b.timestamp - a.timestamp) : [];
+    lista = lista.slice(0,6);
+    const ul = document.getElementById("painelHistoricoLista");
+    ul.innerHTML = "";
+    if (!lista.length) {
+      ul.innerHTML = `<li style="opacity:.8;">Nenhuma senha chamada ainda.</li>`;
+      return;
+    }
+    lista.forEach(item => {
+      let tipoStr = item.tipo === "Agendar" ? "Agendar" : "Realizar";
+      let data = new Date(item.timestamp);
+      let hora = data.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+      let linha = `<span class="painel-historico-li-top">${tipoStr} &ndash; Senha <b>${item.senha}</b> &ndash; Guichê ${parseInt(item.guiche,10)}</span>
+                    <span class="painel-historico-li-bottom">${hora}</span>`;
+      let li = document.createElement("li");
+      li.innerHTML = linha;
+      ul.appendChild(li);
+    });
+  });
+}
+
+// Após login, mostrar o painel histórico e atualizar
+const _checarLoginOrig = checarLogin;
+checarLogin = function(){
+  _checarLoginOrig();
+  setTimeout(()=>{
+    if(window.usuarioLogado){
+      document.getElementById("painelHistorico").style.display = "block";
+      atualizarMiniHistorico();
+    }
+  },0);
+};
   </script>
+    <!-- MINI PAINEL HISTÓRICO -->
+<div class="painel-historico" id="painelHistorico" style="display:none;position:fixed;top:50px;right:40px;z-index:99;">
+  <div class="painel-historico-titulo" style="font-size:1.25em;font-weight:bold;color:#ffe900;margin-bottom:10px;">Senhas Chamadas</div>
+  <ul class="painel-historico-lista" id="painelHistoricoLista" style="width:100%;list-style:none;padding:0;margin:0;max-height:310px;overflow-y:auto;"></ul>
+</div>
+<style>
+.painel-historico{background:#000;border-radius:12px;min-width:220px;max-width:250px;color:#ffe900;padding:18px 12px 12px 18px;font-size:1em;height:370px;display:flex;flex-direction:column;align-items:flex-start;box-shadow:0 0 10px #0007;}
+.painel-historico-titulo{font-size:1.25em;font-weight:bold;color:#ffe900;margin-bottom:12px;text-align:left;width:100%;letter-spacing:0.03em;}
+.painel-historico-lista li{border-bottom:1px solid #ffe90033;padding:5px 0;font-size:1.07em;display:flex;flex-direction:column;align-items:flex-start;word-break:break-word;}
+.painel-historico-li-top{font-weight:bold;margin-bottom:1px;}
+.painel-historico-li-bottom{font-size:0.95em;color:#ffe900cc;}
+@media (max-width: 950px){
+  .painel-historico{position:static;margin: 20px auto;}
+}
+</style>
 </body>
 </html>
+
 
