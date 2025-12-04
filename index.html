@@ -1,3 +1,4 @@
+V.3
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -21,11 +22,20 @@
     .senha-numero { font-size: clamp(18.2rem, 18.5vh, 20vw); font-weight: bold; color: var(--amarelo-hcpa); letter-spacing: 0.19em; text-shadow: var(--shadow); margin: 0.1vh 0 1vh 0; text-align: center; transition: color 0.2s; line-height: 1; word-break: keep-all;}
     .senha-numero.azul { color: var(--azul-agendar);}
     .senha-numero.vermelho { color: var(--vermelho-agendados);}
-    .direita { flex: 1; width: 37vw; min-width: 250px; height: 100%; display: flex; flex-direction: column; align-items: stretch; justify-content: flex-start; box-sizing: border-box; position: relative; background: var(--verde-hcpa);}
-    .historico-header { display: flex; flex-direction: row; justify-content: space-between; align-items: center; background: var(--verde-hcpa); color: var(--amarelo-hcpa); font-size: clamp(1rem, 3.6vh, 2vw); font-weight: bold; text-align: center; border-bottom: 2px solid var(--amarelo-hcpa); padding: 1.2vh 0 1.2vh 0; margin: 0 0.5vw; text-shadow: var(--shadow); white-space: nowrap;}
-    .historico-header > div { flex: 1; text-align: center; }
-    .historico-lista { width: 100%; min-height: 25vh; background: var(--verde-hcpa); color: var(--amarelo-hcpa); font-size: clamp(1rem, 3.6vh, 2vw); text-align: left; padding: 0; margin: 0 0.5vw; list-style: none;}
-    .historico-lista li { display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 1.1vh 2vw; border-bottom: 1px solid #ffe90055; font-size: clamp(0.9rem, 3.5vh, 2vw); background: var(--verde-hcpa); color: var(--amarelo-hcpa); letter-spacing: 0.04em;}
+    .direita { flex: 1; width: 37vw; min-width: 250px; height: 100%; display: flex; flex-direction: column; align-items: stretch; justify-content: flex-start; box-sizing: border-box; position: relative; background: var(--verde-hcpa); padding: 0.8vw 1.2vw;}
+    /* HISTÓRICO - ajustado para responsividade, cabeçalhos em duas linhas e números centralizados */
+    .historico-header { display: flex; flex-direction: row; justify-content: space-between; align-items: center; background: var(--verde-hcpa); color: var(--amarelo-hcpa); font-weight: bold; text-align: center; border-bottom: 2px solid var(--amarelo-hcpa); padding: 1.2vh 0 1.2vh 0; margin: 0 0.2vw; text-shadow: var(--shadow); white-space: normal; gap: 0.5vw;}
+    .historico-header > div { flex: 1; display:flex; flex-direction:column; justify-content:center; align-items:center; }
+    .historico-header .header-line { display:block; line-height:1; text-align:center; }
+    .historico-header .header-line:first-child { font-size: clamp(1.1rem, 3.2vh, 1.8vw); }
+    .historico-header .header-line:last-child { font-size: clamp(1rem, 2.4vh, 1.4vw); }
+    .historico-lista { width: 100%; min-height: 25vh; background: var(--verde-hcpa); color: var(--amarelo-hcpa); font-size: clamp(1rem, 3.2vh, 1.6vw); text-align: center; padding: 0; margin: 0 0.2vw; list-style: none; overflow: hidden;}
+    /* grid com 2 colunas garantido centralização em ambos os lados */
+    .historico-lista li { display: grid; grid-template-columns: 1fr 1fr; align-items: center; justify-items: center; padding: 1.1vh 1.6vw; border-bottom: 1px solid #ffe90055; font-size: clamp(1.05rem, 2.8vh, 1.8vw); background: var(--verde-hcpa); color: var(--amarelo-hcpa); letter-spacing: 0.04em; }
+    .historico-lista li .senha { font-weight: 900; color: #ffe900; font-size: clamp(1.6rem, 4.2vh, 2.6vw); line-height: 1; }
+    /* ajuste: manter guichê com mesma fonte da senha */
+    .historico-lista li .guiche { opacity: 0.95; font-size: clamp(1.6rem, 4.2vh, 2.6vw); font-weight: 900; }
+    /* faixa inferior */
     .faixa-inferior { width: 100vw; position: fixed; left: 0; bottom: 0; z-index: 10;}
     .faixa-inferior-top { width: 100vw; height: 0.5vw; background: var(--amarelo-hcpa);}
     .faixa-inferior-centro { width: 100vw; display: flex; flex-direction: row; align-items: stretch; background: var(--preto); height: clamp(55px, 10.5vh, 130px); border-bottom: 0.3vw solid var(--amarelo-hcpa);}
@@ -38,6 +48,15 @@
     @keyframes pisca-numero-azul { 0%{color:#d70000;}50%{color:#940303;}100%{color:#d70000;} }
     .senha-numero.piscando-agendados { animation: pisca-numero-vermelho 0.7s alternate 7; }
     @keyframes pisca-numero-vermelho { 0%{color:#0074d9;}50%{color:#0755db;}100%{color:#0074d9;} }
+
+    /* grandes telas: aumentar proporção do histórico sem mexer no layout geral */
+    @media (min-width: 1600px) {
+      .historico-lista li { padding: 1.6vh 2.2vw; }
+      .historico-header .header-line:first-child { font-size: clamp(1.4rem, 3.8vh, 2.6vw); }
+      .historico-header .header-line:last-child { font-size: clamp(1.2rem, 3.2vh, 1.9vw); }
+      .historico-lista li .senha { font-size: clamp(2rem, 5.5vh, 3.4vw); }
+      .historico-lista li .guiche { font-size: clamp(2rem, 5.5vh, 3.4vw); }
+    }
   </style>
   <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-database-compat.js"></script>
@@ -59,8 +78,14 @@
       </div>
       <div class="direita">
         <div class="historico-header">
-          <div>Senha Anterior</div>
-          <div>Guichê Anterior</div>
+          <div>
+            <span class="header-line">Senha</span>
+            <span class="header-line">Anterior</span>
+          </div>
+          <div>
+            <span class="header-line">Guichê</span>
+            <span class="header-line">Anterior</span>
+          </div>
         </div>
         <ul id="historicoLista" class="historico-lista"></ul>
       </div>
@@ -69,7 +94,7 @@
       <div class="faixa-inferior-top"></div>
       <div class="faixa-inferior-centro">
         <div class="faixa-guiche" id="guicheFaixa">Guichê --</div>
-        <div class="faixa-aguarde">AGUARDE A CHAMADA.</div>
+        <div class="faixa-aguarde">AGUARDE A CHAMADA</div>
       </div>
       <div class="faixa-inferior-bottom"></div>
     </div>
@@ -96,7 +121,7 @@
     db.ref("chamadaSenha").on("value", snapshot => {
       const dados = snapshot.val();
       if (!dados) return;
-      // Mudou senha, tipo ou foi rechamada Pisca e fala!
+      // Mudou senha, tipo ou foi rechamada? Pisca e fala!
       let mudou = false;
       if (
         dados.senha !== ultimaSenha ||
@@ -141,9 +166,11 @@
     function atualizarHistorico(lista) {
       const historico = document.getElementById('historicoLista');
       historico.innerHTML = '';
-      lista.slice(-4).reverse().forEach(item => {
+      // pegar últimas 5 entradas
+      let arr = Array.isArray(lista) ? lista.filter(Boolean) : Object.values(lista || {});
+      arr.slice(-5).reverse().forEach(item => {
         const li = document.createElement('li');
-        li.innerHTML = `<div>${item.senha}</div><div>Guichê ${parseInt(item.guiche, 10)}</div>`;
+        li.innerHTML = `<div class="senha">${item.senha}</div><div class="guiche">Guichê ${parseInt(item.guiche, 10)}</div>`;
         historico.appendChild(li);
       });
     }
@@ -199,12 +226,4 @@
   </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
 
