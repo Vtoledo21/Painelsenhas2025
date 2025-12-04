@@ -1,4 +1,4 @@
-66666666666666
+V7.7
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -9,6 +9,8 @@
       --verde-hcpa: #276e5b;
       --amarelo-hcpa: #ffe900;
       --preto: #000;
+      --tom-agendar: #d70000;
+      --tom-realizar: #0074d9;
       --cinza-texto: #fffbe5;
     }
 
@@ -60,21 +62,71 @@
       font-weight: bold;
       transition: background 0.2s;
     }
-    .botao:hover { background: #fffbe5; }
+    .botao:hover { filter: brightness(0.95); }
+
+    .agendar-btn {
+      background: var(--tom-agendar);
+      color: #fff;
+    }
+    .agendar-btn:hover { filter: brightness(0.9); }
+
+    .realizar-btn {
+      background: var(--tom-realizar);
+      color: #fff;
+    }
+    .realizar-btn:hover { filter: brightness(0.9); }
+
     .senha-form { margin-bottom: 22px; }
+
     .admin-btn {
       margin-top: 24px;
-      background: #2196F3;
-      color: #fff;
+      background: var(--verde-hcpa);
+      color: var(--amarelo-hcpa);
       font-weight: bold;
       border-radius: 8px;
       padding: 8px 22px;
       border: none;
       cursor: pointer;
       font-size: 1.1em;
-      transition: background 0.2s;
+      transition: background 0.2s, filter 0.2s;
     }
-    .admin-btn:hover { background: #1565c0; }
+    .admin-btn:hover { background: #1f5a48; filter: brightness(1.02); }
+
+    /* área de senhas chamadas (histórico global, exibido ao usuário logado) */
+    .chamadas-area {
+      margin-top: 18px;
+      text-align: left;
+      max-width: 420px;
+      margin-left: auto;
+      margin-right: auto;
+      color: #ffe900;
+    }
+    .chamadas-area .titulo-ch { font-weight: bold; margin-bottom: 8px; }
+    .lista-chamadas {
+      list-style: none;
+      padding: 6px;
+      margin: 0;
+      background: #111;
+      border-radius: 8px;
+      max-height: 260px;
+      overflow-y: auto;
+      box-shadow: inset 0 0 6px #0008;
+    }
+    .lista-chamadas li {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 10px;
+      border-bottom: 1px solid #ffe90022;
+      font-size: 1em;
+      align-items: center;
+      gap: 8px;
+    }
+    .lista-chamadas li:last-child { border-bottom: none; }
+    .lista-chamadas .left { display:flex; flex-direction:column; }
+    .lista-chamadas .senha { font-weight: bold; font-size: 1.05em; color: #fffbe5; }
+    .lista-chamadas .tipo { font-size: 0.9em; opacity: 0.85; color: #ffe900cc; }
+    .lista-chamadas .guiche { font-weight: bold; color: #fffbe5; }
+
     .admin-area {
       background: #222;
       border-radius: 10px;
@@ -89,58 +141,7 @@
       margin-right: auto;
       max-width: 420px;
     }
-    .admin-area label {
-      display: block;
-      margin-bottom: 7px;
-      font-weight: bold;
-      font-size: 1.2em;
-    }
-    .admin-area input[type="number"] {
-      width: 110px;
-      margin-bottom: 12px;
-      font-size: 1.15em;
-      padding: 5px;
-    }
-    .admin-area .botao {
-      margin-top: 10px;
-      background: #0074d9;
-      color: #fff;
-      font-size: 1.15em;
-    }
-    .admin-area .botao:hover {
-      background: #004b8a;
-    }
-    .admin-area .fechar-btn {
-      background: #ff4040;
-      color: #fff;
-      font-size: 1em;
-      margin-left: 12px;
-    }
-    .admin-area .fechar-btn:hover {
-      background: #a90000;
-    }
-    .admin-area .msg-admin {
-      margin-top: 18px;
-      color: #fffbe5;
-      font-size: 1em;
-      font-weight: bold;
-    }
-    .admin-area .limpar-btn {
-      background: #ff9800;
-      color: #fff;
-      margin-top: 14px;
-      margin-left: 0;
-      font-size: 1.1em;
-      border-radius: 8px;
-      padding: 8px 18px;
-      border: none;
-      cursor: pointer;
-      font-weight: bold;
-      transition: background 0.2s;
-    }
-    .admin-area .limpar-btn:hover {
-      background: #b36a00;
-    }
+
     .relatorio-area {
       background: #222;
       border-radius: 10px;
@@ -156,21 +157,7 @@
       margin-right: auto;
       text-align: left;
     }
-    .relatorio-table th, .relatorio-table td {
-      padding: 7px 11px;
-      border-bottom: 1px solid #ffe90044;
-      text-align: center;
-    }
-    .relatorio-table th {
-      background: #276e5b;
-      color: #ffe900;
-      font-weight: bold;
-    }
-    .relatorio-table {
-      border-collapse: collapse;
-      width: 100%;
-      margin-top: 10px;
-    }
+
     .aba-btn {
       background: #276e5b;
       color: #ffe900;
@@ -198,8 +185,10 @@
       transition: background 0.2s;
     }
     .excel-btn:hover { background: #1b5e20; }
+
     @media (max-width: 700px) {
       .container, .admin-area, .relatorio-area { min-width: 95vw; max-width: 97vw; padding-left: 4vw; padding-right: 4vw;}
+      .chamadas-area { max-width: 95vw; }
     }
   </style>
   <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-app-compat.js"></script>
@@ -212,15 +201,25 @@
     <div id="usuarioLogado" style="color:#fffbe5;margin-bottom:12px;font-size:1.1em;"></div>
     <label for="guicheNum">Número do Guichê:</label>
     <input type="number" id="guicheNum" min="1" max="20" value="1" required><br>
-    <button class="botao" onclick="chamarSenhaDireto('Agendar')">Senha Agendar</button>
-    <button class="botao" onclick="chamarSenhaDireto('Agendados')">Senha Realizar</button>
+
+    <button class="botao agendar-btn" onclick="chamarSenhaDireto('Agendar')">Senha Agendar</button>
+    <button class="botao realizar-btn" onclick="chamarSenhaDireto('Agendados')">Senha Realizar</button>
     <button class="botao" onclick="chamarSenha('repetir')">Rechamar</button>
     <div id="msg" style="color:yellow;margin-top:10px;"></div>
+
     <button class="admin-btn" onclick="abrirAdmin()">Administração</button>
     <button class="admin-btn" onclick="abrirRelatorio()">Relatórios</button>
+
+    <!-- área: Senhas Chamadas (histórico global, similar ao painel) -->
+    <div class="chamadas-area" id="chamadasArea" style="display:none;">
+      <div class="titulo-ch">Senhas Chamadas</div>
+      <ul id="listaSenhasChamadas" class="lista-chamadas"></ul>
+    </div>
+
     <div id="adminArea" class="admin-area"></div>
     <div id="relatorioArea" class="relatorio-area"></div>
   </div>
+
   <div id="senha-protect" class="senha-form">
     <label for="usuario">Usuário:</label>
     <input type="text" id="usuario" autofocus>
@@ -230,6 +229,7 @@
     <button onclick="checarLogin()">Entrar</button>
     <div id="msgSenha" style="color:red;margin-top:8px;"></div>
   </div>
+
   <script>
     const senhaCorreta = "radiologia2025";
     const usuarioAdmin = "vtcosta";
@@ -279,6 +279,7 @@
         document.getElementById("guiche-container").style.display = "block";
         document.getElementById("usuarioLogado").textContent = "Usuário admin: " + usuarioLogado;
         msg.textContent = "";
+        iniciarHistoricoChamadas();
         return;
       }
       if (usuariosAutorizados.includes(usuario) && senhaInput === senhaCorreta) {
@@ -288,13 +289,41 @@
         document.getElementById("guiche-container").style.display = "block";
         document.getElementById("usuarioLogado").textContent = "Usuário: " + usuarioLogado;
         msg.textContent = "";
+        iniciarHistoricoChamadas();
         return;
       }
       msg.textContent = "Usuário ou senha incorretos!";
     }
 
+    // Listener global para atualizar a lista de chamadas (últimas 8)
+    let _histChamadasRef = null;
+    function iniciarHistoricoChamadas() {
+      const chamadasArea = document.getElementById("chamadasArea");
+      chamadasArea.style.display = "block";
+
+      if (_histChamadasRef) _histChamadasRef.off();
+      _histChamadasRef = db.ref("historicoChamadas");
+      _histChamadasRef.on("value", snap => {
+        const val = snap.val() || [];
+        let lista = Array.isArray(val) ? val.filter(Boolean) : Object.values(val || {});
+        lista = lista.slice(-8).reverse();
+        const ul = document.getElementById("listaSenhasChamadas");
+        ul.innerHTML = "";
+        if (!lista.length) {
+          ul.innerHTML = '<li style="opacity:.8;padding:8px">Nenhuma chamada registrada.</li>';
+          return;
+        }
+        lista.forEach(item => {
+          const li = document.createElement("li");
+          const tipoLabel = item.tipo === "Agendar" ? "Agendar" : (item.tipo === "Agendados" ? "Realizar" : item.tipo || "");
+          li.innerHTML = `<div class="left"><span class="senha">${item.senha}</span><span class="tipo">${tipoLabel}</span></div><div class="guiche">Guichê ${parseInt(item.guiche||0,10)}</div>`;
+          ul.appendChild(li);
+        });
+      });
+    }
+
     function chamarSenhaDireto(tipoSenha) {
-      let guiche = document.getElementById('guicheNum').value.padStart(2, '0');
+      let guiche = String(document.getElementById('guicheNum').value || "").padStart(2, '0');
       historicoGuiche[guiche] = historicoGuiche[guiche] || {};
       document.querySelectorAll('.botao').forEach(btn => btn.disabled = true);
 
@@ -307,31 +336,53 @@
           document.getElementById("msg").textContent = "Erro ao chamar senha, tente novamente!";
           return;
         }
-        let senhaAtual = snapshot.val();
-        let senhaStr = String(senhaAtual === 0 ? 999 : senhaAtual - 1).padStart(3, '0');
-        if (senhaAtual === 0) senhaStr = "999";
+        let contadorAtual = snapshot.val();
+        let senhaStr = String(contadorAtual).padStart(3, '0');
+
         historicoGuiche[guiche][tipoSenha] = { senha: senhaStr, timestamp: Date.now() };
+
+        db.ref(`ultimoPorGuiche/${guiche}/${tipoSenha}`).set({
+          senha: senhaStr,
+          timestamp: Date.now()
+        });
+
         enviarSenha(tipoSenha, senhaStr, guiche, false);
         registrarAtendimento(tipoSenha, senhaStr, guiche);
       }, false);
     }
 
     function chamarSenha(tipoChamada) {
-      let guiche = document.getElementById('guicheNum').value.padStart(2, '0');
-      let tipoSenha = null;
+      let guiche = String(document.getElementById('guicheNum').value || "").padStart(2, '0');
+
       if (tipoChamada === 'repetir') {
-        if (historicoGuiche[guiche] && historicoGuiche[guiche]["Agendados"]) {
-          tipoSenha = "Agendados";
-        } else if (historicoGuiche[guiche] && historicoGuiche[guiche]["Agendar"]) {
-          tipoSenha = "Agendar";
-        }
-        if (tipoSenha) {
-          let ultimoChamado = historicoGuiche[guiche][tipoSenha];
-          enviarSenha(tipoSenha, ultimoChamado.senha, guiche, true);
-          registrarAtendimento(tipoSenha, ultimoChamado.senha, guiche);
-        } else {
-          document.getElementById("msg").textContent = "Nenhuma senha para rechamar neste guichê!";
-        }
+        db.ref(`ultimoPorGuiche/${guiche}`).once('value').then(snap => {
+          const val = snap.val() || {};
+          const ag = val.Agendar;
+          const agd = val.Agendados;
+          if (!ag && !agd) {
+            document.getElementById("msg").textContent = "Nenhuma senha para rechamar neste guichê!";
+            return;
+          }
+          let escolhidoTipo = null;
+          if (ag && agd) {
+            escolhidoTipo = (ag.timestamp >= agd.timestamp) ? "Agendar" : "Agendados";
+          } else if (ag) {
+            escolhidoTipo = "Agendar";
+          } else {
+            escolhidoTipo = "Agendados";
+          }
+
+          const ultimoChamado = val[escolhidoTipo];
+          if (!ultimoChamado || !ultimoChamado.senha) {
+            document.getElementById("msg").textContent = "Nenhuma senha válida para rechamar neste guichê!";
+            return;
+          }
+          enviarSenha(escolhidoTipo, ultimoChamado.senha, guiche, true);
+          registrarAtendimento(escolhidoTipo, ultimoChamado.senha, guiche);
+        }).catch(err=>{
+          console.error(err);
+          document.getElementById("msg").textContent = "Erro ao ler dados de rechamada. Tente novamente.";
+        });
       }
     }
 
@@ -341,25 +392,29 @@
         tipo,
         senha,
         guiche,
-        repetir: !!repetir, // true para rechamada, false para chamada normal
-        ts: Date.now()      // timestamp para garantir mudança sempre
+        repetir: !!repetir,
+        ts: Date.now()
       });
       db.ref("historicoChamadas").once("value", snap=>{
         let lista = snap.val() || [];
+        if (!Array.isArray(lista)) lista = Object.values(lista || {});
         lista.push({tipo, senha, guiche, timestamp: Date.now()});
-        if(lista.length>10) lista = lista.slice(-10);
+        if(lista.length>100) lista = lista.slice(-100);
         db.ref("historicoChamadas").set(lista);
+      });
+      db.ref(`ultimoPorGuiche/${guiche}/${tipo}`).set({
+        senha,
+        timestamp: Date.now()
       });
     }
 
-    // Função para contar apenas atendimentos válidos (diferença >= 60s)
     function contarAtendimentosValidos(lista) {
       if(!lista || lista.length === 0) return 0;
       lista.sort((a, b) => a.timestamp - b.timestamp);
       let count = 1;
       let ultimo = lista[0].timestamp;
       for(let i=1; i<lista.length; i++) {
-        if(lista[i].timestamp - ultimo >= 60000) { // 60.000 ms = 60s
+        if(lista[i].timestamp - ultimo >= 60000) {
           count++;
           ultimo = lista[i].timestamp;
         }
@@ -367,131 +422,7 @@
       return count;
     }
 
-    // ... Todo o restante do código de administração, relatórios, etc, permanece igual ...
-    function adicionarUsuarioAutorizado() {
-      const novoUsuario = document.getElementById("novoUsuario").value.trim();
-      if (!novoUsuario) return;
-      if (!usuariosAutorizados.includes(novoUsuario)) {
-        usuariosAutorizados.push(novoUsuario);
-        db.ref("usuariosAutorizados").set(usuariosAutorizados);
-        document.getElementById("msgAdmin").textContent = "Usuário autorizado!";
-        mostrarCamposAdmin();
-      } else {
-        document.getElementById("msgAdmin").textContent = "Usuário já está autorizado!";
-      }
-    }
-
-    function removerUsuarioAutorizado(u) {
-      usuariosAutorizados = usuariosAutorizados.filter(user => user !== u);
-      db.ref("usuariosAutorizados").set(usuariosAutorizados);
-      mostrarCamposAdmin();
-    }
-
-    function registrarAtendimento(tipo, senha, guiche) {
-      if (!usuarioLogado) return;
-      const now = new Date();
-      const dataHoje = now.toISOString().slice(0,10);
-      const registro = {
-        timestamp: now.getTime(),
-        tipo,
-        senha,
-        guiche,
-        data: dataHoje,
-      };
-      db.ref("atendimentos/" + usuarioLogado).push(registro);
-    }
-
-    function abrirAdmin() {
-      const adminDiv = document.getElementById("adminArea");
-      if (!isAdmin) {
-        adminDiv.innerHTML = `
-          <div style="color:red;">Acesso restrito ao administrador!</div>
-          <button class="fechar-btn botao" onclick="fecharAdmin()">Fechar</button>
-        `;
-        adminDiv.style.display = "block";
-        return;
-      }
-      mostrarCamposAdmin();
-      adminDiv.style.display = "block";
-    }
-
-    function fecharAdmin() {
-      document.getElementById("adminArea").style.display = "none";
-    }
-
-    function limparAtendimentos() {
-      if (confirm("Tem certeza que deseja apagar TODOS os atendimentos registrados? Esta ação não pode ser desfeita.")) {
-        db.ref("atendimentos").set(null, (err)=>{
-          document.getElementById("msgAdmin").textContent = err ? "Erro ao limpar!" : "Dados de atendimentos apagados!";
-        });
-      }
-    }
-
-    function mostrarCamposAdmin() {
-      db.ref("contadoresSenha").once("value", snap => {
-        const val = snap.val() || {Agendar: 0, Agendados: 0};
-        const adminDiv = document.getElementById("adminArea");
-        let usuariosHtml = "<ul>";
-        usuariosAutorizados.forEach(u => {
-          usuariosHtml += `<li>${u} <button onclick="removerUsuarioAutorizado('${u}')" style="background:#ff4040;color:#fff;border:none;border-radius:5px;padding:2px 7px;cursor:pointer;">Remover</button></li>`;
-        });
-        usuariosHtml += "</ul>";
-        adminDiv.innerHTML = `
-          <div style="margin-bottom:12px;font-size:1.2em;font-weight:bold;color:#ffe900;">Ajuste dos Contadores</div>
-          <label for="novoAgendar">Agendar: </label>
-          <input type="number" id="novoAgendar" min="0" max="999" value="${val.Agendar}">
-          <br>
-          <label for="novoAgendados">Agendados: </label>
-          <input type="number" id="novoAgendados" min="0" max="999" value="${val.Agendados}">
-          <br>
-          <button class="botao" onclick="atualizarContadores()">Atualizar</button>
-          <div style="margin:14px 0; border-top:1px solid #ffe90033"></div>
-          <div style="margin-bottom:10px;font-weight:bold;color:#ffe900;">Usuários autorizados</div>
-          ${usuariosHtml}
-          <input type="text" id="novoUsuario" placeholder="Novo usuário">
-          <button class="botao" onclick="adicionarUsuarioAutorizado()">Adicionar</button>
-          <button class="limpar-btn botao" onclick="limparAtendimentos()">Limpar Dados</button>
-          <button class="fechar-btn botao" onclick="fecharAdmin()">Fechar</button>
-          <div id="msgAdmin" class="msg-admin"></div>
-        `;
-      });
-    }
-
-    function atualizarContadores() {
-      let novoAgendar = parseInt(document.getElementById("novoAgendar").value,10);
-      let novoAgendados = parseInt(document.getElementById("novoAgendados").value,10);
-      if (isNaN(novoAgendar) || novoAgendar < 0 || novoAgendar > 999 ||
-          isNaN(novoAgendados) || novoAgendados < 0 || novoAgendados > 999) {
-        document.getElementById("msgAdmin").textContent = "Digite números válidos entre 0 e 999.";
-        return;
-      }
-      contadores.Agendar = novoAgendar;
-      contadores.Agendados = novoAgendados;
-      db.ref("contadoresSenha").set(contadores, (err)=>{
-        document.getElementById("msgAdmin").textContent = err ? "Erro ao atualizar!" : "Contadores atualizados com sucesso!";
-      });
-    }
-
-    function abrirRelatorio() {
-      if (!isAdmin) {
-        document.getElementById("relatorioArea").innerHTML = `<div style="color:red;">Acesso restrito ao administrador!</div>`;
-        document.getElementById("relatorioArea").style.display = "block";
-        return;
-      }
-      mostrarRelatorio('dia');
-      document.getElementById("relatorioArea").style.display = "block";
-    }
-
-    function fecharRelatorio() {
-      document.getElementById("relatorioArea").style.display = "none";
-    }
-
-    function formatTempo(segundos) {
-      if (segundos < 60) return segundos + "s";
-      if (segundos < 3600) return (segundos/60).toFixed(1) + "min";
-      return (segundos/3600).toFixed(2) + "h";
-    }
-
+    // Funções de relatório/exportação/detalhes (restauradas)
     function exportarRelatorioExcelDetalhado(aba) {
       db.ref("atendimentos").once("value", snap => {
         const val = snap.val() || {};
@@ -646,6 +577,7 @@
         html += `</table>`;
         document.getElementById("relatorioArea").innerHTML = html;
       });
+      document.getElementById("relatorioArea").style.display = "block";
     }
 
     window.mostrarDetalhesUsuario = function(usuario, aba) {
@@ -692,78 +624,144 @@
         document.getElementById("relatorioArea").innerHTML = html;
       });
     }
-    // Olhinho para mostrar/ocultar senha
-function toggleSenhaVisivel() {
-  let input = document.getElementById("senha");
-  input.type = input.type === "password" ? "text" : "password";
-}
 
-// Enter faz login
-document.getElementById("senha").addEventListener("keyup",function(e){
-  if(e.key === "Enter"){ checarLogin(); }
-});
-document.getElementById("usuario").addEventListener("keyup",function(e){
-  if(e.key === "Enter"){ checarLogin(); }
-});
-
-// Mini painel de histórico de senhas chamadas (últimas 6, em tempo real)
-function atualizarMiniHistorico(){
-  if(!window.usuarioLogado) return;
-  if(window._miniHistRef) window._miniHistRef.off();
-  window._miniHistRef = db.ref("atendimentos/"+window.usuarioLogado).orderByChild("timestamp").limitToLast(6);
-  window._miniHistRef.on("value", snap=>{
-    const val = snap.val();
-    let lista = val ? Object.values(val).sort((a, b) => b.timestamp - a.timestamp) : [];
-    lista = lista.slice(0,6);
-    const ul = document.getElementById("painelHistoricoLista");
-    ul.innerHTML = "";
-    if (!lista.length) {
-      ul.innerHTML = `<li style="opacity:.8;">Nenhuma senha chamada ainda.</li>`;
-      return;
+    // funções admin / CRUD / demais (permanece igual)
+    function adicionarUsuarioAutorizado() {
+      const novoUsuario = document.getElementById("novoUsuario").value.trim();
+      if (!novoUsuario) return;
+      if (!usuariosAutorizados.includes(novoUsuario)) {
+        usuariosAutorizados.push(novoUsuario);
+        db.ref("usuariosAutorizados").set(usuariosAutorizados);
+        document.getElementById("msgAdmin").textContent = "Usuário autorizado!";
+        mostrarCamposAdmin();
+      } else {
+        document.getElementById("msgAdmin").textContent = "Usuário já está autorizado!";
+      }
     }
-    lista.forEach(item => {
-      let tipoStr = item.tipo === "Agendar" ? "Agendar" : "Realizar";
-      let data = new Date(item.timestamp);
-      let hora = data.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-      let linha = `<span class="painel-historico-li-top">${tipoStr} &ndash; Senha <b>${item.senha}</b> &ndash; Guichê ${parseInt(item.guiche,10)}</span>
-                    <span class="painel-historico-li-bottom">${hora}</span>`;
-      let li = document.createElement("li");
-      li.innerHTML = linha;
-      ul.appendChild(li);
+
+    function removerUsuarioAutorizado(u) {
+      usuariosAutorizados = usuariosAutorizados.filter(user => user !== u);
+      db.ref("usuariosAutorizados").set(usuariosAutorizados);
+      mostrarCamposAdmin();
+    }
+
+    function registrarAtendimento(tipo, senha, guiche) {
+      if (!usuarioLogado) return;
+      const now = new Date();
+      const dataHoje = now.toISOString().slice(0,10);
+      const registro = {
+        timestamp: now.getTime(),
+        tipo,
+        senha,
+        guiche,
+        data: dataHoje,
+      };
+      db.ref("atendimentos/" + usuarioLogado).push(registro);
+    }
+
+    function abrirAdmin() {
+      const adminDiv = document.getElementById("adminArea");
+      if (!isAdmin) {
+        adminDiv.innerHTML = `
+          <div style="color:red;">Acesso restrito ao administrador!</div>
+          <button class="fechar-btn botao" onclick="fecharAdmin()">Fechar</button>
+        `;
+        adminDiv.style.display = "block";
+        return;
+      }
+      mostrarCamposAdmin();
+      adminDiv.style.display = "block";
+    }
+
+    function fecharAdmin() {
+      document.getElementById("adminArea").style.display = "none";
+    }
+
+    function limparAtendimentos() {
+      if (confirm("Tem certeza que deseja apagar TODOS os atendimentos registrados? Esta ação não pode ser desfeita.")) {
+        db.ref("atendimentos").set(null, (err)=>{
+          document.getElementById("msgAdmin").textContent = err ? "Erro ao limpar!" : "Dados de atendimentos apagados!";
+        });
+      }
+    }
+
+    function mostrarCamposAdmin() {
+      db.ref("contadoresSenha").once("value", snap => {
+        const val = snap.val() || {Agendar: 0, Agendados: 0};
+        const adminDiv = document.getElementById("adminArea");
+        let usuariosHtml = "<ul>";
+        usuariosAutorizados.forEach(u => {
+          usuariosHtml += `<li>${u} <button onclick="removerUsuarioAutorizado('${u}')" style="background:#ff4040;color:#fff;border:none;border-radius:5px;padding:2px 7px;cursor:pointer;">Remover</button></li>`;
+        });
+        usuariosHtml += "</ul>";
+        adminDiv.innerHTML = `
+          <div style="margin-bottom:12px;font-size:1.2em;font-weight:bold;color:#ffe900;">Ajuste dos Contadores</div>
+          <label for="novoAgendar">Agendar: </label>
+          <input type="number" id="novoAgendar" min="0" max="999" value="${val.Agendar}">
+          <br>
+          <label for="novoAgendados">Agendados: </label>
+          <input type="number" id="novoAgendados" min="0" max="999" value="${val.Agendados}">
+          <br>
+          <button class="botao" onclick="atualizarContadores()">Atualizar</button>
+          <div style="margin:14px 0; border-top:1px solid #ffe90033"></div>
+          <div style="margin-bottom:10px;font-weight:bold;color:#ffe900;">Usuários autorizados</div>
+          ${usuariosHtml}
+          <input type="text" id="novoUsuario" placeholder="Novo usuário">
+          <button class="botao" onclick="adicionarUsuarioAutorizado()">Adicionar</button>
+          <button class="limpar-btn botao" onclick="limparAtendimentos()">Limpar Dados</button>
+          <button class="fechar-btn botao" onclick="fecharAdmin()">Fechar</button>
+          <div id="msgAdmin" class="msg-admin"></div>
+        `;
+      });
+    }
+
+    function atualizarContadores() {
+      let novoAgendar = parseInt(document.getElementById("novoAgendar").value,10);
+      let novoAgendados = parseInt(document.getElementById("novoAgendados").value,10);
+      if (isNaN(novoAgendar) || novoAgendar < 0 || novoAgendar > 999 ||
+          isNaN(novoAgendados) || novoAgendados < 0 || novoAgendados > 999) {
+        document.getElementById("msgAdmin").textContent = "Digite números válidos entre 0 e 999.";
+        return;
+      }
+      contadores.Agendar = novoAgendar;
+      contadores.Agendados = novoAgendados;
+      db.ref("contadoresSenha").set(contadores, (err)=>{
+        document.getElementById("msgAdmin").textContent = err ? "Erro ao atualizar!" : "Contadores atualizados com sucesso!";
+      });
+    }
+
+    function abrirRelatorio() {
+      if (!isAdmin) {
+        document.getElementById("relatorioArea").innerHTML = `<div style="color:red;">Acesso restrito ao administrador!</div>`;
+        document.getElementById("relatorioArea").style.display = "block";
+        return;
+      }
+      mostrarRelatorio('dia');
+    }
+
+    function fecharRelatorio() {
+      document.getElementById("relatorioArea").style.display = "none";
+    }
+
+    function formatTempo(segundos) {
+      if (segundos < 60) return segundos + "s";
+      if (segundos < 3600) return (segundos/60).toFixed(1) + "min";
+      return (segundos/3600).toFixed(2) + "h";
+    }
+
+    function toggleSenhaVisivel() {
+      let input = document.getElementById("senha");
+      input.type = input.type === "password" ? "text" : "password";
+    }
+
+    // Enter faz login
+    document.getElementById("senha").addEventListener("keyup",function(e){
+      if(e.key === "Enter"){ checarLogin(); }
     });
-  });
-}
-
-// Após login, mostrar o painel histórico e atualizar
-const _checarLoginOrig = checarLogin;
-checarLogin = function(){
-  _checarLoginOrig();
-  setTimeout(()=>{
-    if(window.usuarioLogado){
-      document.getElementById("painelHistorico").style.display = "block";
-      atualizarMiniHistorico();
-    }
-  },0);
-};
+    document.getElementById("usuario").addEventListener("keyup",function(e){
+      if(e.key === "Enter"){ checarLogin(); }
+    });
   </script>
-    <!-- MINI PAINEL HISTÓRICO -->
-<div class="painel-historico" id="painelHistorico" style="display:none;position:fixed;top:50px;right:40px;z-index:99;">
-  <div class="painel-historico-titulo" style="font-size:1.25em;font-weight:bold;color:#ffe900;margin-bottom:10px;">Senhas Chamadas</div>
-  <ul class="painel-historico-lista" id="painelHistoricoLista" style="width:100%;list-style:none;padding:0;margin:0;max-height:310px;overflow-y:auto;"></ul>
-</div>
-<style>
-.painel-historico{background:#000;border-radius:12px;min-width:220px;max-width:250px;color:#ffe900;padding:18px 12px 12px 18px;font-size:1em;height:370px;display:flex;flex-direction:column;align-items:flex-start;box-shadow:0 0 10px #0007;}
-.painel-historico-titulo{font-size:1.25em;font-weight:bold;color:#ffe900;margin-bottom:12px;text-align:left;width:100%;letter-spacing:0.03em;}
-.painel-historico-lista li{border-bottom:1px solid #ffe90033;padding:5px 0;font-size:1.07em;display:flex;flex-direction:column;align-items:flex-start;word-break:break-word;}
-.painel-historico-li-top{font-weight:bold;margin-bottom:1px;}
-.painel-historico-li-bottom{font-size:0.95em;color:#ffe900cc;}
-@media (max-width: 950px){
-  .painel-historico{position:static;margin: 20px auto;}
-}
-</style>
 </body>
 </html>
-
-
-
 
