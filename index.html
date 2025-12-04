@@ -46,7 +46,7 @@
   <div id="painel-main" style="visibility:visible;">
     <div class="header">
       <img src="logo-radiologia.png" class="logo" alt="Logo Radiologia">
-      <div class="titulo">SERVIÇO DE RADIOLOGIA</div>
+      <div class="titulo">SERVIÇO .DE RADIOLOGIA</div>
       <img src="logo-hcpa.png" class="logo-hcpa" alt="Logo HCPA">
     </div>
     <div class="painel">
@@ -69,7 +69,7 @@
       <div class="faixa-inferior-top"></div>
       <div class="faixa-inferior-centro">
         <div class="faixa-guiche" id="guicheFaixa">Guichê --</div>
-        <div class="faixa-aguarde">AGUARDE A CHAMADAx</div>
+        <div class="faixa-aguarde">AGUARDE A CHAMADA</div>
       </div>
       <div class="faixa-inferior-bottom"></div>
     </div>
@@ -96,7 +96,7 @@
     db.ref("chamadaSenha").on("value", snapshot => {
       const dados = snapshot.val();
       if (!dados) return;
-      // Mudou senha, tipo ou foi rechamada? Pisca e fala!
+      // Mudou senha, tipo ou foi rechamada Pisca e fala!
       let mudou = false;
       if (
         dados.senha !== ultimaSenha ||
@@ -199,6 +199,7 @@
   </script>
 </body>
 </html>
+
 
 
 
