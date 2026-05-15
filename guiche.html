@@ -1,4 +1,4 @@
-V7.7
+V7.8
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -422,8 +422,124 @@ V7.7
       return count;
     }
 
+    // NOVO: Exportar Excel Melhorado (apenas para admin)
+    function exportarExcelMelhorado() {
+      if (!isAdmin) {
+        alert("Acesso restrito ao administrador!");
+        return;
+      }
+
+      db.ref("atendimentos").once("value", snap => {
+        const val = snap.val() || {};
+        const agora = new Date();
+        const anoAtual = agora.getFullYear();
+        
+        let workbook = XLSX.utils.book_new();
+
+        // ===== ABA "GERAL" =====
+        let abaGeral = [
+          ["RESUMO GERAL"],
+          [],
+          ["Período", "Total Atendimentos"],
+          ["Hoje", 0],
+          ["Este Mês", 0],
+          ["Este Ano", 0]
+        ];
+
+        // Calcula totais
+        let totalHoje = 0, totalMes = 0, totalAno = 0;
+        
+        for (let usuario in val) {
+          let atendimentos = Object.values(val[usuario]);
+          if (!atendimentos.length) continue;
+
+          // Conta de hoje
+          let hoje = atendimentos.filter(a => {
+            let d = new Date(a.timestamp);
+            return d.toISOString().slice(0,10) === agora.toISOString().slice(0,10);
+          });
+          totalHoje += contarAtendimentosValidos(hoje);
+
+          // Conta do mês
+          let mes = atendimentos.filter(a => {
+            let d = new Date(a.timestamp);
+            return d.getMonth() === agora.getMonth() && d.getFullYear() === anoAtual;
+          });
+          totalMes += contarAtendimentosValidos(mes);
+
+          // Conta do ano
+          let ano = atendimentos.filter(a => {
+            let d = new Date(a.timestamp);
+            return d.getFullYear() === anoAtual;
+          });
+          totalAno += contarAtendimentosValidos(ano);
+        }
+
+        abaGeral[3][1] = totalHoje;
+        abaGeral[4][1] = totalMes;
+        abaGeral[5][1] = totalAno;
+
+        let wsGeral = XLSX.utils.aoa_to_sheet(abaGeral);
+        XLSX.utils.book_append_sheet(workbook, wsGeral, "GERAL");
+
+        // ===== ABAS POR MÊS =====
+        for (let mes = 0; mes < 12; mes++) {
+          let nomeMes = new Date(anoAtual, mes, 1).toLocaleDateString('pt-BR', {month: 'long'});
+          nomeMes = nomeMes.charAt(0).toUpperCase() + nomeMes.slice(1);
+
+          // Pega quantos dias tem neste mês
+          let diasNoMes = new Date(anoAtual, mes + 1, 0).getDate();
+
+          // CABEÇALHO: Usuário + números dos dias
+          let cabecalho = ["Usuário"];
+          for (let dia = 1; dia <= diasNoMes; dia++) {
+            cabecalho.push(dia);
+          }
+
+          let dados = [cabecalho];
+
+          // Para cada usuário, coloca quantas senhas por dia
+          for (let usuario in val) {
+            let atendimentos = Object.values(val[usuario]);
+            if (!atendimentos.length) continue;
+
+            let linha = [usuario];
+            
+            // Para cada dia do mês
+            for (let dia = 1; dia <= diasNoMes; dia++) {
+              let dataVerificar = new Date(anoAtual, mes, dia);
+              let dataStr = dataVerificar.toISOString().slice(0,10);
+
+              // Conta atendimentos deste usuário neste dia
+              let atendimentosDoDia = atendimentos.filter(a => {
+                let d = new Date(a.timestamp);
+                return d.toISOString().slice(0,10) === dataStr;
+              });
+
+              let total = contarAtendimentosValidos(atendimentosDoDia);
+              linha.push(total);
+            }
+
+            dados.push(linha);
+          }
+
+          let ws = XLSX.utils.aoa_to_sheet(dados);
+          let nomeAbaMes = nomeMes.substring(0, 31);
+          XLSX.utils.book_append_sheet(workbook, ws, nomeAbaMes);
+        }
+
+        // Baixa o arquivo
+        XLSX.writeFile(workbook, `relatorio_${agora.getDate()}-${agora.getMonth()+1}-${anoAtual}.xlsx`);
+      });
+    }
+
     // Funções de relatório/exportação/detalhes (restauradas)
     function exportarRelatorioExcelDetalhado(aba) {
+      if (!isAdmin) {
+        alert("Acesso restrito ao administrador!");
+        return;
+      }
+
       db.ref("atendimentos").once("value", snap => {
         const val = snap.val() || {};
         const agora = new Date();
@@ -518,12 +634,18 @@ V7.7
       db.ref("atendimentos").once("value", snap => {
         const val = snap.val() || {};
         const agora = new Date();
+        
+        // BOTÃO DE EXPORTAÇÃO - APENAS SE FOR ADMIN
+        let botaoExcel = !isAdmin ? '' : `<button class="excel-btn" onclick="exportarRelatorioExcelDetalhado('${aba}')">Exportar Excel (Detalhado)</button>`;
+        let botaoNovoExcel = !isAdmin ? '' : `<button class="excel-btn" onclick="exportarExcelMelhorado()">Exportar Excel (Novo)</button>`;
+        
         let html = `
           <div style="font-size:1.2em;margin-bottom:7px;font-weight:bold;">Relatório de Atendimentos</div>
           <button class="aba-btn ${aba==='dia'?'active':''}" onclick="mostrarRelatorio('dia')">Dia</button>
           <button class="aba-btn ${aba==='mes'?'active':''}" onclick="mostrarRelatorio('mes')">Mês</button>
           <button class="aba-btn ${aba==='ano'?'active':''}" onclick="mostrarRelatorio('ano')">Ano</button>
-          <button class="excel-btn" onclick="exportarRelatorioExcelDetalhado('${aba}')">Exportar Excel</button>
+          ${botaoExcel}
+          ${botaoNovoExcel}
           <button class="fechar-btn aba-btn" onclick="fecharRelatorio()">Fechar</button>
           <table class="relatorio-table">
             <tr>
@@ -625,7 +747,7 @@ V7.7
       });
     }
 
-    // funções admin / CRUD / demais (permanece igual)
+    // funções admin / CRUD / demais
     function adicionarUsuarioAutorizado() {
       const novoUsuario = document.getElementById("novoUsuario").value.trim();
       if (!novoUsuario) return;
@@ -764,4 +886,3 @@ V7.7
   </script>
 </body>
 </html>
-
