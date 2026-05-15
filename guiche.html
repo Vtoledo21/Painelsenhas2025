@@ -1,4 +1,4 @@
-V7.8
+V7.9
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -92,7 +92,6 @@ V7.8
     }
     .admin-btn:hover { background: #1f5a48; filter: brightness(1.02); }
 
-    /* área de senhas chamadas (histórico global, exibido ao usuário logado) */
     .chamadas-area {
       margin-top: 18px;
       text-align: left;
@@ -210,7 +209,6 @@ V7.8
     <button class="admin-btn" onclick="abrirAdmin()">Administração</button>
     <button class="admin-btn" onclick="abrirRelatorio()">Relatórios</button>
 
-    <!-- área: Senhas Chamadas (histórico global, similar ao painel) -->
     <div class="chamadas-area" id="chamadasArea" style="display:none;">
       <div class="titulo-ch">Senhas Chamadas</div>
       <ul id="listaSenhasChamadas" class="lista-chamadas"></ul>
@@ -256,10 +254,7 @@ V7.8
       usuariosAutorizados = snap.val() || [];
     });
 
-    let contadores = {
-      Agendar: 0,
-      Agendados: 0
-    };
+    let contadores = { Agendar: 0, Agendados: 0 };
     let historicoGuiche = {};
 
     db.ref("contadoresSenha").once("value", snap => {
@@ -295,7 +290,6 @@ V7.8
       msg.textContent = "Usuário ou senha incorretos!";
     }
 
-    // Listener global para atualizar a lista de chamadas (últimas 8)
     let _histChamadasRef = null;
     function iniciarHistoricoChamadas() {
       const chamadasArea = document.getElementById("chamadasArea");
@@ -422,7 +416,26 @@ V7.8
       return count;
     }
 
-    // NOVO: Exportar Excel Melhorado (apenas para admin)
+    // Função para definir turno
+    function definirTurno(timestamp) {
+      let data = new Date(timestamp);
+      let horas = data.getHours();
+      let minutos = data.getMinutes();
+      let totalMinutos = horas * 60 + minutos;
+
+      let manha_inicio = 7 * 60 + 30;
+      let manha_fim = 12 * 60 + 30;
+      let tarde_inicio = 12 * 60 + 31;
+      let tarde_fim = 20 * 60;
+
+      if (totalMinutos >= manha_inicio && totalMinutos <= manha_fim) {
+        return "MANHÃ";
+      } else if (totalMinutos >= tarde_inicio && totalMinutos <= tarde_fim) {
+        return "TARDE";
+      }
+      return "FORA";
+    }
+
     function exportarExcelMelhorado() {
       if (!isAdmin) {
         alert("Acesso restrito ao administrador!");
@@ -436,7 +449,6 @@ V7.8
         
         let workbook = XLSX.utils.book_new();
 
-        // ===== ABA "GERAL" =====
         let abaGeral = [
           ["RESUMO GERAL"],
           [],
@@ -446,28 +458,24 @@ V7.8
           ["Este Ano", 0]
         ];
 
-        // Calcula totais
         let totalHoje = 0, totalMes = 0, totalAno = 0;
         
         for (let usuario in val) {
           let atendimentos = Object.values(val[usuario]);
           if (!atendimentos.length) continue;
 
-          // Conta de hoje
           let hoje = atendimentos.filter(a => {
             let d = new Date(a.timestamp);
             return d.toISOString().slice(0,10) === agora.toISOString().slice(0,10);
           });
           totalHoje += contarAtendimentosValidos(hoje);
 
-          // Conta do mês
           let mes = atendimentos.filter(a => {
             let d = new Date(a.timestamp);
             return d.getMonth() === agora.getMonth() && d.getFullYear() === anoAtual;
           });
           totalMes += contarAtendimentosValidos(mes);
 
-          // Conta do ano
           let ano = atendimentos.filter(a => {
             let d = new Date(a.timestamp);
             return d.getFullYear() === anoAtual;
@@ -482,38 +490,72 @@ V7.8
         let wsGeral = XLSX.utils.aoa_to_sheet(abaGeral);
         XLSX.utils.book_append_sheet(workbook, wsGeral, "GERAL");
 
-        // ===== ABAS POR MÊS =====
+        // ABAS POR MÊS COM TURNOS
         for (let mes = 0; mes < 12; mes++) {
           let nomeMes = new Date(anoAtual, mes, 1).toLocaleDateString('pt-BR', {month: 'long'});
           nomeMes = nomeMes.charAt(0).toUpperCase() + nomeMes.slice(1);
 
-          // Pega quantos dias tem neste mês
           let diasNoMes = new Date(anoAtual, mes + 1, 0).getDate();
 
-          // CABEÇALHO: Usuário + números dos dias
-          let cabecalho = ["Usuário"];
-          for (let dia = 1; dia <= diasNoMes; dia++) {
-            cabecalho.push(dia);
-          }
-
-          let dados = [cabecalho];
-
-          // Para cada usuário, coloca quantas senhas por dia
+          let usuarios = [];
           for (let usuario in val) {
             let atendimentos = Object.values(val[usuario]);
-            if (!atendimentos.length) continue;
+            if (atendimentos.length > 0) {
+              usuarios.push(usuario);
+            }
+          }
 
+          let dados = [];
+
+          // SEÇÃO MANHÃ
+          dados.push(["MANHÃ"]);
+          let cabecalhoManha = ["Usuário"];
+          for (let dia = 1; dia <= diasNoMes; dia++) {
+            cabecalhoManha.push(dia);
+          }
+          dados.push(cabecalhoManha);
+
+          for (let usuario of usuarios) {
+            let atendimentos = Object.values(val[usuario]);
             let linha = [usuario];
-            
-            // Para cada dia do mês
+
             for (let dia = 1; dia <= diasNoMes; dia++) {
               let dataVerificar = new Date(anoAtual, mes, dia);
               let dataStr = dataVerificar.toISOString().slice(0,10);
 
-              // Conta atendimentos deste usuário neste dia
               let atendimentosDoDia = atendimentos.filter(a => {
                 let d = new Date(a.timestamp);
-                return d.toISOString().slice(0,10) === dataStr;
+                return d.toISOString().slice(0,10) === dataStr && definirTurno(a.timestamp) === "MANHÃ";
+              });
+
+              let total = contarAtendimentosValidos(atendimentosDoDia);
+              linha.push(total);
+            }
+
+            dados.push(linha);
+          }
+
+          dados.push([]);
+
+          // SEÇÃO TARDE
+          dados.push(["TARDE"]);
+          let cabecalhoTarde = ["Usuário"];
+          for (let dia = 1; dia <= diasNoMes; dia++) {
+            cabecalhoTarde.push(dia);
+          }
+          dados.push(cabecalhoTarde);
+
+          for (let usuario of usuarios) {
+            let atendimentos = Object.values(val[usuario]);
+            let linha = [usuario];
+
+            for (let dia = 1; dia <= diasNoMes; dia++) {
+              let dataVerificar = new Date(anoAtual, mes, dia);
+              let dataStr = dataVerificar.toISOString().slice(0,10);
+
+              let atendimentosDoDia = atendimentos.filter(a => {
+                let d = new Date(a.timestamp);
+                return d.toISOString().slice(0,10) === dataStr && definirTurno(a.timestamp) === "TARDE";
               });
 
               let total = contarAtendimentosValidos(atendimentosDoDia);
@@ -528,12 +570,10 @@ V7.8
           XLSX.utils.book_append_sheet(workbook, ws, nomeAbaMes);
         }
 
-        // Baixa o arquivo
         XLSX.writeFile(workbook, `relatorio_${agora.getDate()}-${agora.getMonth()+1}-${anoAtual}.xlsx`);
       });
     }
 
-    // Funções de relatório/exportação/detalhes (restauradas)
     function exportarRelatorioExcelDetalhado(aba) {
       if (!isAdmin) {
         alert("Acesso restrito ao administrador!");
@@ -635,7 +675,6 @@ V7.8
         const val = snap.val() || {};
         const agora = new Date();
         
-        // BOTÃO DE EXPORTAÇÃO - APENAS SE FOR ADMIN
         let botaoExcel = !isAdmin ? '' : `<button class="excel-btn" onclick="exportarRelatorioExcelDetalhado('${aba}')">Exportar Excel (Detalhado)</button>`;
         let botaoNovoExcel = !isAdmin ? '' : `<button class="excel-btn" onclick="exportarExcelMelhorado()">Exportar Excel (Novo)</button>`;
         
@@ -747,7 +786,6 @@ V7.8
       });
     }
 
-    // funções admin / CRUD / demais
     function adicionarUsuarioAutorizado() {
       const novoUsuario = document.getElementById("novoUsuario").value.trim();
       if (!novoUsuario) return;
@@ -876,7 +914,6 @@ V7.8
       input.type = input.type === "password" ? "text" : "password";
     }
 
-    // Enter faz login
     document.getElementById("senha").addEventListener("keyup",function(e){
       if(e.key === "Enter"){ checarLogin(); }
     });
