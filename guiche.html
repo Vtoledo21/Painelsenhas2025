@@ -1,4 +1,3 @@
-V7.9
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -185,6 +184,22 @@ V7.9
     }
     .excel-btn:hover { background: #1b5e20; }
 
+    .relatorio-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+    .relatorio-table th, .relatorio-table td {
+      padding: 8px;
+      text-align: left;
+      border-bottom: 1px solid #ffe90033;
+    }
+    .relatorio-table th {
+      background: #1a4d3e;
+      font-weight: bold;
+      color: #ffe900;
+    }
+
     @media (max-width: 700px) {
       .container, .admin-area, .relatorio-area { min-width: 95vw; max-width: 97vw; padding-left: 4vw; padding-right: 4vw;}
       .chamadas-area { max-width: 95vw; }
@@ -236,6 +251,7 @@ V7.9
     let usuariosAutorizados = [];
     let usuarioLogado = null;
     let isAdmin = false;
+    let anoSelecionado = new Date().getFullYear();
 
     const firebaseConfig = {
       apiKey: "AIzaSyAsuP9gO2sBOmzBet2b7ijljMgTsXo29lE",
@@ -416,7 +432,6 @@ V7.9
       return count;
     }
 
-    // Função para definir turno
     function definirTurno(timestamp) {
       let data = new Date(timestamp);
       let horas = data.getHours();
@@ -445,7 +460,6 @@ V7.9
       db.ref("atendimentos").once("value", snap => {
         const val = snap.val() || {};
         const agora = new Date();
-        const anoAtual = agora.getFullYear();
         
         let workbook = XLSX.utils.book_new();
 
@@ -472,13 +486,13 @@ V7.9
 
           let mes = atendimentos.filter(a => {
             let d = new Date(a.timestamp);
-            return d.getMonth() === agora.getMonth() && d.getFullYear() === anoAtual;
+            return d.getMonth() === agora.getMonth() && d.getFullYear() === anoSelecionado;
           });
           totalMes += contarAtendimentosValidos(mes);
 
           let ano = atendimentos.filter(a => {
             let d = new Date(a.timestamp);
-            return d.getFullYear() === anoAtual;
+            return d.getFullYear() === anoSelecionado;
           });
           totalAno += contarAtendimentosValidos(ano);
         }
@@ -490,12 +504,11 @@ V7.9
         let wsGeral = XLSX.utils.aoa_to_sheet(abaGeral);
         XLSX.utils.book_append_sheet(workbook, wsGeral, "GERAL");
 
-        // ABAS POR MÊS COM TURNOS
         for (let mes = 0; mes < 12; mes++) {
-          let nomeMes = new Date(anoAtual, mes, 1).toLocaleDateString('pt-BR', {month: 'long'});
+          let nomeMes = new Date(anoSelecionado, mes, 1).toLocaleDateString('pt-BR', {month: 'long'});
           nomeMes = nomeMes.charAt(0).toUpperCase() + nomeMes.slice(1);
 
-          let diasNoMes = new Date(anoAtual, mes + 1, 0).getDate();
+          let diasNoMes = new Date(anoSelecionado, mes + 1, 0).getDate();
 
           let usuarios = [];
           for (let usuario in val) {
@@ -507,7 +520,6 @@ V7.9
 
           let dados = [];
 
-          // SEÇÃO MANHÃ
           dados.push(["MANHÃ"]);
           let cabecalhoManha = ["Usuário"];
           for (let dia = 1; dia <= diasNoMes; dia++) {
@@ -520,7 +532,7 @@ V7.9
             let linha = [usuario];
 
             for (let dia = 1; dia <= diasNoMes; dia++) {
-              let dataVerificar = new Date(anoAtual, mes, dia);
+              let dataVerificar = new Date(anoSelecionado, mes, dia);
               let dataStr = dataVerificar.toISOString().slice(0,10);
 
               let atendimentosDoDia = atendimentos.filter(a => {
@@ -537,7 +549,6 @@ V7.9
 
           dados.push([]);
 
-          // SEÇÃO TARDE
           dados.push(["TARDE"]);
           let cabecalhoTarde = ["Usuário"];
           for (let dia = 1; dia <= diasNoMes; dia++) {
@@ -550,7 +561,7 @@ V7.9
             let linha = [usuario];
 
             for (let dia = 1; dia <= diasNoMes; dia++) {
-              let dataVerificar = new Date(anoAtual, mes, dia);
+              let dataVerificar = new Date(anoSelecionado, mes, dia);
               let dataStr = dataVerificar.toISOString().slice(0,10);
 
               let atendimentosDoDia = atendimentos.filter(a => {
@@ -570,7 +581,7 @@ V7.9
           XLSX.utils.book_append_sheet(workbook, ws, nomeAbaMes);
         }
 
-        XLSX.writeFile(workbook, `relatorio_${agora.getDate()}-${agora.getMonth()+1}-${anoAtual}.xlsx`);
+        XLSX.writeFile(workbook, `relatorio_${agora.getDate()}-${agora.getMonth()+1}-${anoSelecionado}.xlsx`);
       });
     }
 
@@ -596,11 +607,11 @@ V7.9
           });
           let listaMes = atendimentos.filter(a=>{
             let d = new Date(a.timestamp);
-            return d.getMonth() === agora.getMonth() && d.getFullYear() === agora.getFullYear();
+            return d.getMonth() === agora.getMonth() && d.getFullYear() === anoSelecionado;
           });
           let listaAno = atendimentos.filter(a=>{
             let d = new Date(a.timestamp);
-            return d.getFullYear() === agora.getFullYear();
+            return d.getFullYear() === anoSelecionado;
           });
           let totalDia = contarAtendimentosValidos(listaDia);
           let totalMes = contarAtendimentosValidos(listaMes);
@@ -625,8 +636,8 @@ V7.9
           let atendimentosFiltrados = atendimentos.filter(a => {
             let d = new Date(a.timestamp);
             if (aba==='dia') return d.toISOString().slice(0,10) === agora.toISOString().slice(0,10);
-            if (aba==='mes') return d.getMonth() === agora.getMonth() && d.getFullYear() === agora.getFullYear();
-            if (aba==='ano') return d.getFullYear() === agora.getFullYear();
+            if (aba==='mes') return d.getMonth() === agora.getMonth() && d.getFullYear() === anoSelecionado;
+            if (aba==='ano') return d.getFullYear() === anoSelecionado;
             return true;
           });
           atendimentosFiltrados.sort((a,b)=>a.timestamp-b.timestamp);
@@ -637,11 +648,11 @@ V7.9
           });
           let listaMes = atendimentos.filter(a=>{
             let d = new Date(a.timestamp);
-            return d.getMonth() === agora.getMonth() && d.getFullYear() === agora.getFullYear();
+            return d.getMonth() === agora.getMonth() && d.getFullYear() === anoSelecionado;
           });
           let listaAno = atendimentos.filter(a=>{
             let d = new Date(a.timestamp);
-            return d.getFullYear() === agora.getFullYear();
+            return d.getFullYear() === anoSelecionado;
           });
           let totalDia = contarAtendimentosValidos(listaDia);
           let totalMes = contarAtendimentosValidos(listaMes);
@@ -670,19 +681,41 @@ V7.9
       });
     }
 
-    function mostrarRelatorio(aba) {
+    function gerarAnosDisponiveis() {
+      let anos = [];
+      const anoAtual = new Date().getFullYear();
+      for (let i = 2020; i <= anoAtual + 1; i++) {
+        anos.push(i);
+      }
+      return anos;
+    }
+
+    function mostrarRelatorio(aba, ano = null) {
+      if (ano) {
+        anoSelecionado = ano;
+      }
+
       db.ref("atendimentos").once("value", snap => {
         const val = snap.val() || {};
         const agora = new Date();
         
+        let anosDisponiveis = gerarAnosDisponiveis();
+        let botoesAnos = anosDisponiveis.map(a => 
+          `<button class="aba-btn ${anoSelecionado === a ? 'active' : ''}" onclick="mostrarRelatorio('${aba}', ${a})">${a}</button>`
+        ).join('');
+
         let botaoExcel = !isAdmin ? '' : `<button class="excel-btn" onclick="exportarRelatorioExcelDetalhado('${aba}')">Exportar Excel (Detalhado)</button>`;
         let botaoNovoExcel = !isAdmin ? '' : `<button class="excel-btn" onclick="exportarExcelMelhorado()">Exportar Excel (Novo)</button>`;
         
         let html = `
           <div style="font-size:1.2em;margin-bottom:7px;font-weight:bold;">Relatório de Atendimentos</div>
-          <button class="aba-btn ${aba==='dia'?'active':''}" onclick="mostrarRelatorio('dia')">Dia</button>
-          <button class="aba-btn ${aba==='mes'?'active':''}" onclick="mostrarRelatorio('mes')">Mês</button>
-          <button class="aba-btn ${aba==='ano'?'active':''}" onclick="mostrarRelatorio('ano')">Ano</button>
+          <button class="aba-btn ${aba==='dia'?'active':''}" onclick="mostrarRelatorio('dia', ${anoSelecionado})">Dia</button>
+          <button class="aba-btn ${aba==='mes'?'active':''}" onclick="mostrarRelatorio('mes', ${anoSelecionado})">Mês</button>
+          <button class="aba-btn ${aba==='ano'?'active':''}" onclick="mostrarRelatorio('ano', ${anoSelecionado})">Ano</button>
+          <br>
+          <div style="margin-top:8px;margin-bottom:10px;font-weight:bold;">Escolha o ano:</div>
+          ${botoesAnos}
+          <br>
           ${botaoExcel}
           ${botaoNovoExcel}
           <button class="fechar-btn aba-btn" onclick="fecharRelatorio()">Fechar</button>
@@ -702,13 +735,13 @@ V7.9
           let atendimentosFiltrados = atendimentos.filter(a => {
             let d = new Date(a.timestamp);
             if (aba==='dia') {
-              return d.toISOString().slice(0,10) === agora.toISOString().slice(0,10);
+              return d.toISOString().slice(0,10) === agora.toISOString().slice(0,10) && d.getFullYear() === anoSelecionado;
             }
             if (aba==='mes') {
-              return d.getMonth() === agora.getMonth() && d.getFullYear() === agora.getFullYear();
+              return d.getMonth() === agora.getMonth() && d.getFullYear() === anoSelecionado;
             }
             if (aba==='ano') {
-              return d.getFullYear() === agora.getFullYear();
+              return d.getFullYear() === anoSelecionado;
             }
             return true;
           });
@@ -731,7 +764,7 @@ V7.9
             <td>${ultimo}</td>
             <td>${mediaTempo}</td>
             <td>
-              <button class="aba-btn" onclick="mostrarDetalhesUsuario('${usuario}','${aba}')">Ver</button>
+              <button class="aba-btn" onclick="mostrarDetalhesUsuario('${usuario}','${aba}', ${anoSelecionado})">Ver</button>
             </td>
           </tr>`;
         }
@@ -741,26 +774,27 @@ V7.9
       document.getElementById("relatorioArea").style.display = "block";
     }
 
-    window.mostrarDetalhesUsuario = function(usuario, aba) {
+    window.mostrarDetalhesUsuario = function(usuario, aba, ano) {
+      anoSelecionado = ano;
       db.ref("atendimentos/" + usuario).once("value", snap => {
         const val = Object.values(snap.val()||{});
         const agora = new Date();
         let atendimentosFiltrados = val.filter(a => {
           let d = new Date(a.timestamp);
           if (aba==='dia') {
-            return d.toISOString().slice(0,10) === agora.toISOString().slice(0,10);
+            return d.toISOString().slice(0,10) === agora.toISOString().slice(0,10) && d.getFullYear() === anoSelecionado;
           }
           if (aba==='mes') {
-            return d.getMonth() === agora.getMonth() && d.getFullYear() === agora.getFullYear();
+            return d.getMonth() === agora.getMonth() && d.getFullYear() === anoSelecionado;
           }
           if (aba==='ano') {
-            return d.getFullYear() === agora.getFullYear();
+            return d.getFullYear() === anoSelecionado;
           }
           return true;
         });
         atendimentosFiltrados.sort((a,b)=>a.timestamp-b.timestamp);
         let html = `<div><b>Detalhes de ${usuario} (${aba})</b><br>
-          <button class="aba-btn" onclick="mostrarRelatorio('${aba}')">Voltar</button>
+          <button class="aba-btn" onclick="mostrarRelatorio('${aba}', ${anoSelecionado})">Voltar</button>
         <table class="relatorio-table">
           <tr>
             <th>Hora</th>
