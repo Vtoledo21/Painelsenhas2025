@@ -1,11 +1,11 @@
-V.3
+V-7.7
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <title>Painel de Senhas - Radiologia HCPA</title>
   <style>
-    :root { --verde-hcpa: #25806D; --amarelo-hcpa: #ffe900; --preto: #000; --azul-agendar: #d70000; --vermelho-agendados: #0074d9; --shadow: 0.05em 0.05em 0 var(--preto);}
+    :root { --verde-hcpa: #25806D; --amarelo-hcpa: #ffe900; --preto: #000; --azul-agendar: #d70000; --vermelho-agendados: #0074d9; --shadow: 0.05em 0.05em 0 var(--preto); }
     html, body { background: var(--verde-hcpa); min-height: 100vh; min-width: 100vw; margin: 0; padding: 0; font-family: Arial Black, Arial, Helvetica, sans-serif; width: 100vw; height: 100vh; overflow: hidden;}
     #painel-main { width: 100vw; height: 100vh; display: flex; flex-direction: column;}
     .header { width: 100vw; display: flex; align-items: center; justify-content: space-between; padding: 0 2vw; height: clamp(90px, 16vh, 200px); box-sizing: border-box; background: var(--verde-hcpa); border-bottom: 0.5vw solid var(--amarelo-hcpa);}
@@ -15,13 +15,17 @@ V.3
     .painel { flex: 1; display: flex; flex-direction: row; width: 100vw; min-height: 0; height: 1px;}
     .esquerda { width: 63vw; min-width: 320px; display: flex; flex-direction: column; align-items: stretch; box-sizing: border-box; border-right: 0.5vw solid var(--amarelo-hcpa); position: relative; background: var(--verde-hcpa);}
     .tipo-exame-bar { width: 100%; background: var(--preto); color: var(--amarelo-hcpa); font-size: clamp(1.5rem, 5.3vh, 6vw); font-weight: bold; text-align: center; letter-spacing: 0.08em; padding: 2.3vh 0 1.1vh 0; border-bottom: 0.5vw solid var(--amarelo-hcpa); text-shadow: var(--shadow); margin: 0; line-height: 1.1; white-space: nowrap;}
-    .tipo-exame-bar.azul { color: var(--azul-agendar);}
-    .tipo-exame-bar.vermelho { color: var(--vermelho-agendados);}
+    .tipo-exame-bar.azul { color: var(--azul-agendar); }
+    .tipo-exame-bar.vermelho { color: var(--vermelho-agendados); }
+    .tipo-exame-bar.preferencial { color: var(--amarelo-hcpa); }
+
     .senha-area { width: 100%; background: var(--verde-hcpa); display: flex; flex-direction: column; align-items: center; padding: 5.5vh 0 0 0; flex: 1; min-height: 190vh; justify-content: flex-start;}
     .senha-label { font-size: clamp(5.2rem, 8.3vh, 12vw); color: var(--amarelo-hcpa); font-weight: bold; margin: 1.6vh 0 1.2vh 0; text-shadow: var(--shadow); text-align: center; line-height: 1; letter-spacing: 0.09em;}
     .senha-numero { font-size: clamp(18.2rem, 18.5vh, 20vw); font-weight: bold; color: var(--amarelo-hcpa); letter-spacing: 0.19em; text-shadow: var(--shadow); margin: 0.1vh 0 1vh 0; text-align: center; transition: color 0.2s; line-height: 1; word-break: keep-all;}
-    .senha-numero.azul { color: var(--azul-agendar);}
-    .senha-numero.vermelho { color: var(--vermelho-agendados);}
+    .senha-numero.azul { color: var(--azul-agendar); }
+    .senha-numero.vermelho { color: var(--vermelho-agendados); }
+    .senha-numero.preferencial { color: var(--amarelo-hcpa); }
+
     .direita { flex: 1; width: 37vw; min-width: 250px; height: 100%; display: flex; flex-direction: column; align-items: stretch; justify-content: flex-start; box-sizing: border-box; position: relative; background: var(--verde-hcpa); padding: 0.8vw 1.2vw;}
     /* HISTÓRICO - ajustado para responsividade, cabeçalhos em duas linhas e números centralizados */
     .historico-header { display: flex; flex-direction: row; justify-content: space-between; align-items: center; background: var(--verde-hcpa); color: var(--amarelo-hcpa); font-weight: bold; text-align: center; border-bottom: 2px solid var(--amarelo-hcpa); padding: 1.2vh 0 1.2vh 0; margin: 0 0.2vw; text-shadow: var(--shadow); white-space: normal; gap: 0.5vw;}
@@ -33,21 +37,25 @@ V.3
     /* grid com 2 colunas garantido centralização em ambos os lados */
     .historico-lista li { display: grid; grid-template-columns: 1fr 1fr; align-items: center; justify-items: center; padding: 1.1vh 1.6vw; border-bottom: 1px solid #ffe90055; font-size: clamp(1.05rem, 2.8vh, 1.8vw); background: var(--verde-hcpa); color: var(--amarelo-hcpa); letter-spacing: 0.04em; }
     .historico-lista li .senha { font-weight: 900; color: #ffe900; font-size: clamp(1.6rem, 4.2vh, 2.6vw); line-height: 1; }
-    /* ajuste: manter guichê com mesma fonte da senha */
     .historico-lista li .guiche { opacity: 0.95; font-size: clamp(1.6rem, 4.2vh, 2.6vw); font-weight: 900; }
-    /* faixa inferior */
+    .historico-lista li .tipo { font-size: clamp(0.9rem, 2.2vh, 1.2vw); color: #ffffff; opacity: 0.95; margin-top: 0.3vh; font-weight: 800; }
+
     .faixa-inferior { width: 100vw; position: fixed; left: 0; bottom: 0; z-index: 10;}
-    .faixa-inferior-top { width: 100vw; height: 0.5vw; background: var(--amarelo-hcpa);}
-    .faixa-inferior-centro { width: 100vw; display: flex; flex-direction: row; align-items: stretch; background: var(--preto); height: clamp(55px, 10.5vh, 130px); border-bottom: 0.3vw solid var(--amarelo-hcpa);}
+    .faixa-inferior-top { width: 100vw; height: 0.5vw; background: var(--amarelo-hcpa); }
+    .faixa-inferior-centro { width: 100vw; display: flex; flex-direction: row; align-items: stretch; background: var(--preto); height: clamp(55px, 10.5vh, 130px); border-bottom: 0.3vw solid var(--amarelo-hcpa); }
     .faixa-guiche { width: 63vw; min-width: 200px; max-width: 80vw; display: flex; align-items: center; justify-content: flex-start; color: #fff; font-size: clamp( 7rem, 7vh, 10vw); font-weight: bold; padding-left: 14vw; letter-spacing: 0.08em; height: 100%; background: none;}
     .faixa-aguarde { width: 37vw; min-width: 100px; max-width: 37vw; display: flex; align-items: center; justify-content: center; color: var(--amarelo-hcpa); font-size: clamp( 2rem, 2.2vh, 4vw); font-weight: bold; letter-spacing: 0.11em; text-shadow: var(--shadow); height: 100%; background: none;}
-    .faixa-inferior-bottom { width: 100vw; height: 0.5vw; background: var(--amarelo-hcpa);}
+    .faixa-inferior-bottom { width: 100vw; height: 0.5vw; background: var(--amarelo-hcpa); }
     .senha-area.piscando { animation: pisca-fundo 0.7s alternate 7; }
     @keyframes pisca-fundo { 0%{background:#fff700;} 35%{background:#e38800;} 65%{background:#fff700;} 100%{background:#e38800;} }
     .senha-numero.piscando-agendar { animation: pisca-numero-azul 0.7s alternate 7; }
     @keyframes pisca-numero-azul { 0%{color:#d70000;}50%{color:#940303;}100%{color:#d70000;} }
     .senha-numero.piscando-agendados { animation: pisca-numero-vermelho 0.7s alternate 7; }
     @keyframes pisca-numero-vermelho { 0%{color:#0074d9;}50%{color:#0755db;}100%{color:#0074d9;} }
+
+    /* animação para Preferencial (amarelo) */
+    .senha-numero.piscando-preferencial { animation: pisca-numero-preferencial 0.7s alternate 7; }
+    @keyframes pisca-numero-preferencial { 0%{color: #ffd700;} 50%{color: #ffe900;} 100%{color: #ffd700;} }
 
     /* grandes telas: aumentar proporção do histórico sem mexer no layout geral */
     @media (min-width: 1600px) {
@@ -147,19 +155,22 @@ V.3
 
     function atualizarPainel(tipo, senha, guiche) {
       const tipoExameBar = document.getElementById('tipoExame');
-      tipoExameBar.classList.remove('azul', 'vermelho');
+      tipoExameBar.classList.remove('azul', 'vermelho', 'preferencial');
       if(tipo === "Agendar") {
         tipoExameBar.textContent = "EXAMES PARA AGENDAR";
         tipoExameBar.classList.add('azul');
       } else if(tipo === "Agendados") {
         tipoExameBar.textContent = "REALIZAR EXAMES";
         tipoExameBar.classList.add('vermelho');
+      } else if (tipo === "Preferencial") {
+        tipoExameBar.textContent = "PREFERENCIAL";
+        tipoExameBar.classList.add('preferencial');
       } else {
         tipoExameBar.textContent = "---";
       }
       document.getElementById('senhaAtual').textContent = senha;
       document.getElementById('guicheFaixa').textContent = `Guichê ${parseInt(guiche, 10)}`;
-      document.getElementById('senhaAtual').classList.remove('azul', 'vermelho');
+      document.getElementById('senhaAtual').classList.remove('azul', 'vermelho', 'preferencial');
       setCorNumero(tipo);
     }
 
@@ -170,34 +181,43 @@ V.3
       let arr = Array.isArray(lista) ? lista.filter(Boolean) : Object.values(lista || {});
       arr.slice(-5).reverse().forEach(item => {
         const li = document.createElement('li');
-        li.innerHTML = `<div class="senha">${item.senha}</div><div class="guiche">Guichê ${parseInt(item.guiche, 10)}</div>`;
+        const tipoLabel = item.tipo ? item.tipo : '';
+        // mostra senha, tipo (se tiver) e guichê
+        li.innerHTML = `<div class="senha">${item.senha}${tipoLabel ? `<div class="tipo">${tipoLabel}</div>` : ''}</div><div class="guiche">Guichê ${parseInt(item.guiche, 10)}</div>`;
         historico.appendChild(li);
       });
     }
+
     function piscarChamada(tipo) {
       const senhaArea = document.getElementById('senhaArea');
       const senhaNum = document.getElementById('senhaAtual');
       senhaArea.classList.add('piscando');
-      senhaNum.classList.remove('vermelho', 'azul');
+      senhaNum.classList.remove('vermelho', 'azul', 'preferencial', 'piscando-agendar', 'piscando-agendados', 'piscando-preferencial');
       if (tipo === "Agendar") {
         senhaNum.classList.add('piscando-agendar');
+      } else if (tipo === "Agendados") {
+        senhaNum.classList.add('piscando-agendados');
+      } else if (tipo === "Preferencial") {
+        senhaNum.classList.add('piscando-preferencial');
       } else {
+        // padrão: pisca como agendados
         senhaNum.classList.add('piscando-agendados');
       }
       setTimeout(() => {
         senhaArea.classList.remove('piscando');
-        senhaNum.classList.remove('piscando-agendar');
-        senhaNum.classList.remove('piscando-agendados');
+        senhaNum.classList.remove('piscando-agendar', 'piscando-agendados', 'piscando-preferencial');
         setCorNumero(tipo);
       }, 4900);
     }
     function setCorNumero(tipo) {
       const senhaNum = document.getElementById('senhaAtual');
-      senhaNum.classList.remove('azul', 'vermelho');
+      senhaNum.classList.remove('azul', 'vermelho', 'preferencial');
       if (tipo === "Agendar") {
         senhaNum.classList.add('azul');
       } else if (tipo === "Agendados") {
         senhaNum.classList.add('vermelho');
+      } else if (tipo === "Preferencial") {
+        senhaNum.classList.add('preferencial');
       }
     }
 
@@ -209,6 +229,8 @@ V.3
         texto = `Exames para agendar, senha ${parseInt(senha, 10)}, guichê ${parseInt(guiche, 10)}`;
       } else if (tipo === "Agendados") {
         texto = `Realizar exames, senha ${parseInt(senha, 10)}, guichê ${parseInt(guiche, 10)}`;
+      } else if (tipo === "Preferencial") {
+        texto = `Preferencial, senha ${parseInt(senha, 10)}, guichê ${parseInt(guiche, 10)}`;
       } else {
         texto = `Senha ${parseInt(senha, 10)}, guichê ${parseInt(guiche, 10)}`;
       }
@@ -226,4 +248,3 @@ V.3
   </script>
 </body>
 </html>
-
