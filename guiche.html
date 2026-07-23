@@ -1,3 +1,4 @@
+V-7.7 o inimigo agora é outro
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -75,6 +76,12 @@
     }
     .realizar-btn:hover { filter: brightness(0.9); }
 
+    .preferencial-btn {
+      background: var(--amarelo-hcpa);
+      color: var(--preto);
+    }
+    .preferencial-btn:hover { filter: brightness(0.95); }
+
     .senha-form { margin-bottom: 22px; }
 
     .admin-btn {
@@ -124,6 +131,8 @@
     .lista-chamadas .senha { font-weight: bold; font-size: 1.05em; color: #fffbe5; }
     .lista-chamadas .tipo { font-size: 0.9em; opacity: 0.85; color: #ffe900cc; }
     .lista-chamadas .guiche { font-weight: bold; color: #fffbe5; }
+
+    .tipo.preferencial-type { color: #000; background: var(--amarelo-hcpa); padding: 2px 6px; border-radius: 6px; font-weight:bold; display:inline-block; margin-top:4px; }
 
     .admin-area {
       background: #222;
@@ -217,6 +226,7 @@
     <input type="number" id="guicheNum" min="1" max="20" value="1" required><br>
 
     <button class="botao agendar-btn" onclick="chamarSenhaDireto('Agendar')">Senha Agendar</button>
+    <button class="botao preferencial-btn" onclick="chamarSenhaDireto('Preferencial')">Senha Preferencial</button>
     <button class="botao realizar-btn" onclick="chamarSenhaDireto('Agendados')">Senha Realizar</button>
     <button class="botao" onclick="chamarSenha('repetir')">Rechamar</button>
     <div id="msg" style="color:yellow;margin-top:10px;"></div>
@@ -270,12 +280,15 @@
       usuariosAutorizados = snap.val() || [];
     });
 
-    let contadores = { Agendar: 0, Agendados: 0 };
-    let historicoGuiche = {};
+    // Inicializa contadores com Preferencial incluído
+    let contadores = { Agendar: 0, Agendados: 0, Preferencial: 0 };
 
     db.ref("contadoresSenha").once("value", snap => {
       const val = snap.val();
-      if(val) contadores = val;
+      if (val) {
+        // mantém outras chaves caso existam e garante Preferencial presente
+        contadores = Object.assign({ Agendar: 0, Agendados: 0, Preferencial: 0 }, val);
+      }
     });
 
     function checarLogin() {
@@ -325,12 +338,27 @@
         }
         lista.forEach(item => {
           const li = document.createElement("li");
-          const tipoLabel = item.tipo === "Agendar" ? "Agendar" : (item.tipo === "Agendados" ? "Realizar" : item.tipo || "");
-          li.innerHTML = `<div class="left"><span class="senha">${item.senha}</span><span class="tipo">${tipoLabel}</span></div><div class="guiche">Guichê ${parseInt(item.guiche||0,10)}</div>`;
+          const tipoLabel = item.tipo === "Agendar" ? "Agendar" :
+                            (item.tipo === "Agendados" ? "Realizar" :
+                            (item.tipo === "Preferencial" ? "Preferencial" : (item.tipo || "")));
+          const tipoClass = item.tipo === "Preferencial" ? 'tipo preferencial-type' : 'tipo';
+          li.innerHTML = `<div class="left"><span class="senha">${item.senha}</span><span class="${tipoClass}">${tipoLabel}</span></div><div class="guiche">Guichê ${parseInt(item.guiche||0,10)}</div>`;
           ul.appendChild(li);
         });
       });
     }
+
+    let contadoresLocal = { Agendar: 0, Agendados: 0, Preferencial: 0 };
+    let historicoGuiche = {};
+
+    db.ref("contadoresSenha").once("value", snap => {
+      const val = snap.val();
+      if(val) {
+        contadoresLocal = Object.assign({ Agendar: 0, Agendados: 0, Preferencial: 0 }, val);
+      } else {
+        contadoresLocal = { Agendar: 0, Agendados: 0, Preferencial: 0 };
+      }
+    });
 
     function chamarSenhaDireto(tipoSenha) {
       let guiche = String(document.getElementById('guicheNum').value || "").padStart(2, '0');
@@ -367,24 +395,20 @@
       if (tipoChamada === 'repetir') {
         db.ref(`ultimoPorGuiche/${guiche}`).once('value').then(snap => {
           const val = snap.val() || {};
-          const ag = val.Agendar;
-          const agd = val.Agendados;
-          if (!ag && !agd) {
-            document.getElementById("msg").textContent = "Nenhuma senha para rechamar neste guichê!";
-            return;
-          }
+          // Seleção genérica entre Agendar, Agendados e Preferencial (escolhe o mais recente)
           let escolhidoTipo = null;
-          if (ag && agd) {
-            escolhidoTipo = (ag.timestamp >= agd.timestamp) ? "Agendar" : "Agendados";
-          } else if (ag) {
-            escolhidoTipo = "Agendar";
-          } else {
-            escolhidoTipo = "Agendados";
-          }
-
-          const ultimoChamado = val[escolhidoTipo];
+          let ultimoChamado = null;
+          const possiveisTipos = ["Agendar", "Agendados", "Preferencial"];
+          possiveisTipos.forEach(t => {
+            if (val[t] && val[t].timestamp) {
+              if (!ultimoChamado || val[t].timestamp > ultimoChamado.timestamp) {
+                ultimoChamado = val[t];
+                escolhidoTipo = t;
+              }
+            }
+          });
           if (!ultimoChamado || !ultimoChamado.senha) {
-            document.getElementById("msg").textContent = "Nenhuma senha válida para rechamar neste guichê!";
+            document.getElementById("msg").textContent = "Nenhuma senha para rechamar neste guichê!";
             return;
           }
           enviarSenha(escolhidoTipo, ultimoChamado.senha, guiche, true);
@@ -881,7 +905,7 @@
 
     function mostrarCamposAdmin() {
       db.ref("contadoresSenha").once("value", snap => {
-        const val = snap.val() || {Agendar: 0, Agendados: 0};
+        const val = snap.val() || {Agendar: 0, Agendados: 0, Preferencial: 0};
         const adminDiv = document.getElementById("adminArea");
         let usuariosHtml = "<ul>";
         usuariosAutorizados.forEach(u => {
@@ -891,10 +915,13 @@
         adminDiv.innerHTML = `
           <div style="margin-bottom:12px;font-size:1.2em;font-weight:bold;color:#ffe900;">Ajuste dos Contadores</div>
           <label for="novoAgendar">Agendar: </label>
-          <input type="number" id="novoAgendar" min="0" max="999" value="${val.Agendar}">
+          <input type="number" id="novoAgendar" min="0" max="999" value="${val.Agendar || 0}">
           <br>
           <label for="novoAgendados">Agendados: </label>
-          <input type="number" id="novoAgendados" min="0" max="999" value="${val.Agendados}">
+          <input type="number" id="novoAgendados" min="0" max="999" value="${val.Agendados || 0}">
+          <br>
+          <label for="novoPreferencial">Preferencial: </label>
+          <input type="number" id="novoPreferencial" min="0" max="99" value="${val.Preferencial || 0}">
           <br>
           <button class="botao" onclick="atualizarContadores()">Atualizar</button>
           <div style="margin:14px 0; border-top:1px solid #ffe90033"></div>
@@ -912,13 +939,16 @@
     function atualizarContadores() {
       let novoAgendar = parseInt(document.getElementById("novoAgendar").value,10);
       let novoAgendados = parseInt(document.getElementById("novoAgendados").value,10);
+      let novoPreferencial = parseInt(document.getElementById("novoPreferencial").value,10);
       if (isNaN(novoAgendar) || novoAgendar < 0 || novoAgendar > 999 ||
-          isNaN(novoAgendados) || novoAgendados < 0 || novoAgendados > 999) {
+          isNaN(novoAgendados) || novoAgendados < 0 || novoAgendados > 999 ||
+          isNaN(novoPreferencial) || novoPreferencial < 0 || novoPreferencial > 99) {
         document.getElementById("msgAdmin").textContent = "Digite números válidos entre 0 e 999.";
         return;
       }
       contadores.Agendar = novoAgendar;
       contadores.Agendados = novoAgendados;
+      contadores.Preferencial = novoPreferencial;
       db.ref("contadoresSenha").set(contadores, (err)=>{
         document.getElementById("msgAdmin").textContent = err ? "Erro ao atualizar!" : "Contadores atualizados com sucesso!";
       });
