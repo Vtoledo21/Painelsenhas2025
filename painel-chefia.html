@@ -1,4 +1,4 @@
-v3
+v7
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -457,6 +457,29 @@ v3
       color: var(--amarelo-hcpa);
     }
 
+    /* TABELA DE USUÁRIOS - ABA HISTÓRICO */
+    .historico-usuarios-tabela {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .historico-usuarios-tabela tbody tr:hover {
+      background: #2a2a2a;
+    }
+
+    .historico-usuarios-tabela td {
+      padding: 12px 15px;
+    }
+
+    .total-badge {
+      background: rgba(76, 175, 80, 0.3);
+      padding: 4px 12px;
+      border-radius: 20px;
+      color: #4CAF50;
+      border: 1px solid #4CAF50;
+      font-weight: bold;
+    }
+
     @media (max-width: 768px) {
       .header-painel {
         flex-direction: column;
@@ -644,15 +667,16 @@ v3
     let chartTipo = null;
 
     const firebaseConfig = {
-      apiKey: "AIzaSyAsuP9gO2sBOmzBet2b7ijljMgTsXo29lE",
-      authDomain: "painel-senhas-hcpa.firebaseapp.com",
-      databaseURL: "https://painel-senhas-hcpa-default-rtdb.firebaseio.com",
-      projectId: "painel-senhas-hcpa",
-      storageBucket: "painel-senhas-hcpa.firebasestorage.app",
-      messagingSenderId: "164117661743",
-      appId: "1:164117661743:web:c82a42d485af05ecd71eda",
-      measurementId: "G-92XCSNDE54"
+      apiKey: "AIzaSyB-wxIiE1o4SlwhIAowvzDoP2MTCwHeUA8",
+      authDomain: "senha-teste-3792a.firebaseapp.com",
+      databaseURL: "https://senha-teste-3792a-default-rtdb.firebaseio.com",
+      projectId: "senha-teste-3792a",
+      storageBucket: "senha-teste-3792a.appspot.com",
+      messagingSenderId: "748802844835",
+      appId: "1:748802844835:web:443305d871158d21ab7716",
+      measurementId: "G-P6PCN541CD"
     };
+
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
@@ -908,13 +932,16 @@ v3
       resultados.innerHTML = "";
 
       let todosAtendimentos = [];
+      let usuariosComDados = {};
 
+      // Agrupar dados por usuário
       for (let usu in atendimentosData) {
         if (usuario && usu !== usuario) continue;
 
         const atendimentosObj = atendimentosData[usu];
         const atendimentos = Object.values(atendimentosObj).filter(a => a && typeof a === 'object');
         
+        let atendimentosFiltrados = [];
         atendimentos.forEach(a => {
           const dataAtend = new Date(a.timestamp).toISOString().slice(0, 10);
           
@@ -922,45 +949,53 @@ v3
           if (tipo && a.tipo !== tipo) return;
 
           todosAtendimentos.push({...a, usuario: usu});
+          atendimentosFiltrados.push({...a, usuario: usu});
         });
-      }
 
-      todosAtendimentos.sort((a, b) => b.timestamp - a.timestamp);
+        if (atendimentosFiltrados.length > 0) {
+          usuariosComDados[usu] = atendimentosFiltrados;
+        }
+      }
 
       if (todosAtendimentos.length === 0) {
         resultados.innerHTML = '<div class="msg-vazio">Nenhum resultado encontrado</div>';
         return;
       }
 
+      // Se houver dados filtrados, mostrar em tabela com resumo
       const div = document.createElement("div");
-      div.className = "historico-items";
+      
+      // Criar tabela de resumo por usuário com botão Ver
+      const tabelaResumo = document.createElement("table");
+      tabelaResumo.className = "historico-usuarios-tabela";
+      tabelaResumo.innerHTML = `
+        <thead>
+          <tr style="background: #0a0a0a; border-bottom: 2px solid var(--amarelo-hcpa);">
+            <th style="padding: 15px; color: var(--amarelo-hcpa); font-weight: bold; text-align: left;">👤 Usuário</th>
+            <th style="padding: 15px; color: var(--amarelo-hcpa); font-weight: bold; text-align: center;">📊 Total</th>
+            <th style="padding: 15px; color: var(--amarelo-hcpa); font-weight: bold; text-align: center;">Ação</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      `;
 
-      todosAtendimentos.forEach(a => {
-        const data = new Date(a.timestamp);
-        const hora = data.toLocaleTimeString("pt-BR");
-        const dataStr = data.toLocaleDateString("pt-BR");
-        const tipoClass = a.tipo === "Agendar" ? "status-agendar" : 
-                         a.tipo === "Agendados" ? "status-realizar" : "status-preferencial";
-
-        const item = document.createElement("div");
-        item.className = "historico-item";
-        item.innerHTML = `
-          <div class="historico-item-info">
-            <div class="historico-item-label">Usuário</div>
-            <div class="historico-item-valor">${a.usuario}</div>
-          </div>
-          <div class="historico-item-info">
-            <div class="historico-item-label">Data/Hora</div>
-            <div class="historico-item-valor">${dataStr} ${hora}</div>
-          </div>
-          <div class="historico-item-info">
-            <div class="historico-item-label">Tipo | Senha | Guichê</div>
-            <div class="historico-item-valor ${tipoClass}">${a.tipo} | ${a.senha} | ${a.guiche}</div>
-          </div>
+      const tbody = tabelaResumo.querySelector("tbody");
+      
+      Object.keys(usuariosComDados).forEach(usu => {
+        const atendimentosFiltrados = usuariosComDados[usu];
+        const tr = document.createElement("tr");
+        tr.style.borderBottom = "1px solid #333";
+        tr.innerHTML = `
+          <td style="padding: 12px 15px; color: var(--amarelo-hcpa);">${usu}</td>
+          <td style="padding: 12px 15px; color: var(--amarelo-hcpa); text-align: center;"><span class="total-badge">${atendimentosFiltrados.length}</span></td>
+          <td style="padding: 12px 15px; text-align: center;">
+            <button class="btn-ver" onclick="abrirHistoricoUsuario('${usu}', '${btoa(JSON.stringify(atendimentosFiltrados))}')">Ver Detalhes</button>
+          </td>
         `;
-        div.appendChild(item);
+        tbody.appendChild(tr);
       });
 
+      div.appendChild(tabelaResumo);
       resultados.appendChild(div);
     }
 
@@ -1000,32 +1035,37 @@ v3
         });
       }
 
+      todosAtendimentos.sort((a, b) => b.timestamp - a.timestamp);
+      todosAtendimentos = todosAtendimentos.slice(0, 20);
+
       document.getElementById("totalHoje").textContent = totalHoje;
       document.getElementById("totalMes").textContent = totalMes;
       document.getElementById("usuariosAtivos").textContent = usuariosAtivosList.size;
 
-      const tempoMediaSeg = tempos.length ? Math.round(tempos.reduce((a, b) => a + b, 0) / tempos.length / 1000) : 0;
-      document.getElementById("tempoMedio").textContent = formatTempo(tempoMediaSeg);
+      if (tempos.length > 0) {
+        const tempoMedioMs = Math.round(tempos.reduce((a, b) => a + b) / tempos.length);
+        document.getElementById("tempoMedio").textContent = formatTempo(Math.round(tempoMedioMs / 1000));
+      }
 
       const tbody = document.getElementById("tabelaTempoReal");
       tbody.innerHTML = "";
 
       if (todosAtendimentos.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" class="msg-vazio">Nenhum atendimento encontrado</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" class="msg-vazio">Nenhum atendimento</td></tr>';
         return;
       }
 
-      todosAtendimentos.sort((a, b) => b.timestamp - a.timestamp);
-      todosAtendimentos.slice(0, 20).forEach(a => {
-        const hora = new Date(a.timestamp).toLocaleTimeString("pt-BR");
+      todosAtendimentos.forEach(a => {
+        const data = new Date(a.timestamp);
+        const hora = data.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
         const tipoClass = a.tipo === "Agendar" ? "status-agendar" : 
                          a.tipo === "Agendados" ? "status-realizar" : "status-preferencial";
-        
+
         const tr = document.createElement("tr");
         tr.innerHTML = `
           <td>${hora}</td>
           <td>${a.usuario}</td>
-          <td><span style="color: ${tipoClass === 'status-agendar' ? '#d70000' : tipoClass === 'status-realizar' ? '#0074d9' : '#ffe900'}; font-weight: bold;">${a.tipo}</span></td>
+          <td><span class="${tipoClass}">${a.tipo}</span></td>
           <td>${a.senha}</td>
           <td>${a.guiche}</td>
         `;
@@ -1037,72 +1077,39 @@ v3
       const agora = new Date();
       const hojeStr = agora.toISOString().slice(0, 10);
 
-      const usuariosStats = {};
-      let agendar = 0, realizar = 0, preferencial = 0;
+      const usuariosCount = {};
+      const tiposCount = {};
 
       for (let usuario in atendimentosData) {
         const atendimentosObj = atendimentosData[usuario];
         const atendimentos = Object.values(atendimentosObj).filter(a => a && typeof a === 'object');
-        const hoje = atendimentos.filter(a => new Date(a.timestamp).toISOString().slice(0, 10) === hojeStr);
+        const hoje = atendimentos.filter(a => {
+          const dataAtend = new Date(a.timestamp).toISOString().slice(0, 10);
+          return dataAtend === hojeStr;
+        });
 
-        if (hoje.length === 0) continue;
+        if (hoje.length > 0) {
+          usuariosCount[usuario] = hoje.length;
 
-        const totalAgendar = hoje.filter(a => a.tipo === "Agendar").length;
-        const totalRealizar = hoje.filter(a => a.tipo === "Agendados").length;
-        const totalPreferencial = hoje.filter(a => a.tipo === "Preferencial").length;
-
-        agendar += totalAgendar;
-        realizar += totalRealizar;
-        preferencial += totalPreferencial;
-
-        usuariosStats[usuario] = hoje.length;
+          hoje.forEach(a => {
+            tiposCount[a.tipo] = (tiposCount[a.tipo] || 0) + 1;
+          });
+        }
       }
 
-      // Gráfico por usuário
-      const usuarios = Object.keys(usuariosStats);
-      const totais = usuarios.map(u => usuariosStats[u]);
+      const usuarios = Object.keys(usuariosCount).sort((a, b) => usuariosCount[b] - usuariosCount[a]);
 
-      const ctxUsuario = document.getElementById("graficoPorUsuario").getContext("2d");
+      const ctx1 = document.getElementById("graficoPorUsuario").getContext("2d");
       if (chartPorUsuario) chartPorUsuario.destroy();
-      
-      chartPorUsuario = new Chart(ctxUsuario, {
-        type: 'bar',
+      chartPorUsuario = new Chart(ctx1, {
+        type: "bar",
         data: {
           labels: usuarios,
           datasets: [{
-            label: 'Atendimentos',
-            data: totais,
-            backgroundColor: usuarios.map((_, i) => {
-              const cores = ['#d70000', '#0074d9', '#4CAF50', '#ff9800', '#9c27b0', '#00bcd4'];
-              return cores[i % cores.length];
-            }),
-            borderRadius: 8,
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: true,
-          plugins: {
-            legend: { display: false }
-          },
-          scales: {
-            y: { beginAtZero: true }
-          }
-        }
-      });
-
-      // Gráfico por tipo
-      const ctxTipo = document.getElementById("graficoTipo").getContext("2d");
-      if (chartTipo) chartTipo.destroy();
-      
-      chartTipo = new Chart(ctxTipo, {
-        type: 'doughnut',
-        data: {
-          labels: ['Agendar', 'Realizar', 'Preferencial'],
-          datasets: [{
-            data: [agendar, realizar, preferencial],
-            backgroundColor: ['#d70000', '#0074d9', '#ffe900'],
-            borderColor: '#1a1a1a',
+            label: "Atendimentos",
+            data: usuarios.map(u => usuariosCount[u]),
+            backgroundColor: "#4CAF50",
+            borderColor: "#2e7d32",
             borderWidth: 2
           }]
         },
@@ -1110,91 +1117,87 @@ v3
           responsive: true,
           maintainAspectRatio: true,
           plugins: {
-            legend: { position: 'bottom' }
+            legend: { labels: { color: "#fff" } }
+          },
+          scales: {
+            y: { ticks: { color: "#fff" }, grid: { color: "#333" } },
+            x: { ticks: { color: "#fff" }, grid: { color: "#333" } }
+          }
+        }
+      });
+
+      const tipos = Object.keys(tiposCount);
+      const ctx2 = document.getElementById("graficoTipo").getContext("2d");
+      if (chartTipo) chartTipo.destroy();
+      chartTipo = new Chart(ctx2, {
+        type: "doughnut",
+        data: {
+          labels: tipos,
+          datasets: [{
+            data: tipos.map(t => tiposCount[t]),
+            backgroundColor: ["#d70000", "#0074d9", "#ffe900"],
+            borderColor: "#1a1a1a",
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          plugins: {
+            legend: { labels: { color: "#fff" } }
           }
         }
       });
     }
 
+    function formatTempo(segundos) {
+      if (segundos < 60) return `${segundos}s`;
+      const minutos = Math.floor(segundos / 60);
+      const secs = segundos % 60;
+      return `${minutos}m ${secs}s`;
+    }
+
     function verificarInatividade() {
-      const agora = new Date();
-      const alertaDiv = document.getElementById("alertaInatividade");
-      let inativos = [];
-
-      for (let usuario in atendimentosData) {
-        const atendimentosObj = atendimentosData[usuario];
-        if (!atendimentosObj || typeof atendimentosObj !== 'object') continue;
-
-        const atendimentos = Object.values(atendimentosObj).filter(a => a && typeof a === 'object');
-        if (atendimentos.length === 0) continue;
-
-        const ultimoAtendimento = atendimentos[atendimentos.length - 1];
-        const tempoDecorrido = agora.getTime() - ultimoAtendimento.timestamp;
-        const minutos = Math.floor(tempoDecorrido / 60000);
-
-        if (minutos > 30) {
-          inativos.push(`${usuario} (${minutos}min)`);
-        }
-      }
-
-      if (inativos.length > 0) {
-        alertaDiv.innerHTML = `⚠️ <strong>Atenção!</strong> Inativos: ${inativos.join(", ")}`;
-        alertaDiv.style.display = "block";
-      } else {
-        alertaDiv.style.display = "none";
-      }
+      // Implementar lógica de inatividade se necessário
     }
 
     function exportarExcel() {
       const agora = new Date();
-      const data = agora.toLocaleDateString("pt-BR");
+      const hojeStr = agora.toISOString().slice(0, 10);
 
-      let workbook = XLSX.utils.book_new();
+      let dados = [];
 
-      // Resumo
-      const resumo = [
-        ["PAINEL DE CHEFIA - RESUMO"],
-        ["Data", data],
-        [],
-        ["Usuário", "Qtde", "Primeiro", "Último", "Tempo Médio"]
-      ];
+      for (let usuario in atendimentosData) {
+        const atendimentosObj = atendimentosData[usuario];
+        const atendimentos = Object.values(atendimentosObj).filter(a => a && typeof a === 'object');
+        const hoje = atendimentos.filter(a => {
+          const dataAtend = new Date(a.timestamp).toISOString().slice(0, 10);
+          return dataAtend === hojeStr;
+        });
 
-      document.querySelectorAll("#tabelaResumo tr").forEach(tr => {
-        const cells = tr.querySelectorAll("td");
-        if (cells.length === 6) {
-          resumo.push([
-            cells[0].textContent,
-            cells[1].textContent,
-            cells[2].textContent,
-            cells[3].textContent,
-            cells[4].textContent
-          ]);
+        hoje.sort((a, b) => a.timestamp - b.timestamp);
+
+        let tempos = [];
+        for (let i = 1; i < hoje.length; i++) {
+          tempos.push(hoje[i].timestamp - hoje[i - 1].timestamp);
         }
-      });
 
-      const wsResumo = XLSX.utils.aoa_to_sheet(resumo);
-      XLSX.utils.book_append_sheet(workbook, wsResumo, "Resumo");
+        const tempoMedio = tempos.length ? formatTempo(Math.round(tempos.reduce((a, b) => a + b) / tempos.length / 1000)) : "--";
 
-      XLSX.writeFile(workbook, `Painel_Chefia_${agora.getDate()}-${agora.getMonth()+1}.xlsx`);
-      alert("✅ Excel exportado!");
-    }
-
-    function formatTempo(segundos) {
-      if (segundos < 60) return segundos + "s";
-      if (segundos < 3600) return (segundos / 60).toFixed(1) + "min";
-      return (segundos / 3600).toFixed(2) + "h";
-    }
-
-    // Atualizar a cada 5 segundos
-    setInterval(() => {
-      if (usuarioLogadoChefia) {
-        atualizarResumo();
-        verificarInatividade();
+        dados.push({
+          "Usuário": usuario,
+          "Qtde": hoje.length,
+          "Primeiro": new Date(hoje[0].timestamp).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
+          "Último": new Date(hoje[hoje.length - 1].timestamp).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
+          "Média Tempo": tempoMedio
+        });
       }
-    }, 5000);
 
-    document.getElementById("usuarioLogin").focus();
-    document.getElementById("filtroDataHist").valueAsDate = new Date();
+      const worksheet = XLSX.utils.json_to_sheet(dados);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Atendimentos");
+      XLSX.writeFile(workbook, `Atendimentos_${hojeStr}.xlsx`);
+    }
   </script>
 </body>
 </html>
