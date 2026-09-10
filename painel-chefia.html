@@ -1,4 +1,4 @@
-v3.1
+v3
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -507,161 +507,6 @@ v3.1
       font-size: 0.9em;
     }
 
-    /* HISTÓRICO MENSAL - ESTILOS */
-    .filtro-mes {
-      background: #222;
-      padding: 16px;
-      border-radius: 8px;
-      margin-bottom: 20px;
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-
-    .filtro-mes label {
-      font-weight: bold;
-      color: var(--amarelo-hcpa);
-    }
-
-    .filtro-mes select {
-      padding: 8px 12px;
-      border-radius: 6px;
-      border: 1px solid var(--amarelo-hcpa);
-      background: #1a1a1a;
-      color: var(--amarelo-hcpa);
-      font-size: 1em;
-      cursor: pointer;
-    }
-
-    .grafico-mensal-container {
-      background: #1a1a1a;
-      border-radius: 15px;
-      padding: 25px;
-      box-shadow: 0 5px 20px #0002;
-      border: 2px solid var(--verde-hcpa);
-    }
-
-    .semana-bloco {
-      margin-bottom: 30px;
-    }
-
-    .semana-titulo {
-      color: var(--amarelo-hcpa);
-      font-weight: bold;
-      font-size: 1.1em;
-      margin-bottom: 16px;
-      padding-bottom: 8px;
-      border-bottom: 2px solid var(--amarelo-hcpa);
-    }
-
-    .barra-horizontal-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 12px;
-      position: relative;
-    }
-
-    .dia-label {
-      min-width: 80px;
-      color: var(--amarelo-hcpa);
-      font-weight: bold;
-      text-align: right;
-      font-size: 0.95em;
-    }
-
-    .barra-horizontal {
-      flex: 1;
-      height: 35px;
-      display: flex;
-      border-radius: 6px;
-      overflow: hidden;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
-      position: relative;
-    }
-
-    .segmento-h {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      cursor: pointer;
-      transition: opacity 0.2s, filter 0.2s;
-      min-width: 15px;
-    }
-
-    .segmento-h:hover {
-      opacity: 0.85;
-      filter: brightness(1.15);
-    }
-
-    .segmento-h.agendar {
-      background: #d70000;
-    }
-
-    .segmento-h.agendados {
-      background: #0074d9;
-    }
-
-    .segmento-h.preferencial {
-      background: var(--amarelo-hcpa);
-    }
-
-    .tooltip-label {
-      position: absolute;
-      background: rgba(0, 0, 0, 0.95);
-      color: var(--amarelo-hcpa);
-      padding: 6px 10px;
-      border-radius: 4px;
-      font-size: 0.8em;
-      font-weight: bold;
-      white-space: nowrap;
-      pointer-events: none;
-      z-index: 100;
-      display: none;
-      bottom: calc(100% + 6px);
-      left: 50%;
-      transform: translateX(-50%);
-      border: 1px solid var(--amarelo-hcpa);
-    }
-
-    .segmento-h:hover .tooltip-label {
-      display: block;
-    }
-
-    .total-label {
-      min-width: 60px;
-      color: var(--amarelo-hcpa);
-      font-weight: bold;
-      text-align: left;
-      font-size: 1em;
-    }
-
-    .legenda-mensal {
-      display: flex;
-      gap: 20px;
-      justify-content: center;
-      flex-wrap: wrap;
-      padding-top: 20px;
-      border-top: 1px solid #ffe90033;
-      margin-top: 20px;
-    }
-
-    .legenda-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 1em;
-      color: var(--amarelo-hcpa);
-    }
-
-    .legenda-cor {
-      width: 20px;
-      height: 20px;
-      border-radius: 4px;
-    }
-
     @media (max-width: 768px) {
       .header-painel {
         flex-direction: column;
@@ -675,15 +520,6 @@ v3.1
 
       .historico-item {
         grid-template-columns: 1fr;
-      }
-
-      .dia-label {
-        min-width: 60px;
-        font-size: 0.85em;
-      }
-
-      .barra-horizontal {
-        height: 30px;
       }
     }
   </style>
@@ -725,7 +561,6 @@ v3.1
       <button class="aba-btn" onclick="mudarAba('tempo-real')">⚡ Tempo Real</button>
       <button class="aba-btn" onclick="mudarAba('graficos')">📈 Gráficos</button>
       <button class="aba-btn" onclick="mudarAba('historico')">📜 Histórico</button>
-      <button class="aba-btn" onclick="mudarAba('mensal')">📅 Histórico Mensal</button>
     </div>
 
     <!-- ABA 1: RESUMO GERAL (COMO O PRINT) -->
@@ -840,17 +675,6 @@ v3.1
         </div>
       </div>
     </div>
-
-    <!-- ABA 5: HISTÓRICO MENSAL (NOVA) -->
-    <div id="abaMensal" class="aba-conteudo">
-      <div class="filtro-mes">
-        <label for="mesSelect">📅 Escolha o Mês:</label>
-        <select id="mesSelect" onchange="atualizarGraficoMensal()" style="min-width: 200px;">
-          <option value="">Carregando...</option>
-        </select>
-      </div>
-      <div id="graficoMensalArea" class="grafico-mensal-container"></div>
-    </div>
   </div>
 
   <!-- MODAL HISTÓRICO -->
@@ -864,7 +688,6 @@ v3.1
 
   <script>
     const senhaChefiaCorreta = "chefe2025";
-    const usuariosAutorizadosLogin = ["alpinto", "mdsantos", "vtcosta", "gmesserschmidt"];
     let usuarioLogadoChefia = null;
     let atendimentosData = {};
     let usuariosAutorizados = [];
@@ -872,15 +695,16 @@ v3.1
     let chartTipo = null;
 
     const firebaseConfig = {
-      apiKey: "AIzaSyAsuP9gO2sBOmzBet2b7ijljMgTsXo29lE",
-      authDomain: "painel-senhas-hcpa.firebaseapp.com",
-      databaseURL: "https://painel-senhas-hcpa-default-rtdb.firebaseio.com",
-      projectId: "painel-senhas-hcpa",
-      storageBucket: "painel-senhas-hcpa.firebasestorage.app",
-      messagingSenderId: "164117661743",
-      appId: "1:164117661743:web:c82a42d485af05ecd71eda",
-      measurementId: "G-92XCSNDE54"
+      apiKey: "AIzaSyB-wxIiE1o4SlwhIAowvzDoP2MTCwHeUA8",
+      authDomain: "senha-teste-3792a.firebaseapp.com",
+      databaseURL: "https://senha-teste-3792a-default-rtdb.firebaseio.com",
+      projectId: "senha-teste-3792a",
+      storageBucket: "senha-teste-3792a.appspot.com",
+      messagingSenderId: "748802844835",
+      appId: "1:748802844835:web:443305d871158d21ab7716",
+      measurementId: "G-P6PCN541CD"
     };
+
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
@@ -927,7 +751,6 @@ v3.1
         console.log("✅ Total de usuários:", usuariosAutorizados.length);
         
         atualizarSelectsUsuarios();
-        preencherSelectMeses();
         
         if (usuarioLogadoChefia) {
           atualizarResumo();
@@ -970,9 +793,9 @@ v3.1
       const msg = document.getElementById("msgLogin");
 
       console.log("🔐 Tentativa de login:", usuario);
-      console.log("📝 Usuários autorizados:", usuariosAutorizadosLogin);
+      console.log("📝 Usuários autorizados:", usuariosAutorizados);
 
-      if (usuariosAutorizadosLogin.includes(usuario) && senha === senhaChefiaCorreta) {
+      if (usuariosAutorizados.includes(usuario) && senha === senhaChefiaCorreta) {
         usuarioLogadoChefia = usuario;
         document.getElementById("loginContainer").style.display = "none";
         document.getElementById("painelContainer").style.display = "block";
@@ -1016,7 +839,6 @@ v3.1
       if (aba === "resumo") atualizarResumo();
       if (aba === "tempo-real") atualizarTempoReal();
       if (aba === "graficos") atualizarGraficos();
-      if (aba === "mensal") atualizarGraficoMensal();
     }
 
     function atualizarSelectsUsuarios() {
@@ -1029,142 +851,6 @@ v3.1
       }
     }
 
-    function preencherSelectMeses() {
-      const select = document.getElementById("mesSelect");
-      const agora = new Date();
-      const anoAtual = agora.getFullYear();
-
-      const opcoes = [];
-      for (let m = 0; m < 12; m++) {
-        const dataM = new Date(anoAtual, m, 1);
-        const nomeM = dataM.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
-        opcoes.push({ texto: nomeM.charAt(0).toUpperCase() + nomeM.slice(1), valor: `${anoAtual}-${m}` });
-      }
-
-      select.innerHTML = opcoes.map(o => `<option value="${o.valor}">${o.texto}</option>`).join('');
-      if (select.options.length > 0) {
-        select.value = opcoes[agora.getMonth()].valor;
-      }
-    }
-
-    function obterSemanasDaMes(ano, mes) {
-      const primeiroDia = new Date(ano, mes, 1);
-      const ultimoDia = new Date(ano, mes + 1, 0);
-      const semanas = [];
-
-      let diaAtual = new Date(primeiroDia);
-      let semanaNum = 1;
-
-      while (diaAtual <= ultimoDia) {
-        const diasSemana = [];
-        for (let i = 0; i < 7; i++) {
-          if (diaAtual > ultimoDia) break;
-          diasSemana.push(new Date(diaAtual));
-          diaAtual.setDate(diaAtual.getDate() + 1);
-        }
-        
-        if (diasSemana.length > 0) {
-          semanas.push({ numero: semanaNum, dias: diasSemana });
-        }
-        semanaNum++;
-      }
-
-      return semanas;
-    }
-
-    function obterDadosDia(ano, mes, dia) {
-      const diaStr = new Date(ano, mes, dia).toISOString().slice(0, 10);
-      const contadores = { agendar: 0, agendados: 0, preferencial: 0 };
-
-      for (let usuario in atendimentosData) {
-        const atendimentos = Object.values(atendimentosData[usuario]).filter(a => a && typeof a === 'object');
-        atendimentos.forEach(a => {
-          if (new Date(a.timestamp).toISOString().slice(0, 10) === diaStr) {
-            if (a.tipo === "Agendar") contadores.agendar++;
-            else if (a.tipo === "Agendados") contadores.agendados++;
-            else if (a.tipo === "Preferencial") contadores.preferencial++;
-          }
-        });
-      }
-
-      return contadores;
-    }
-
-    function atualizarGraficoMensal() {
-      const select = document.getElementById("mesSelect");
-      const valor = select.value;
-      if (!valor) return;
-
-      const [ano, mes] = valor.split('-');
-      const container = document.getElementById("graficoMensalArea");
-
-      const semanas = obterSemanasDaMes(parseInt(ano), parseInt(mes));
-      const diaNomes = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'];
-
-      let html = '';
-
-      semanas.forEach(semana => {
-        html += `<div class="semana-bloco">
-          <div class="semana-titulo">📅 Semana ${semana.numero} (${semana.dias[0].getDate()}/${String(parseInt(mes)+1).padStart(2,'0')} a ${semana.dias[semana.dias.length-1].getDate()}/${String(parseInt(mes)+1).padStart(2,'0')})</div>`;
-
-        semana.dias.forEach(dia => {
-          const dados = obterDadosDia(parseInt(ano), parseInt(mes), dia.getDate());
-          const total = dados.agendar + dados.agendados + dados.preferencial;
-          
-          if (total === 0) {
-            html += `
-              <div class="barra-horizontal-item">
-                <div class="dia-label">${diaNomes[dia.getDay()]} ${dia.getDate()}</div>
-                <div style="flex: 1; color: #666; text-align: center;">Sem atendimentos</div>
-                <div class="total-label">0</div>
-              </div>
-            `;
-          } else {
-            const larguraAgendar = (dados.agendar / total) * 100;
-            const larguraAgendados = (dados.agendados / total) * 100;
-            const larguraPreferencial = (dados.preferencial / total) * 100;
-
-            html += `
-              <div class="barra-horizontal-item">
-                <div class="dia-label">${diaNomes[dia.getDay()]} ${dia.getDate()}</div>
-                <div class="barra-horizontal">
-                  ${dados.agendar > 0 ? `
-                    <div class="segmento-h agendar" style="width: ${larguraAgendar}%;">
-                      <span class="tooltip-label">Agendar: ${dados.agendar}</span>
-                    </div>
-                  ` : ''}
-                  ${dados.agendados > 0 ? `
-                    <div class="segmento-h agendados" style="width: ${larguraAgendados}%;">
-                      <span class="tooltip-label">Agendados: ${dados.agendados}</span>
-                    </div>
-                  ` : ''}
-                  ${dados.preferencial > 0 ? `
-                    <div class="segmento-h preferencial" style="width: ${larguraPreferencial}%;">
-                      <span class="tooltip-label">Preferencial: ${dados.preferencial}</span>
-                    </div>
-                  ` : ''}
-                </div>
-                <div class="total-label">${total}</div>
-              </div>
-            `;
-          }
-        });
-
-        html += `</div>`;
-      });
-
-      html += `
-        <div class="legenda-mensal">
-          <div class="legenda-item"><div class="legenda-cor" style="background: #d70000;"></div>Exames para Agendar</div>
-          <div class="legenda-item"><div class="legenda-cor" style="background: #0074d9;"></div>Exames Agendados</div>
-          <div class="legenda-item"><div class="legenda-cor" style="background: var(--amarelo-hcpa);"></div>Preferencial</div>
-        </div>
-      `;
-
-      container.innerHTML = html;
-    }
-
-    // FUNÇÕES AUXILIARES ORIGINAIS (Mantidas do arquivo original)
     function atualizarResumo() {
       const agora = new Date();
       const hojeStr = agora.toISOString().slice(0, 10);
@@ -1185,6 +871,7 @@ v3.1
 
         hoje.sort((a, b) => a.timestamp - b.timestamp);
 
+        // Separar por turno
         const manha = hoje.filter(a => definirTurno(a.timestamp) === "MANHÃ");
         const tarde = hoje.filter(a => definirTurno(a.timestamp) === "TARDE");
 
@@ -1238,9 +925,11 @@ v3.1
         titulo.textContent = `📊 Histórico - ${usuario}`;
         conteudo.innerHTML = "";
 
+        // Separar por turno
         const manha = atendimentos.filter(a => definirTurno(a.timestamp) === "MANHÃ");
         const tarde = atendimentos.filter(a => definirTurno(a.timestamp) === "TARDE");
 
+        // Seção Manhã
         if (manha.length > 0) {
           const sectionManha = document.createElement("div");
           sectionManha.className = "turno-section";
@@ -1288,6 +977,7 @@ v3.1
           conteudo.appendChild(sectionManha);
         }
 
+        // Seção Tarde
         if (tarde.length > 0) {
           const sectionTarde = document.createElement("div");
           sectionTarde.className = "turno-section";
@@ -1337,7 +1027,8 @@ v3.1
 
         modal.style.display = "block";
       } catch (err) {
-        console.error("Erro ao abrir histórico:", err);
+        console.error("❌ Erro ao abrir histórico:", err);
+        alert("Erro ao carregar histórico!");
       }
     }
 
@@ -1345,35 +1036,300 @@ v3.1
       document.getElementById("modalHistorico").style.display = "none";
     }
 
-    function formatTempo(segundos) {
-      if (segundos < 60) return segundos + "s";
-      if (segundos < 3600) return (segundos/60).toFixed(1) + "min";
-      return (segundos/3600).toFixed(2) + "h";
-    }
-
-    function atualizarTempoReal() {
-      console.log("Atualizando tempo real...");
-    }
-
-    function atualizarGraficos() {
-      console.log("Atualizando gráficos...");
-    }
-
-    function verificarInatividade() {
-      console.log("Verificando inatividade...");
+    window.onclick = function(event) {
+      const modal = document.getElementById("modalHistorico");
+      if (event.target === modal) {
+        modal.style.display = "none";
+      }
     }
 
     function buscarHistorico() {
-      console.log("Buscando histórico...");
+      const usuario = document.getElementById("filtroUsuarioHist").value.toLowerCase();
+      const data = document.getElementById("filtroDataHist").value;
+      const tipo = document.getElementById("filtroTipoHist").value;
+
+      const resultados = document.getElementById("resultadosHistorico");
+      resultados.innerHTML = "";
+
+      let todosAtendimentos = [];
+      let usuariosComDados = {};
+
+      // Agrupar dados por usuário
+      for (let usu in atendimentosData) {
+        if (usuario && usu !== usuario) continue;
+
+        const atendimentosObj = atendimentosData[usu];
+        const atendimentos = Object.values(atendimentosObj).filter(a => a && typeof a === 'object');
+        
+        let atendimentosFiltrados = [];
+        atendimentos.forEach(a => {
+          const dataAtend = new Date(a.timestamp).toISOString().slice(0, 10);
+          
+          if (data && dataAtend !== data) return;
+          if (tipo && a.tipo !== tipo) return;
+
+          todosAtendimentos.push({...a, usuario: usu});
+          atendimentosFiltrados.push({...a, usuario: usu});
+        });
+
+        if (atendimentosFiltrados.length > 0) {
+          usuariosComDados[usu] = atendimentosFiltrados;
+        }
+      }
+
+      if (todosAtendimentos.length === 0) {
+        resultados.innerHTML = '<div class="msg-vazio">Nenhum resultado encontrado</div>';
+        return;
+      }
+
+      // Se houver dados filtrados, mostrar em tabela com resumo separado por turno
+      const div = document.createElement("div");
+      
+      // Criar tabela de resumo por usuário com botão Ver
+      const tabelaResumo = document.createElement("table");
+      tabelaResumo.className = "historico-usuarios-tabela";
+      tabelaResumo.innerHTML = `
+        <thead>
+          <tr style="background: #0a0a0a; border-bottom: 2px solid var(--amarelo-hcpa);">
+            <th style="padding: 15px; color: var(--amarelo-hcpa); font-weight: bold; text-align: left;">👤 Usuário</th>
+            <th style="padding: 15px; color: var(--amarelo-hcpa); font-weight: bold; text-align: center;">🌅 Manhã</th>
+            <th style="padding: 15px; color: var(--amarelo-hcpa); font-weight: bold; text-align: center;">🌆 Tarde</th>
+            <th style="padding: 15px; color: var(--amarelo-hcpa); font-weight: bold; text-align: center;">📊 Total</th>
+            <th style="padding: 15px; color: var(--amarelo-hcpa); font-weight: bold; text-align: center;">Ação</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      `;
+
+      const tbody = tabelaResumo.querySelector("tbody");
+      
+      Object.keys(usuariosComDados).forEach(usu => {
+        const atendimentosFiltrados = usuariosComDados[usu];
+        const qtManha = atendimentosFiltrados.filter(a => definirTurno(a.timestamp) === "MANHÃ").length;
+        const qtTarde = atendimentosFiltrados.filter(a => definirTurno(a.timestamp) === "TARDE").length;
+        const qtTotal = atendimentosFiltrados.length;
+
+        const tr = document.createElement("tr");
+        tr.style.borderBottom = "1px solid #333";
+        tr.innerHTML = `
+          <td style="padding: 12px 15px; color: var(--amarelo-hcpa);">${usu}</td>
+          <td style="padding: 12px 15px; color: var(--amarelo-hcpa); text-align: center; font-weight: bold;">${qtManha}</td>
+          <td style="padding: 12px 15px; color: var(--amarelo-hcpa); text-align: center; font-weight: bold;">${qtTarde}</td>
+          <td style="padding: 12px 15px; color: var(--amarelo-hcpa); text-align: center;"><span class="total-badge">${qtTotal}</span></td>
+          <td style="padding: 12px 15px; text-align: center;">
+            <button class="btn-ver" onclick="abrirHistoricoUsuario('${usu}', '${btoa(JSON.stringify(atendimentosFiltrados))}')">Ver Detalhes</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      div.appendChild(tabelaResumo);
+      resultados.appendChild(div);
+    }
+
+    function atualizarTempoReal() {
+      const agora = new Date();
+      const hojeStr = agora.toISOString().slice(0, 10);
+
+      let todosAtendimentos = [];
+      let totalHoje = 0;
+      let totalMes = 0;
+      let usuariosAtivosList = new Set();
+      let tempos = [];
+
+      for (let usuario in atendimentosData) {
+        const atendimentosObj = atendimentosData[usuario];
+        const atendimentos = Object.values(atendimentosObj).filter(a => a && typeof a === 'object');
+        
+        atendimentos.forEach(a => {
+          const dataAtend = new Date(a.timestamp).toISOString().slice(0, 10);
+
+          if (dataAtend === hojeStr) totalHoje++;
+
+          const dataObj = new Date(a.timestamp);
+          if (dataObj.getMonth() === agora.getMonth() && dataObj.getFullYear() === agora.getFullYear()) {
+            totalMes++;
+          }
+
+          usuariosAtivosList.add(usuario);
+          todosAtendimentos.push({...a, usuario});
+
+          if (atendimentos.length > 1) {
+            const idx = atendimentos.indexOf(a);
+            if (idx > 0) {
+              tempos.push(a.timestamp - atendimentos[idx - 1].timestamp);
+            }
+          }
+        });
+      }
+
+      todosAtendimentos.sort((a, b) => b.timestamp - a.timestamp);
+      todosAtendimentos = todosAtendimentos.slice(0, 20);
+
+      document.getElementById("totalHoje").textContent = totalHoje;
+      document.getElementById("totalMes").textContent = totalMes;
+      document.getElementById("usuariosAtivos").textContent = usuariosAtivosList.size;
+
+      if (tempos.length > 0) {
+        const tempoMedioMs = Math.round(tempos.reduce((a, b) => a + b) / tempos.length);
+        document.getElementById("tempoMedio").textContent = formatTempo(Math.round(tempoMedioMs / 1000));
+      }
+
+      const tbody = document.getElementById("tabelaTempoReal");
+      tbody.innerHTML = "";
+
+      if (todosAtendimentos.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="msg-vazio">Nenhum atendimento</td></tr>';
+        return;
+      }
+
+      todosAtendimentos.forEach(a => {
+        const data = new Date(a.timestamp);
+        const hora = data.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+        const tipoClass = a.tipo === "Agendar" ? "status-agendar" : 
+                         a.tipo === "Agendados" ? "status-realizar" : "status-preferencial";
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${hora}</td>
+          <td>${a.usuario}</td>
+          <td><span class="${tipoClass}">${a.tipo}</span></td>
+          <td>${a.senha}</td>
+          <td>${a.guiche}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function atualizarGraficos() {
+      const agora = new Date();
+      const hojeStr = agora.toISOString().slice(0, 10);
+
+      const usuariosCount = {};
+      const tiposCount = {};
+
+      for (let usuario in atendimentosData) {
+        const atendimentosObj = atendimentosData[usuario];
+        const atendimentos = Object.values(atendimentosObj).filter(a => a && typeof a === 'object');
+        const hoje = atendimentos.filter(a => {
+          const dataAtend = new Date(a.timestamp).toISOString().slice(0, 10);
+          return dataAtend === hojeStr;
+        });
+
+        if (hoje.length > 0) {
+          usuariosCount[usuario] = hoje.length;
+
+          hoje.forEach(a => {
+            tiposCount[a.tipo] = (tiposCount[a.tipo] || 0) + 1;
+          });
+        }
+      }
+
+      const usuarios = Object.keys(usuariosCount).sort((a, b) => usuariosCount[b] - usuariosCount[a]);
+
+      const ctx1 = document.getElementById("graficoPorUsuario").getContext("2d");
+      if (chartPorUsuario) chartPorUsuario.destroy();
+      chartPorUsuario = new Chart(ctx1, {
+        type: "bar",
+        data: {
+          labels: usuarios,
+          datasets: [{
+            label: "Atendimentos",
+            data: usuarios.map(u => usuariosCount[u]),
+            backgroundColor: "#4CAF50",
+            borderColor: "#2e7d32",
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          plugins: {
+            legend: { labels: { color: "#fff" } }
+          },
+          scales: {
+            y: { ticks: { color: "#fff" }, grid: { color: "#333" } },
+            x: { ticks: { color: "#fff" }, grid: { color: "#333" } }
+          }
+        }
+      });
+
+      const tipos = Object.keys(tiposCount);
+      const ctx2 = document.getElementById("graficoTipo").getContext("2d");
+      if (chartTipo) chartTipo.destroy();
+      chartTipo = new Chart(ctx2, {
+        type: "doughnut",
+        data: {
+          labels: tipos,
+          datasets: [{
+            data: tipos.map(t => tiposCount[t]),
+            backgroundColor: ["#d70000", "#0074d9", "#ffe900"],
+            borderColor: "#1a1a1a",
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          plugins: {
+            legend: { labels: { color: "#fff" } }
+          }
+        }
+      });
+    }
+
+    function formatTempo(segundos) {
+      if (segundos < 60) return `${segundos}s`;
+      const minutos = Math.floor(segundos / 60);
+      const secs = segundos % 60;
+      return `${minutos}m ${secs}s`;
+    }
+
+    function verificarInatividade() {
+      // Implementar lógica de inatividade se necessário
     }
 
     function exportarExcel() {
-      console.log("Exportando Excel...");
-    }
+      const agora = new Date();
+      const hojeStr = agora.toISOString().slice(0, 10);
 
-    document.getElementById("senhaLogin").addEventListener("keyup", function(e) {
-      if (e.key === "Enter") fazerLogin();
-    });
+      let dados = [];
+
+      for (let usuario in atendimentosData) {
+        const atendimentosObj = atendimentosData[usuario];
+        const atendimentos = Object.values(atendimentosObj).filter(a => a && typeof a === 'object');
+        const hoje = atendimentos.filter(a => {
+          const dataAtend = new Date(a.timestamp).toISOString().slice(0, 10);
+          return dataAtend === hojeStr;
+        });
+
+        hoje.sort((a, b) => a.timestamp - b.timestamp);
+
+        const manha = hoje.filter(a => definirTurno(a.timestamp) === "MANHÃ");
+        const tarde = hoje.filter(a => definirTurno(a.timestamp) === "TARDE");
+
+        let tempos = [];
+        for (let i = 1; i < hoje.length; i++) {
+          tempos.push(hoje[i].timestamp - hoje[i - 1].timestamp);
+        }
+
+        const tempoMedio = tempos.length ? formatTempo(Math.round(tempos.reduce((a, b) => a + b) / tempos.length / 1000)) : "--";
+
+        dados.push({
+          "Usuário": usuario,
+          "Qt Manhã": manha.length,
+          "Qt Tarde": tarde.length,
+          "Qt Total": hoje.length,
+          "Último": new Date(hoje[hoje.length - 1].timestamp).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
+          "Média Tempo": tempoMedio
+        });
+      }
+
+      const worksheet = XLSX.utils.json_to_sheet(dados);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Atendimentos");
+      XLSX.writeFile(workbook, `Atendimentos_${hojeStr}.xlsx`);
+    }
   </script>
 </body>
 </html>
