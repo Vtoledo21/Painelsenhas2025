@@ -1,4 +1,4 @@
-v 7.0
+v3
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -457,56 +457,6 @@ v 7.0
       color: var(--amarelo-hcpa);
     }
 
-    /* TABELA DE USUÁRIOS - ABA HISTÓRICO */
-    .historico-usuarios-tabela {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    .historico-usuarios-tabela tbody tr:hover {
-      background: #2a2a2a;
-    }
-
-    .historico-usuarios-tabela td {
-      padding: 12px 15px;
-    }
-
-    .total-badge {
-      background: rgba(76, 175, 80, 0.3);
-      padding: 4px 12px;
-      border-radius: 20px;
-      color: #4CAF50;
-      border: 1px solid #4CAF50;
-      font-weight: bold;
-    }
-
-    .turno-section {
-      margin-bottom: 30px;
-      background: #2a2a2a;
-      padding: 20px;
-      border-radius: 10px;
-      border-left: 5px solid var(--amarelo-hcpa);
-    }
-
-    .turno-titulo {
-      font-size: 1.2em;
-      font-weight: bold;
-      color: var(--amarelo-hcpa);
-      margin-bottom: 15px;
-      display: flex;
-      gap: 10px;
-      align-items: center;
-    }
-
-    .turno-badge {
-      background: var(--verde-claro);
-      color: #000;
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-weight: bold;
-      font-size: 0.9em;
-    }
-
     @media (max-width: 768px) {
       .header-painel {
         flex-direction: column;
@@ -571,16 +521,15 @@ v 7.0
           <thead>
             <tr>
               <th>Usuário</th>
-              <th class="numero">Qt Manhã</th>
-              <th class="numero">Qt Tarde</th>
-              <th class="numero">Qt Total</th>
+              <th class="numero">Qtde</th>
+              <th>Primeiro</th>
               <th>Último</th>
               <th>Média Tempo</th>
               <th>Detalhes</th>
             </tr>
           </thead>
           <tbody id="tabelaResumo">
-            <tr><td colspan="7" class="msg-vazio">Carregando usuários...</td></tr>
+            <tr><td colspan="6" class="msg-vazio">Carregando usuários...</td></tr>
           </tbody>
         </table>
       </div>
@@ -704,33 +653,11 @@ v 7.0
       appId: "1:164117661743:web:c82a42d485af05ecd71eda",
       measurementId: "G-92XCSNDE54"
     };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
 
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
     console.log("🔄 Inicializando Painel de Chefia...");
-
-    // Função para definir turno (IGUAL ao guiche.html)
-    function definirTurno(timestamp) {
-      let data = new Date(timestamp);
-      let horas = data.getHours();
-      let minutos = data.getMinutes();
-      let totalMinutos = horas * 60 + minutos;
-
-      let manha_inicio = 7 * 60 + 30;  // 7:30
-      let manha_fim = 12 * 60 + 30;    // 12:30
-      let tarde_inicio = 12 * 60 + 31; // 12:31
-      let tarde_fim = 20 * 60;         // 20:00
-
-      if (totalMinutos >= manha_inicio && totalMinutos <= manha_fim) {
-        return "MANHÃ";
-      } else if (totalMinutos >= tarde_inicio && totalMinutos <= tarde_fim) {
-        return "TARDE";
-      }
-      return "FORA";
-    }
 
     // CARREGAR ATENDIMENTOS E USUÁRIOS DO FIREBASE
     function carregarAtendimentos() {
@@ -873,10 +800,6 @@ v 7.0
 
         hoje.sort((a, b) => a.timestamp - b.timestamp);
 
-        // Separar por turno
-        const manha = hoje.filter(a => definirTurno(a.timestamp) === "MANHÃ");
-        const tarde = hoje.filter(a => definirTurno(a.timestamp) === "TARDE");
-
         let tempos = [];
         for (let i = 1; i < hoje.length; i++) {
           tempos.push(hoje[i].timestamp - hoje[i - 1].timestamp);
@@ -885,19 +808,18 @@ v 7.0
         const tempoMedio = tempos.length ? formatTempo(Math.round(tempos.reduce((a, b) => a + b) / tempos.length / 1000)) : "--";
 
         usuariosStats[usuario] = {
-          qtManha: manha.length,
-          qtTarde: tarde.length,
-          qtTotal: hoje.length,
+          total: hoje.length,
+          primeiro: new Date(hoje[0].timestamp).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
           ultimo: new Date(hoje[hoje.length - 1].timestamp).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
           tempoMedio,
           atendimentos: hoje
         };
       }
 
-      const usuarios = Object.keys(usuariosStats).sort((a, b) => usuariosStats[b].qtTotal - usuariosStats[a].qtTotal);
+      const usuarios = Object.keys(usuariosStats).sort((a, b) => usuariosStats[b].total - usuariosStats[a].total);
 
       if (usuarios.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" class="msg-vazio">Nenhum atendimento hoje</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" class="msg-vazio">Nenhum atendimento hoje</td></tr>';
         return;
       }
 
@@ -906,9 +828,8 @@ v 7.0
         const tr = document.createElement("tr");
         tr.innerHTML = `
           <td>${usuario}</td>
-          <td class="numero">${stats.qtManha}</td>
-          <td class="numero">${stats.qtTarde}</td>
-          <td class="numero">${stats.qtTotal}</td>
+          <td class="numero">${stats.total}</td>
+          <td>${stats.primeiro}</td>
           <td>${stats.ultimo}</td>
           <td><span class="tempo-badge">${stats.tempoMedio}</span></td>
           <td><button class="btn-ver" onclick="abrirHistoricoUsuario('${usuario}', '${btoa(JSON.stringify(stats.atendimentos))}')">Ver</button></td>
@@ -927,105 +848,39 @@ v 7.0
         titulo.textContent = `📊 Histórico - ${usuario}`;
         conteudo.innerHTML = "";
 
-        // Separar por turno
-        const manha = atendimentos.filter(a => definirTurno(a.timestamp) === "MANHÃ");
-        const tarde = atendimentos.filter(a => definirTurno(a.timestamp) === "TARDE");
+        atendimentos.forEach(a => {
+          const data = new Date(a.timestamp);
+          const hora = data.toLocaleTimeString("pt-BR");
+          const dataStr = data.toLocaleDateString("pt-BR");
+          const tipoClass = a.tipo === "Agendar" ? "status-agendar" : 
+                           a.tipo === "Agendados" ? "status-realizar" : "status-preferencial";
 
-        // Seção Manhã
-        if (manha.length > 0) {
-          const sectionManha = document.createElement("div");
-          sectionManha.className = "turno-section";
-          sectionManha.innerHTML = `
-            <div class="turno-titulo">
-              🌅 Turno Manhã
-              <span class="turno-badge">${manha.length}</span>
+          const div = document.createElement("div");
+          div.className = "historico-item";
+          div.innerHTML = `
+            <div class="historico-item-info">
+              <div class="historico-item-label">Data</div>
+              <div class="historico-item-valor">${dataStr}</div>
+            </div>
+            <div class="historico-item-info">
+              <div class="historico-item-label">Hora</div>
+              <div class="historico-item-valor">${hora}</div>
+            </div>
+            <div class="historico-item-info">
+              <div class="historico-item-label">Tipo</div>
+              <div class="historico-item-valor ${tipoClass}">${a.tipo}</div>
+            </div>
+            <div class="historico-item-info">
+              <div class="historico-item-label">Senha</div>
+              <div class="historico-item-valor">${a.senha}</div>
+            </div>
+            <div class="historico-item-info">
+              <div class="historico-item-label">Guichê</div>
+              <div class="historico-item-valor">${a.guiche}</div>
             </div>
           `;
-
-          manha.forEach(a => {
-            const data = new Date(a.timestamp);
-            const hora = data.toLocaleTimeString("pt-BR");
-            const dataStr = data.toLocaleDateString("pt-BR");
-            const tipoClass = a.tipo === "Agendar" ? "status-agendar" : 
-                             a.tipo === "Agendados" ? "status-realizar" : "status-preferencial";
-
-            const div = document.createElement("div");
-            div.className = "historico-item";
-            div.innerHTML = `
-              <div class="historico-item-info">
-                <div class="historico-item-label">Data</div>
-                <div class="historico-item-valor">${dataStr}</div>
-              </div>
-              <div class="historico-item-info">
-                <div class="historico-item-label">Hora</div>
-                <div class="historico-item-valor">${hora}</div>
-              </div>
-              <div class="historico-item-info">
-                <div class="historico-item-label">Tipo</div>
-                <div class="historico-item-valor ${tipoClass}">${a.tipo}</div>
-              </div>
-              <div class="historico-item-info">
-                <div class="historico-item-label">Senha</div>
-                <div class="historico-item-valor">${a.senha}</div>
-              </div>
-              <div class="historico-item-info">
-                <div class="historico-item-label">Guichê</div>
-                <div class="historico-item-valor">${a.guiche}</div>
-              </div>
-            `;
-            sectionManha.appendChild(div);
-          });
-
-          conteudo.appendChild(sectionManha);
-        }
-
-        // Seção Tarde
-        if (tarde.length > 0) {
-          const sectionTarde = document.createElement("div");
-          sectionTarde.className = "turno-section";
-          sectionTarde.innerHTML = `
-            <div class="turno-titulo">
-              🌆 Turno Tarde
-              <span class="turno-badge">${tarde.length}</span>
-            </div>
-          `;
-
-          tarde.forEach(a => {
-            const data = new Date(a.timestamp);
-            const hora = data.toLocaleTimeString("pt-BR");
-            const dataStr = data.toLocaleDateString("pt-BR");
-            const tipoClass = a.tipo === "Agendar" ? "status-agendar" : 
-                             a.tipo === "Agendados" ? "status-realizar" : "status-preferencial";
-
-            const div = document.createElement("div");
-            div.className = "historico-item";
-            div.innerHTML = `
-              <div class="historico-item-info">
-                <div class="historico-item-label">Data</div>
-                <div class="historico-item-valor">${dataStr}</div>
-              </div>
-              <div class="historico-item-info">
-                <div class="historico-item-label">Hora</div>
-                <div class="historico-item-valor">${hora}</div>
-              </div>
-              <div class="historico-item-info">
-                <div class="historico-item-label">Tipo</div>
-                <div class="historico-item-valor ${tipoClass}">${a.tipo}</div>
-              </div>
-              <div class="historico-item-info">
-                <div class="historico-item-label">Senha</div>
-                <div class="historico-item-valor">${a.senha}</div>
-              </div>
-              <div class="historico-item-info">
-                <div class="historico-item-label">Guichê</div>
-                <div class="historico-item-valor">${a.guiche}</div>
-              </div>
-            `;
-            sectionTarde.appendChild(div);
-          });
-
-          conteudo.appendChild(sectionTarde);
-        }
+          conteudo.appendChild(div);
+        });
 
         modal.style.display = "block";
       } catch (err) {
@@ -1054,16 +909,13 @@ v 7.0
       resultados.innerHTML = "";
 
       let todosAtendimentos = [];
-      let usuariosComDados = {};
 
-      // Agrupar dados por usuário
       for (let usu in atendimentosData) {
         if (usuario && usu !== usuario) continue;
 
         const atendimentosObj = atendimentosData[usu];
         const atendimentos = Object.values(atendimentosObj).filter(a => a && typeof a === 'object');
         
-        let atendimentosFiltrados = [];
         atendimentos.forEach(a => {
           const dataAtend = new Date(a.timestamp).toISOString().slice(0, 10);
           
@@ -1071,61 +923,45 @@ v 7.0
           if (tipo && a.tipo !== tipo) return;
 
           todosAtendimentos.push({...a, usuario: usu});
-          atendimentosFiltrados.push({...a, usuario: usu});
         });
-
-        if (atendimentosFiltrados.length > 0) {
-          usuariosComDados[usu] = atendimentosFiltrados;
-        }
       }
+
+      todosAtendimentos.sort((a, b) => b.timestamp - a.timestamp);
 
       if (todosAtendimentos.length === 0) {
         resultados.innerHTML = '<div class="msg-vazio">Nenhum resultado encontrado</div>';
         return;
       }
 
-      // Se houver dados filtrados, mostrar em tabela com resumo separado por turno
       const div = document.createElement("div");
-      
-      // Criar tabela de resumo por usuário com botão Ver
-      const tabelaResumo = document.createElement("table");
-      tabelaResumo.className = "historico-usuarios-tabela";
-      tabelaResumo.innerHTML = `
-        <thead>
-          <tr style="background: #0a0a0a; border-bottom: 2px solid var(--amarelo-hcpa);">
-            <th style="padding: 15px; color: var(--amarelo-hcpa); font-weight: bold; text-align: left;">👤 Usuário</th>
-            <th style="padding: 15px; color: var(--amarelo-hcpa); font-weight: bold; text-align: center;">🌅 Manhã</th>
-            <th style="padding: 15px; color: var(--amarelo-hcpa); font-weight: bold; text-align: center;">🌆 Tarde</th>
-            <th style="padding: 15px; color: var(--amarelo-hcpa); font-weight: bold; text-align: center;">📊 Total</th>
-            <th style="padding: 15px; color: var(--amarelo-hcpa); font-weight: bold; text-align: center;">Ação</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      `;
+      div.className = "historico-items";
 
-      const tbody = tabelaResumo.querySelector("tbody");
-      
-      Object.keys(usuariosComDados).forEach(usu => {
-        const atendimentosFiltrados = usuariosComDados[usu];
-        const qtManha = atendimentosFiltrados.filter(a => definirTurno(a.timestamp) === "MANHÃ").length;
-        const qtTarde = atendimentosFiltrados.filter(a => definirTurno(a.timestamp) === "TARDE").length;
-        const qtTotal = atendimentosFiltrados.length;
+      todosAtendimentos.forEach(a => {
+        const data = new Date(a.timestamp);
+        const hora = data.toLocaleTimeString("pt-BR");
+        const dataStr = data.toLocaleDateString("pt-BR");
+        const tipoClass = a.tipo === "Agendar" ? "status-agendar" : 
+                         a.tipo === "Agendados" ? "status-realizar" : "status-preferencial";
 
-        const tr = document.createElement("tr");
-        tr.style.borderBottom = "1px solid #333";
-        tr.innerHTML = `
-          <td style="padding: 12px 15px; color: var(--amarelo-hcpa);">${usu}</td>
-          <td style="padding: 12px 15px; color: var(--amarelo-hcpa); text-align: center; font-weight: bold;">${qtManha}</td>
-          <td style="padding: 12px 15px; color: var(--amarelo-hcpa); text-align: center; font-weight: bold;">${qtTarde}</td>
-          <td style="padding: 12px 15px; color: var(--amarelo-hcpa); text-align: center;"><span class="total-badge">${qtTotal}</span></td>
-          <td style="padding: 12px 15px; text-align: center;">
-            <button class="btn-ver" onclick="abrirHistoricoUsuario('${usu}', '${btoa(JSON.stringify(atendimentosFiltrados))}')">Ver Detalhes</button>
-          </td>
+        const item = document.createElement("div");
+        item.className = "historico-item";
+        item.innerHTML = `
+          <div class="historico-item-info">
+            <div class="historico-item-label">Usuário</div>
+            <div class="historico-item-valor">${a.usuario}</div>
+          </div>
+          <div class="historico-item-info">
+            <div class="historico-item-label">Data/Hora</div>
+            <div class="historico-item-valor">${dataStr} ${hora}</div>
+          </div>
+          <div class="historico-item-info">
+            <div class="historico-item-label">Tipo | Senha | Guichê</div>
+            <div class="historico-item-valor ${tipoClass}">${a.tipo} | ${a.senha} | ${a.guiche}</div>
+          </div>
         `;
-        tbody.appendChild(tr);
+        div.appendChild(item);
       });
 
-      div.appendChild(tabelaResumo);
       resultados.appendChild(div);
     }
 
@@ -1165,37 +1001,32 @@ v 7.0
         });
       }
 
-      todosAtendimentos.sort((a, b) => b.timestamp - a.timestamp);
-      todosAtendimentos = todosAtendimentos.slice(0, 20);
-
       document.getElementById("totalHoje").textContent = totalHoje;
       document.getElementById("totalMes").textContent = totalMes;
       document.getElementById("usuariosAtivos").textContent = usuariosAtivosList.size;
 
-      if (tempos.length > 0) {
-        const tempoMedioMs = Math.round(tempos.reduce((a, b) => a + b) / tempos.length);
-        document.getElementById("tempoMedio").textContent = formatTempo(Math.round(tempoMedioMs / 1000));
-      }
+      const tempoMediaSeg = tempos.length ? Math.round(tempos.reduce((a, b) => a + b, 0) / tempos.length / 1000) : 0;
+      document.getElementById("tempoMedio").textContent = formatTempo(tempoMediaSeg);
 
       const tbody = document.getElementById("tabelaTempoReal");
       tbody.innerHTML = "";
 
       if (todosAtendimentos.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" class="msg-vazio">Nenhum atendimento</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" class="msg-vazio">Nenhum atendimento encontrado</td></tr>';
         return;
       }
 
-      todosAtendimentos.forEach(a => {
-        const data = new Date(a.timestamp);
-        const hora = data.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+      todosAtendimentos.sort((a, b) => b.timestamp - a.timestamp);
+      todosAtendimentos.slice(0, 20).forEach(a => {
+        const hora = new Date(a.timestamp).toLocaleTimeString("pt-BR");
         const tipoClass = a.tipo === "Agendar" ? "status-agendar" : 
                          a.tipo === "Agendados" ? "status-realizar" : "status-preferencial";
-
+        
         const tr = document.createElement("tr");
         tr.innerHTML = `
           <td>${hora}</td>
           <td>${a.usuario}</td>
-          <td><span class="${tipoClass}">${a.tipo}</span></td>
+          <td><span style="color: ${tipoClass === 'status-agendar' ? '#d70000' : tipoClass === 'status-realizar' ? '#0074d9' : '#ffe900'}; font-weight: bold;">${a.tipo}</span></td>
           <td>${a.senha}</td>
           <td>${a.guiche}</td>
         `;
@@ -1207,66 +1038,72 @@ v 7.0
       const agora = new Date();
       const hojeStr = agora.toISOString().slice(0, 10);
 
-      const usuariosCount = {};
-      const tiposCount = {};
+      const usuariosStats = {};
+      let agendar = 0, realizar = 0, preferencial = 0;
 
       for (let usuario in atendimentosData) {
         const atendimentosObj = atendimentosData[usuario];
         const atendimentos = Object.values(atendimentosObj).filter(a => a && typeof a === 'object');
-        const hoje = atendimentos.filter(a => {
-          const dataAtend = new Date(a.timestamp).toISOString().slice(0, 10);
-          return dataAtend === hojeStr;
-        });
+        const hoje = atendimentos.filter(a => new Date(a.timestamp).toISOString().slice(0, 10) === hojeStr);
 
-        if (hoje.length > 0) {
-          usuariosCount[usuario] = hoje.length;
+        if (hoje.length === 0) continue;
 
-          hoje.forEach(a => {
-            tiposCount[a.tipo] = (tiposCount[a.tipo] || 0) + 1;
-          });
-        }
+        const totalAgendar = hoje.filter(a => a.tipo === "Agendar").length;
+        const totalRealizar = hoje.filter(a => a.tipo === "Agendados").length;
+        const totalPreferencial = hoje.filter(a => a.tipo === "Preferencial").length;
+
+        agendar += totalAgendar;
+        realizar += totalRealizar;
+        preferencial += totalPreferencial;
+
+        usuariosStats[usuario] = hoje.length;
       }
 
-      const usuarios = Object.keys(usuariosCount).sort((a, b) => usuariosCount[b] - usuariosCount[a]);
+      // Gráfico por usuário
+      const usuarios = Object.keys(usuariosStats);
+      const totais = usuarios.map(u => usuariosStats[u]);
 
-      const ctx1 = document.getElementById("graficoPorUsuario").getContext("2d");
+      const ctxUsuario = document.getElementById("graficoPorUsuario").getContext("2d");
       if (chartPorUsuario) chartPorUsuario.destroy();
-      chartPorUsuario = new Chart(ctx1, {
-        type: "bar",
+      
+      chartPorUsuario = new Chart(ctxUsuario, {
+        type: 'bar',
         data: {
           labels: usuarios,
           datasets: [{
-            label: "Atendimentos",
-            data: usuarios.map(u => usuariosCount[u]),
-            backgroundColor: "#4CAF50",
-            borderColor: "#2e7d32",
-            borderWidth: 2
+            label: 'Atendimentos',
+            data: totais,
+            backgroundColor: usuarios.map((_, i) => {
+              const cores = ['#d70000', '#0074d9', '#4CAF50', '#ff9800', '#9c27b0', '#00bcd4'];
+              return cores[i % cores.length];
+            }),
+            borderRadius: 8,
           }]
         },
         options: {
           responsive: true,
           maintainAspectRatio: true,
           plugins: {
-            legend: { labels: { color: "#fff" } }
+            legend: { display: false }
           },
           scales: {
-            y: { ticks: { color: "#fff" }, grid: { color: "#333" } },
-            x: { ticks: { color: "#fff" }, grid: { color: "#333" } }
+            y: { beginAtZero: true }
           }
         }
       });
 
-      const tipos = Object.keys(tiposCount);
-      const ctx2 = document.getElementById("graficoTipo").getContext("2d");
+      // Gráfico por tipo
+      const ctxTipo = document.getElementById("graficoTipo").getContext("2d");
       if (chartTipo) chartTipo.destroy();
-      chartTipo = new Chart(ctx2, {
-        type: "doughnut",
+      
+      chartTipo = new Chart(ctxTipo, {
+        type: 'doughnut',
         data: {
-          labels: tipos,
+          labels: ['Agendar', 'Realizar', 'Preferencial'],
           datasets: [{
-            data: tipos.map(t => tiposCount[t]),
-            backgroundColor: ["#d70000", "#0074d9", "#ffe900"],
-            borderColor: "#1a1a1a",
+            data: [agendar, realizar, preferencial],
+            backgroundColor: ['#d70000', '#0074d9', '#ffe900'],
+            borderColor: '#1a1a1a',
             borderWidth: 2
           }]
         },
@@ -1274,64 +1111,91 @@ v 7.0
           responsive: true,
           maintainAspectRatio: true,
           plugins: {
-            legend: { labels: { color: "#fff" } }
+            legend: { position: 'bottom' }
           }
         }
       });
-    }
-
-    function formatTempo(segundos) {
-      if (segundos < 60) return `${segundos}s`;
-      const minutos = Math.floor(segundos / 60);
-      const secs = segundos % 60;
-      return `${minutos}m ${secs}s`;
     }
 
     function verificarInatividade() {
-      // Implementar lógica de inatividade se necessário
+      const agora = new Date();
+      const alertaDiv = document.getElementById("alertaInatividade");
+      let inativos = [];
+
+      for (let usuario in atendimentosData) {
+        const atendimentosObj = atendimentosData[usuario];
+        if (!atendimentosObj || typeof atendimentosObj !== 'object') continue;
+
+        const atendimentos = Object.values(atendimentosObj).filter(a => a && typeof a === 'object');
+        if (atendimentos.length === 0) continue;
+
+        const ultimoAtendimento = atendimentos[atendimentos.length - 1];
+        const tempoDecorrido = agora.getTime() - ultimoAtendimento.timestamp;
+        const minutos = Math.floor(tempoDecorrido / 60000);
+
+        if (minutos > 30) {
+          inativos.push(`${usuario} (${minutos}min)`);
+        }
+      }
+
+      if (inativos.length > 0) {
+        alertaDiv.innerHTML = `⚠️ <strong>Atenção!</strong> Inativos: ${inativos.join(", ")}`;
+        alertaDiv.style.display = "block";
+      } else {
+        alertaDiv.style.display = "none";
+      }
     }
 
     function exportarExcel() {
       const agora = new Date();
-      const hojeStr = agora.toISOString().slice(0, 10);
+      const data = agora.toLocaleDateString("pt-BR");
 
-      let dados = [];
+      let workbook = XLSX.utils.book_new();
 
-      for (let usuario in atendimentosData) {
-        const atendimentosObj = atendimentosData[usuario];
-        const atendimentos = Object.values(atendimentosObj).filter(a => a && typeof a === 'object');
-        const hoje = atendimentos.filter(a => {
-          const dataAtend = new Date(a.timestamp).toISOString().slice(0, 10);
-          return dataAtend === hojeStr;
-        });
+      // Resumo
+      const resumo = [
+        ["PAINEL DE CHEFIA - RESUMO"],
+        ["Data", data],
+        [],
+        ["Usuário", "Qtde", "Primeiro", "Último", "Tempo Médio"]
+      ];
 
-        hoje.sort((a, b) => a.timestamp - b.timestamp);
-
-        const manha = hoje.filter(a => definirTurno(a.timestamp) === "MANHÃ");
-        const tarde = hoje.filter(a => definirTurno(a.timestamp) === "TARDE");
-
-        let tempos = [];
-        for (let i = 1; i < hoje.length; i++) {
-          tempos.push(hoje[i].timestamp - hoje[i - 1].timestamp);
+      document.querySelectorAll("#tabelaResumo tr").forEach(tr => {
+        const cells = tr.querySelectorAll("td");
+        if (cells.length === 6) {
+          resumo.push([
+            cells[0].textContent,
+            cells[1].textContent,
+            cells[2].textContent,
+            cells[3].textContent,
+            cells[4].textContent
+          ]);
         }
+      });
 
-        const tempoMedio = tempos.length ? formatTempo(Math.round(tempos.reduce((a, b) => a + b) / tempos.length / 1000)) : "--";
+      const wsResumo = XLSX.utils.aoa_to_sheet(resumo);
+      XLSX.utils.book_append_sheet(workbook, wsResumo, "Resumo");
 
-        dados.push({
-          "Usuário": usuario,
-          "Qt Manhã": manha.length,
-          "Qt Tarde": tarde.length,
-          "Qt Total": hoje.length,
-          "Último": new Date(hoje[hoje.length - 1].timestamp).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
-          "Média Tempo": tempoMedio
-        });
-      }
-
-      const worksheet = XLSX.utils.json_to_sheet(dados);
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, "Atendimentos");
-      XLSX.writeFile(workbook, `Atendimentos_${hojeStr}.xlsx`);
+      XLSX.writeFile(workbook, `Painel_Chefia_${agora.getDate()}-${agora.getMonth()+1}.xlsx`);
+      alert("✅ Excel exportado!");
     }
+
+    function formatTempo(segundos) {
+      if (segundos < 60) return segundos + "s";
+      if (segundos < 3600) return (segundos / 60).toFixed(1) + "min";
+      return (segundos / 3600).toFixed(2) + "h";
+    }
+
+    // Atualizar a cada 5 segundos
+    setInterval(() => {
+      if (usuarioLogadoChefia) {
+        atualizarResumo();
+        verificarInatividade();
+      }
+    }, 5000);
+
+    document.getElementById("usuarioLogin").focus();
+    document.getElementById("filtroDataHist").valueAsDate = new Date();
   </script>
 </body>
 </html>
