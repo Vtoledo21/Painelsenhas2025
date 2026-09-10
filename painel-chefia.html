@@ -1,9 +1,9 @@
-v 7.1
+V-7.2
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Painel de Chefia - Atendimentos</title>
+  <title>Painel de Chefia - Radiologia HCPA</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <style>
@@ -209,7 +209,168 @@ v 7.1
       to { opacity: 1; }
     }
 
-    /* TABELA PRINCIPAL - COMO O PRINT */
+    /* FILTROS */
+    .filtro-box {
+      background: #222;
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .filtro-box label {
+      font-weight: bold;
+      color: var(--amarelo-hcpa);
+    }
+
+    .filtro-box select {
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--amarelo-hcpa);
+      background: #1a1a1a;
+      color: var(--amarelo-hcpa);
+      font-size: 1em;
+      cursor: pointer;
+    }
+
+    /* GRÁFICO SEGMENTADO */
+    .grafico-segmentado {
+      background: #1a1a1a;
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 5px 20px #0002;
+      border: 2px solid var(--verde-hcpa);
+      margin-bottom: 20px;
+    }
+
+    .grafico-titulo {
+      font-weight: bold;
+      color: var(--amarelo-hcpa);
+      margin-bottom: 20px;
+      font-size: 1.3em;
+      text-align: center;
+    }
+
+    .barras-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .barra-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .barra-valor {
+      font-size: 1.3em;
+      font-weight: bold;
+      color: var(--amarelo-hcpa);
+      text-align: center;
+    }
+
+    .barra-segmentada {
+      width: 60px;
+      min-height: 250px;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column-reverse;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+      border: 1px solid #444;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .segmento {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .segmento:hover {
+      opacity: 0.85;
+      filter: brightness(1.1);
+    }
+
+    .segmento.agendar {
+      background: #d70000;
+    }
+
+    .segmento.agendados {
+      background: #0074d9;
+    }
+
+    .segmento.preferencial {
+      background: var(--amarelo-hcpa);
+    }
+
+    .tooltip-segmento {
+      position: absolute;
+      background: rgba(0, 0, 0, 0.95);
+      color: var(--amarelo-hcpa);
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 0.9em;
+      font-weight: bold;
+      white-space: nowrap;
+      pointer-events: none;
+      z-index: 100;
+      display: none;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      margin-bottom: 8px;
+      border: 1px solid var(--amarelo-hcpa);
+    }
+
+    .segmento:hover .tooltip-segmento {
+      display: block;
+    }
+
+    .barra-label {
+      font-size: 1em;
+      font-weight: bold;
+      color: var(--amarelo-hcpa);
+      text-align: center;
+      max-width: 80px;
+      word-break: break-word;
+    }
+
+    .legenda-graficos {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      flex-wrap: wrap;
+      padding-top: 16px;
+      border-top: 1px solid #ffe90033;
+      margin-top: 16px;
+    }
+
+    .legenda-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 1em;
+      color: var(--amarelo-hcpa);
+    }
+
+    .legenda-cor {
+      width: 20px;
+      height: 20px;
+      border-radius: 4px;
+    }
+
+    /* TABELA */
     .tabela-usuarios-container {
       background: #1a1a1a;
       border-radius: 15px;
@@ -261,134 +422,9 @@ v 7.1
       color: var(--amarelo-hcpa);
     }
 
-    .btn-ver {
-      background: var(--verde-claro);
-      color: #fff;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: bold;
-      transition: all 0.3s;
-    }
-
-    .btn-ver:hover {
-      background: #3d8b40;
-      transform: scale(1.05);
-    }
-
     .numero {
       color: #4CAF50;
       font-weight: bold;
-    }
-
-    .tempo-badge {
-      background: rgba(76, 175, 80, 0.2);
-      padding: 4px 12px;
-      border-radius: 20px;
-      color: #4CAF50;
-      border: 1px solid #4CAF50;
-    }
-
-    /* ALERTAS */
-    .alerta-inatividade {
-      background: linear-gradient(135deg, #d70000 0%, #a00000 100%);
-      color: #fff;
-      padding: 15px 20px;
-      border-radius: 10px;
-      margin-bottom: 20px;
-      display: none;
-      border-left: 5px solid #fff;
-      font-weight: bold;
-    }
-
-    /* MODAL HISTÓRICO */
-    .modal {
-      display: none;
-      position: fixed;
-      z-index: 1000;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.8);
-    }
-
-    .modal-content {
-      background-color: #1a1a1a;
-      margin: 5% auto;
-      padding: 30px;
-      border: 2px solid var(--amarelo-hcpa);
-      border-radius: 15px;
-      width: 90%;
-      max-width: 1000px;
-      max-height: 80vh;
-      overflow-y: auto;
-      color: var(--amarelo-hcpa);
-    }
-
-    .close {
-      color: var(--amarelo-hcpa);
-      float: right;
-      font-size: 28px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    .close:hover {
-      color: #fff;
-    }
-
-    .modal h2 {
-      margin-bottom: 20px;
-      color: var(--amarelo-hcpa);
-      border-bottom: 2px solid var(--amarelo-hcpa);
-      padding-bottom: 10px;
-    }
-
-    .historico-items {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .historico-item {
-      background: #2a2a2a;
-      padding: 15px;
-      border-radius: 8px;
-      border-left: 4px solid var(--amarelo-hcpa);
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 15px;
-    }
-
-    .historico-item-info {
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-    }
-
-    .historico-item-label {
-      font-size: 0.9em;
-      color: #999;
-      text-transform: uppercase;
-    }
-
-    .historico-item-valor {
-      font-size: 1.1em;
-      font-weight: bold;
-    }
-
-    .status-agendar {
-      color: #d70000;
-    }
-
-    .status-realizar {
-      color: #0074d9;
-    }
-
-    .status-preferencial {
-      color: var(--amarelo-hcpa);
     }
 
     .msg-vazio {
@@ -398,128 +434,13 @@ v 7.1
       font-size: 1.1em;
     }
 
-    /* GRÁFICOS */
-    .graficos-area {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
-      gap: 20px;
-      margin-bottom: 20px;
-    }
-
-    .grafico-container {
-      background: #1a1a1a;
-      padding: 25px;
-      border-radius: 15px;
-      box-shadow: 0 5px 20px #0002;
-      border: 2px solid var(--verde-hcpa);
-    }
-
-    .grafico-titulo {
-      font-weight: bold;
-      color: var(--amarelo-hcpa);
-      margin-bottom: 15px;
-      font-size: 1.1em;
-    }
-
-    canvas {
-      max-height: 300px;
-    }
-
-    /* STATS */
-    .stats-area {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 15px;
-      margin-bottom: 20px;
-    }
-
-    .stat-card {
-      background: #1a1a1a;
-      padding: 25px;
-      border-radius: 15px;
-      box-shadow: 0 5px 20px #0002;
-      text-align: center;
-      border-left: 5px solid var(--verde-hcpa);
-      border: 2px solid var(--verde-hcpa);
-    }
-
-    .stat-card .label {
-      color: #999;
-      font-size: 0.95em;
-      margin-bottom: 10px;
-      font-weight: bold;
-      text-transform: uppercase;
-    }
-
-    .stat-card .valor {
-      font-size: 2.5em;
-      font-weight: bold;
-      color: var(--amarelo-hcpa);
-    }
-
-    /* TABELA DE USUÁRIOS - ABA HISTÓRICO */
-    .historico-usuarios-tabela {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    .historico-usuarios-tabela tbody tr:hover {
-      background: #2a2a2a;
-    }
-
-    .historico-usuarios-tabela td {
-      padding: 12px 15px;
-    }
-
-    .total-badge {
-      background: rgba(76, 175, 80, 0.3);
-      padding: 4px 12px;
-      border-radius: 20px;
-      color: #4CAF50;
-      border: 1px solid #4CAF50;
-      font-weight: bold;
-    }
-
-    .turno-section {
-      margin-bottom: 30px;
-      background: #2a2a2a;
-      padding: 20px;
-      border-radius: 10px;
-      border-left: 5px solid var(--amarelo-hcpa);
-    }
-
-    .turno-titulo {
-      font-size: 1.2em;
-      font-weight: bold;
-      color: var(--amarelo-hcpa);
-      margin-bottom: 15px;
-      display: flex;
-      gap: 10px;
-      align-items: center;
-    }
-
-    .turno-badge {
-      background: var(--verde-claro);
-      color: #000;
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-weight: bold;
-      font-size: 0.9em;
-    }
-
     @media (max-width: 768px) {
       .header-painel {
         flex-direction: column;
         gap: 15px;
       }
-
-      table th, table td {
-        padding: 8px;
-        font-size: 0.85em;
-      }
-
-      .historico-item {
-        grid-template-columns: 1fr;
+      .barras-container {
+        grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
       }
     }
   </style>
@@ -544,26 +465,22 @@ v 7.1
   <div id="painelContainer" class="painel-container">
     <div class="header-painel">
       <div>
-        <div class="titulo">📊 Painel de Chefia - Atendimentos</div>
+        <div class="titulo">📊 Painel de Chefia - Radiologia HCPA</div>
         <div id="usuarioAtual" style="font-size: 0.9em; margin-top: 5px;">Usuário: --</div>
       </div>
       <div class="header-actions">
-        <button class="export-btn" onclick="exportarExcel()">📥 Exportar Excel</button>
         <button class="logout-btn" onclick="fazerLogout()">🚪 Sair</button>
       </div>
     </div>
 
-    <div id="alertaInatividade" class="alerta-inatividade"></div>
-
     <!-- ABAS -->
     <div class="abas-container">
-      <button class="aba-btn active" onclick="mudarAba('resumo')">📊 Resumo Geral</button>
-      <button class="aba-btn" onclick="mudarAba('tempo-real')">⚡ Tempo Real</button>
-      <button class="aba-btn" onclick="mudarAba('graficos')">📈 Gráficos</button>
-      <button class="aba-btn" onclick="mudarAba('historico')">📜 Histórico</button>
+      <button class="aba-btn active" onclick="mudarAba('resumo')">📊 Resumo do Dia</button>
+      <button class="aba-btn" onclick="mudarAba('semanal')">📈 Histórico Semanal</button>
+      <button class="aba-btn" onclick="mudarAba('mensal')">📅 Histórico Mensal</button>
     </div>
 
-    <!-- ABA 1: RESUMO GERAL (COMO O PRINT) -->
+    <!-- ABA 1: RESUMO DO DIA -->
     <div id="abaResumo" class="aba-conteudo active">
       <div class="tabela-usuarios-container">
         <div class="tabela-titulo">👥 Atendentes - Resumo do Dia</div>
@@ -571,128 +488,48 @@ v 7.1
           <thead>
             <tr>
               <th>Usuário</th>
-              <th class="numero">Qt Manhã</th>
-              <th class="numero">Qt Tarde</th>
-              <th class="numero">Qt Total</th>
-              <th>Último</th>
-              <th>Média Tempo</th>
-              <th>Detalhes</th>
+              <th class="numero">Qt Agendar</th>
+              <th class="numero">Qt Agendados</th>
+              <th class="numero">Qt Preferencial</th>
+              <th class="numero">Total</th>
             </tr>
           </thead>
           <tbody id="tabelaResumo">
-            <tr><td colspan="7" class="msg-vazio">Carregando usuários...</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- ABA 2: TEMPO REAL -->
-    <div id="abaTempoReal" class="aba-conteudo">
-      <div class="stats-area">
-        <div class="stat-card">
-          <div class="label">✅ Atendimentos Hoje</div>
-          <div class="valor" id="totalHoje">0</div>
-        </div>
-        <div class="stat-card">
-          <div class="label">📅 Atendimentos Este Mês</div>
-          <div class="valor" id="totalMes">0</div>
-        </div>
-        <div class="stat-card">
-          <div class="label">👥 Usuários Ativos</div>
-          <div class="valor" id="usuariosAtivos">0</div>
-        </div>
-        <div class="stat-card">
-          <div class="label">⏱️ Tempo Médio</div>
-          <div class="valor" id="tempoMedio">--</div>
-        </div>
-      </div>
-
-      <div class="tabela-usuarios-container">
-        <div class="tabela-titulo">📱 Últimos 20 Atendimentos</div>
-        <table>
-          <thead>
-            <tr>
-              <th>⏰ Hora</th>
-              <th>👤 Usuário</th>
-              <th>📌 Tipo</th>
-              <th>🎫 Senha</th>
-              <th>🪟 Guichê</th>
-            </tr>
-          </thead>
-          <tbody id="tabelaTempoReal">
             <tr><td colspan="5" class="msg-vazio">Carregando...</td></tr>
           </tbody>
         </table>
       </div>
     </div>
 
-    <!-- ABA 3: GRÁFICOS -->
-    <div id="abaGraficos" class="aba-conteudo">
-      <div class="graficos-area">
-        <div class="grafico-container">
-          <div class="grafico-titulo">📊 Atendimentos por Usuário</div>
-          <canvas id="graficoPorUsuario"></canvas>
-        </div>
-        <div class="grafico-container">
-          <div class="grafico-titulo">📊 Distribuição por Tipo</div>
-          <canvas id="graficoTipo"></canvas>
-        </div>
+    <!-- ABA 2: HISTÓRICO SEMANAL -->
+    <div id="abaSemanal" class="aba-conteudo">
+      <div class="filtro-box">
+        <label for="semanaSelect">Escolha a Semana do Mês:</label>
+        <select id="semanaSelect" onchange="atualizarGraficoSemanal()">
+          <option value="">Carregando...</option>
+        </select>
       </div>
+      <div id="graficoSemanalArea" class="grafico-segmentado"></div>
     </div>
 
-    <!-- ABA 4: HISTÓRICO -->
-    <div id="abaHistorico" class="aba-conteudo">
-      <div class="tabela-usuarios-container">
-        <div class="tabela-titulo">📜 Buscar Histórico de Atendimento</div>
-        <div style="padding: 20px; display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-end;">
-          <div>
-            <label style="display: block; color: var(--amarelo-hcpa); margin-bottom: 5px; font-weight: bold;">👤 Usuário:</label>
-            <select id="filtroUsuarioHist" style="padding: 8px; border-radius: 6px; border: none; background: #333; color: var(--amarelo-hcpa);">
-              <option value="">Todos</option>
-            </select>
-          </div>
-          <div>
-            <label style="display: block; color: var(--amarelo-hcpa); margin-bottom: 5px; font-weight: bold;">📅 Data:</label>
-            <input type="date" id="filtroDataHist" style="padding: 8px; border-radius: 6px; border: none; background: #333; color: var(--amarelo-hcpa);">
-          </div>
-          <div>
-            <label style="display: block; color: var(--amarelo-hcpa); margin-bottom: 5px; font-weight: bold;">📌 Tipo:</label>
-            <select id="filtroTipoHist" style="padding: 8px; border-radius: 6px; border: none; background: #333; color: var(--amarelo-hcpa);">
-              <option value="">Todos</option>
-              <option value="Agendar">Agendar</option>
-              <option value="Agendados">Realizar</option>
-              <option value="Preferencial">Preferencial</option>
-            </select>
-          </div>
-          <button onclick="buscarHistorico()" style="padding: 8px 20px; background: var(--verde-claro); color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">🔍 Buscar</button>
-        </div>
+    <!-- ABA 3: HISTÓRICO MENSAL -->
+    <div id="abaMensal" class="aba-conteudo">
+      <div class="filtro-box">
+        <label for="mesSelect">Escolha o Mês:</label>
+        <select id="mesSelect" onchange="atualizarGraficoMensal()">
+          <option value="">Carregando...</option>
+        </select>
       </div>
-
-      <div class="tabela-usuarios-container" style="margin-top: 20px;">
-        <div class="tabela-titulo">📋 Resultados</div>
-        <div id="resultadosHistorico" style="padding: 20px;">
-          <div class="msg-vazio">Use os filtros acima para buscar</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL HISTÓRICO -->
-  <div id="modalHistorico" class="modal">
-    <div class="modal-content">
-      <span class="close" onclick="fecharModal()">&times;</span>
-      <h2 id="modalTitulo">Histórico de Atendimentos</h2>
-      <div id="modalConteudo" class="historico-items"></div>
+      <div id="graficoMensalArea" class="grafico-segmentado"></div>
     </div>
   </div>
 
   <script>
-    const senhaChefiaCorreta = "chefe2025";
-    let usuarioLogadoChefia = null;
+    const senhaAdmin = "chefia2025";
+    const usuariosAutorizados = ["alpinto", "mdsantos"];
+
+    let usuarioLogado = null;
     let atendimentosData = {};
-    let usuariosAutorizados = [];
-    let chartPorUsuario = null;
-    let chartTipo = null;
 
     const firebaseConfig = {
       apiKey: "AIzaSyAsuP9gO2sBOmzBet2b7ijljMgTsXo29lE",
@@ -704,149 +541,56 @@ v 7.1
       appId: "1:164117661743:web:c82a42d485af05ecd71eda",
       measurementId: "G-92XCSNDE54"
     };
+
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
-
-    console.log("🔄 Inicializando Painel de Chefia...");
-
-    // Função para definir turno (IGUAL ao guiche.html)
-    function definirTurno(timestamp) {
-      let data = new Date(timestamp);
-      let horas = data.getHours();
-      let minutos = data.getMinutes();
-      let totalMinutos = horas * 60 + minutos;
-
-      let manha_inicio = 7 * 60 + 30;  // 7:30
-      let manha_fim = 12 * 60 + 30;    // 12:30
-      let tarde_inicio = 12 * 60 + 31; // 12:31
-      let tarde_fim = 20 * 60;         // 20:00
-
-      if (totalMinutos >= manha_inicio && totalMinutos <= manha_fim) {
-        return "MANHÃ";
-      } else if (totalMinutos >= tarde_inicio && totalMinutos <= tarde_fim) {
-        return "TARDE";
-      }
-      return "FORA";
-    }
-
-    // CARREGAR ATENDIMENTOS E USUÁRIOS DO FIREBASE
-    function carregarAtendimentos() {
-      db.ref("atendimentos").once("value", snap => {
-        const dados = snap.val() || {};
-        console.log("📊 Dados do Firebase:", dados);
-        
-        atendimentosData = {};
-        usuariosAutorizados = [];
-
-        // Extrair usuários e seus atendimentos
-        for (let usuario in dados) {
-          if (dados[usuario] && typeof dados[usuario] === 'object') {
-            atendimentosData[usuario] = dados[usuario];
-            usuariosAutorizados.push(usuario);
-          }
-        }
-
-        console.log("✅ Usuários carregados:", usuariosAutorizados);
-        console.log("✅ Total de usuários:", usuariosAutorizados.length);
-        
-        atualizarSelectsUsuarios();
-        
-        if (usuarioLogadoChefia) {
-          atualizarResumo();
-          atualizarTempoReal();
-          atualizarGraficos();
-        }
-      }).catch(err => {
-        console.error("❌ Erro ao carregar atendimentos:", err);
-        alert("Erro ao carregar dados do Firebase!");
-      });
-    }
-
-    // Carregar atendimentos ao iniciar
-    carregarAtendimentos();
-
-    // Sincronizar em tempo real
-    db.ref("atendimentos").on("value", snap => {
-      const dados = snap.val() || {};
-      atendimentosData = {};
-      usuariosAutorizados = [];
-
-      for (let usuario in dados) {
-        if (dados[usuario] && typeof dados[usuario] === 'object') {
-          atendimentosData[usuario] = dados[usuario];
-          usuariosAutorizados.push(usuario);
-        }
-      }
-
-      if (usuarioLogadoChefia) {
-        atualizarResumo();
-        atualizarTempoReal();
-        atualizarGraficos();
-        verificarInatividade();
-      }
-    });
 
     function fazerLogin() {
       const usuario = document.getElementById("usuarioLogin").value.trim().toLowerCase();
       const senha = document.getElementById("senhaLogin").value;
       const msg = document.getElementById("msgLogin");
 
-      console.log("🔐 Tentativa de login:", usuario);
-      console.log("📝 Usuários autorizados:", usuariosAutorizados);
-
-      if (usuariosAutorizados.includes(usuario) && senha === senhaChefiaCorreta) {
-        usuarioLogadoChefia = usuario;
+      if (usuariosAutorizados.includes(usuario) && senha === senhaAdmin) {
+        usuarioLogado = usuario;
         document.getElementById("loginContainer").style.display = "none";
         document.getElementById("painelContainer").style.display = "block";
-        document.getElementById("usuarioAtual").textContent = `👤 Usuário: ${usuarioLogadoChefia}`;
+        document.getElementById("usuarioAtual").textContent = `👤 Usuário: ${usuarioLogado}`;
         msg.textContent = "";
-        
-        console.log("✅ Login bem-sucedido:", usuario);
-        
-        setTimeout(() => {
-          atualizarResumo();
-          atualizarTempoReal();
-          atualizarGraficos();
-        }, 500);
+        carregarDados();
         return;
       }
 
       msg.textContent = "❌ Usuário ou senha incorretos!";
-      console.log("❌ Login falhou!");
     }
 
     function fazerLogout() {
-      usuarioLogadoChefia = null;
+      usuarioLogado = null;
       document.getElementById("loginContainer").style.display = "flex";
       document.getElementById("painelContainer").style.display = "none";
       document.getElementById("usuarioLogin").value = "";
       document.getElementById("senhaLogin").value = "";
     }
 
+    function carregarDados() {
+      db.ref("atendimentos").on("value", snap => {
+        atendimentosData = snap.val() || {};
+        atualizarResumo();
+        preencherSelectSemanas();
+        preencherSelectMeses();
+      });
+    }
+
     function mudarAba(aba) {
       document.querySelectorAll(".aba-conteudo").forEach(el => el.classList.remove("active"));
       document.querySelectorAll(".aba-btn").forEach(el => el.classList.remove("active"));
 
-      const abaId = "aba" + aba.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('');
-      const abaElement = document.getElementById(abaId);
-      if (abaElement) {
-        abaElement.classList.add("active");
-      }
-      
+      document.getElementById(`aba${aba.charAt(0).toUpperCase()}${aba.slice(1)}`).classList.add("active");
       event.target.classList.add("active");
 
-      if (aba === "resumo") atualizarResumo();
-      if (aba === "tempo-real") atualizarTempoReal();
-      if (aba === "graficos") atualizarGraficos();
-    }
-
-    function atualizarSelectsUsuarios() {
-      const select = document.getElementById("filtroUsuarioHist");
-      if (select) {
-        select.innerHTML = '<option value="">Todos</option>';
-        usuariosAutorizados.forEach(u => {
-          select.innerHTML += `<option value="${u}">${u}</option>`;
-        });
+      if (aba === "semanal") {
+        setTimeout(() => atualizarGraficoSemanal(), 100);
+      } else if (aba === "mensal") {
+        setTimeout(() => atualizarGraficoMensal(), 100);
       }
     }
 
@@ -859,476 +603,237 @@ v 7.1
       const usuariosStats = {};
 
       for (let usuario in atendimentosData) {
-        const atendimentosObj = atendimentosData[usuario];
-        const atendimentos = Object.values(atendimentosObj).filter(a => a && typeof a === 'object');
-        const hoje = atendimentos.filter(a => {
-          const dataAtend = new Date(a.timestamp).toISOString().slice(0, 10);
-          return dataAtend === hojeStr;
-        });
+        const atendimentos = Object.values(atendimentosData[usuario]).filter(a => a && typeof a === 'object');
+        const hoje = atendimentos.filter(a => new Date(a.timestamp).toISOString().slice(0, 10) === hojeStr);
 
         if (hoje.length === 0) continue;
 
-        hoje.sort((a, b) => a.timestamp - b.timestamp);
+        const contadores = { agendar: 0, agendados: 0, preferencial: 0 };
+        hoje.forEach(a => {
+          if (a.tipo === "Agendar") contadores.agendar++;
+          else if (a.tipo === "Agendados") contadores.agendados++;
+          else if (a.tipo === "Preferencial") contadores.preferencial++;
+        });
 
-        // Separar por turno
-        const manha = hoje.filter(a => definirTurno(a.timestamp) === "MANHÃ");
-        const tarde = hoje.filter(a => definirTurno(a.timestamp) === "TARDE");
-
-        let tempos = [];
-        for (let i = 1; i < hoje.length; i++) {
-          tempos.push(hoje[i].timestamp - hoje[i - 1].timestamp);
-        }
-
-        const tempoMedio = tempos.length ? formatTempo(Math.round(tempos.reduce((a, b) => a + b) / tempos.length / 1000)) : "--";
-
-        usuariosStats[usuario] = {
-          qtManha: manha.length,
-          qtTarde: tarde.length,
-          qtTotal: hoje.length,
-          ultimo: new Date(hoje[hoje.length - 1].timestamp).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
-          tempoMedio,
-          atendimentos: hoje
-        };
+        usuariosStats[usuario] = contadores;
       }
 
-      const usuarios = Object.keys(usuariosStats).sort((a, b) => usuariosStats[b].qtTotal - usuariosStats[a].qtTotal);
+      const usuarios = Object.keys(usuariosStats).sort();
 
       if (usuarios.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" class="msg-vazio">Nenhum atendimento hoje</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" class="msg-vazio">Nenhum atendimento hoje</td></tr>';
         return;
       }
 
       usuarios.forEach(usuario => {
         const stats = usuariosStats[usuario];
+        const total = stats.agendar + stats.agendados + stats.preferencial;
         const tr = document.createElement("tr");
         tr.innerHTML = `
           <td>${usuario}</td>
-          <td class="numero">${stats.qtManha}</td>
-          <td class="numero">${stats.qtTarde}</td>
-          <td class="numero">${stats.qtTotal}</td>
-          <td>${stats.ultimo}</td>
-          <td><span class="tempo-badge">${stats.tempoMedio}</span></td>
-          <td><button class="btn-ver" onclick="abrirHistoricoUsuario('${usuario}', '${btoa(JSON.stringify(stats.atendimentos))}')">Ver</button></td>
+          <td class="numero">${stats.agendar}</td>
+          <td class="numero">${stats.agendados}</td>
+          <td class="numero">${stats.preferencial}</td>
+          <td class="numero">${total}</td>
         `;
         tbody.appendChild(tr);
       });
     }
 
-    function abrirHistoricoUsuario(usuario, atendimentosBase64) {
-      try {
-        const atendimentos = JSON.parse(atob(atendimentosBase64));
-        const modal = document.getElementById("modalHistorico");
-        const titulo = document.getElementById("modalTitulo");
-        const conteudo = document.getElementById("modalConteudo");
-
-        titulo.textContent = `📊 Histórico - ${usuario}`;
-        conteudo.innerHTML = "";
-
-        // Separar por turno
-        const manha = atendimentos.filter(a => definirTurno(a.timestamp) === "MANHÃ");
-        const tarde = atendimentos.filter(a => definirTurno(a.timestamp) === "TARDE");
-
-        // Seção Manhã
-        if (manha.length > 0) {
-          const sectionManha = document.createElement("div");
-          sectionManha.className = "turno-section";
-          sectionManha.innerHTML = `
-            <div class="turno-titulo">
-              🌅 Turno Manhã
-              <span class="turno-badge">${manha.length}</span>
-            </div>
-          `;
-
-          manha.forEach(a => {
-            const data = new Date(a.timestamp);
-            const hora = data.toLocaleTimeString("pt-BR");
-            const dataStr = data.toLocaleDateString("pt-BR");
-            const tipoClass = a.tipo === "Agendar" ? "status-agendar" : 
-                             a.tipo === "Agendados" ? "status-realizar" : "status-preferencial";
-
-            const div = document.createElement("div");
-            div.className = "historico-item";
-            div.innerHTML = `
-              <div class="historico-item-info">
-                <div class="historico-item-label">Data</div>
-                <div class="historico-item-valor">${dataStr}</div>
-              </div>
-              <div class="historico-item-info">
-                <div class="historico-item-label">Hora</div>
-                <div class="historico-item-valor">${hora}</div>
-              </div>
-              <div class="historico-item-info">
-                <div class="historico-item-label">Tipo</div>
-                <div class="historico-item-valor ${tipoClass}">${a.tipo}</div>
-              </div>
-              <div class="historico-item-info">
-                <div class="historico-item-label">Senha</div>
-                <div class="historico-item-valor">${a.senha}</div>
-              </div>
-              <div class="historico-item-info">
-                <div class="historico-item-label">Guichê</div>
-                <div class="historico-item-valor">${a.guiche}</div>
-              </div>
-            `;
-            sectionManha.appendChild(div);
-          });
-
-          conteudo.appendChild(sectionManha);
-        }
-
-        // Seção Tarde
-        if (tarde.length > 0) {
-          const sectionTarde = document.createElement("div");
-          sectionTarde.className = "turno-section";
-          sectionTarde.innerHTML = `
-            <div class="turno-titulo">
-              🌆 Turno Tarde
-              <span class="turno-badge">${tarde.length}</span>
-            </div>
-          `;
-
-          tarde.forEach(a => {
-            const data = new Date(a.timestamp);
-            const hora = data.toLocaleTimeString("pt-BR");
-            const dataStr = data.toLocaleDateString("pt-BR");
-            const tipoClass = a.tipo === "Agendar" ? "status-agendar" : 
-                             a.tipo === "Agendados" ? "status-realizar" : "status-preferencial";
-
-            const div = document.createElement("div");
-            div.className = "historico-item";
-            div.innerHTML = `
-              <div class="historico-item-info">
-                <div class="historico-item-label">Data</div>
-                <div class="historico-item-valor">${dataStr}</div>
-              </div>
-              <div class="historico-item-info">
-                <div class="historico-item-label">Hora</div>
-                <div class="historico-item-valor">${hora}</div>
-              </div>
-              <div class="historico-item-info">
-                <div class="historico-item-label">Tipo</div>
-                <div class="historico-item-valor ${tipoClass}">${a.tipo}</div>
-              </div>
-              <div class="historico-item-info">
-                <div class="historico-item-label">Senha</div>
-                <div class="historico-item-valor">${a.senha}</div>
-              </div>
-              <div class="historico-item-info">
-                <div class="historico-item-label">Guichê</div>
-                <div class="historico-item-valor">${a.guiche}</div>
-              </div>
-            `;
-            sectionTarde.appendChild(div);
-          });
-
-          conteudo.appendChild(sectionTarde);
-        }
-
-        modal.style.display = "block";
-      } catch (err) {
-        console.error("❌ Erro ao abrir histórico:", err);
-        alert("Erro ao carregar histórico!");
-      }
-    }
-
-    function fecharModal() {
-      document.getElementById("modalHistorico").style.display = "none";
-    }
-
-    window.onclick = function(event) {
-      const modal = document.getElementById("modalHistorico");
-      if (event.target === modal) {
-        modal.style.display = "none";
-      }
-    }
-
-    function buscarHistorico() {
-      const usuario = document.getElementById("filtroUsuarioHist").value.toLowerCase();
-      const data = document.getElementById("filtroDataHist").value;
-      const tipo = document.getElementById("filtroTipoHist").value;
-
-      const resultados = document.getElementById("resultadosHistorico");
-      resultados.innerHTML = "";
-
-      let todosAtendimentos = [];
-      let usuariosComDados = {};
-
-      // Agrupar dados por usuário
-      for (let usu in atendimentosData) {
-        if (usuario && usu !== usuario) continue;
-
-        const atendimentosObj = atendimentosData[usu];
-        const atendimentos = Object.values(atendimentosObj).filter(a => a && typeof a === 'object');
-        
-        let atendimentosFiltrados = [];
-        atendimentos.forEach(a => {
-          const dataAtend = new Date(a.timestamp).toISOString().slice(0, 10);
-          
-          if (data && dataAtend !== data) return;
-          if (tipo && a.tipo !== tipo) return;
-
-          todosAtendimentos.push({...a, usuario: usu});
-          atendimentosFiltrados.push({...a, usuario: usu});
-        });
-
-        if (atendimentosFiltrados.length > 0) {
-          usuariosComDados[usu] = atendimentosFiltrados;
-        }
-      }
-
-      if (todosAtendimentos.length === 0) {
-        resultados.innerHTML = '<div class="msg-vazio">Nenhum resultado encontrado</div>';
-        return;
-      }
-
-      // Se houver dados filtrados, mostrar em tabela com resumo separado por turno
-      const div = document.createElement("div");
-      
-      // Criar tabela de resumo por usuário com botão Ver
-      const tabelaResumo = document.createElement("table");
-      tabelaResumo.className = "historico-usuarios-tabela";
-      tabelaResumo.innerHTML = `
-        <thead>
-          <tr style="background: #0a0a0a; border-bottom: 2px solid var(--amarelo-hcpa);">
-            <th style="padding: 15px; color: var(--amarelo-hcpa); font-weight: bold; text-align: left;">👤 Usuário</th>
-            <th style="padding: 15px; color: var(--amarelo-hcpa); font-weight: bold; text-align: center;">🌅 Manhã</th>
-            <th style="padding: 15px; color: var(--amarelo-hcpa); font-weight: bold; text-align: center;">🌆 Tarde</th>
-            <th style="padding: 15px; color: var(--amarelo-hcpa); font-weight: bold; text-align: center;">📊 Total</th>
-            <th style="padding: 15px; color: var(--amarelo-hcpa); font-weight: bold; text-align: center;">Ação</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      `;
-
-      const tbody = tabelaResumo.querySelector("tbody");
-      
-      Object.keys(usuariosComDados).forEach(usu => {
-        const atendimentosFiltrados = usuariosComDados[usu];
-        const qtManha = atendimentosFiltrados.filter(a => definirTurno(a.timestamp) === "MANHÃ").length;
-        const qtTarde = atendimentosFiltrados.filter(a => definirTurno(a.timestamp) === "TARDE").length;
-        const qtTotal = atendimentosFiltrados.length;
-
-        const tr = document.createElement("tr");
-        tr.style.borderBottom = "1px solid #333";
-        tr.innerHTML = `
-          <td style="padding: 12px 15px; color: var(--amarelo-hcpa);">${usu}</td>
-          <td style="padding: 12px 15px; color: var(--amarelo-hcpa); text-align: center; font-weight: bold;">${qtManha}</td>
-          <td style="padding: 12px 15px; color: var(--amarelo-hcpa); text-align: center; font-weight: bold;">${qtTarde}</td>
-          <td style="padding: 12px 15px; color: var(--amarelo-hcpa); text-align: center;"><span class="total-badge">${qtTotal}</span></td>
-          <td style="padding: 12px 15px; text-align: center;">
-            <button class="btn-ver" onclick="abrirHistoricoUsuario('${usu}', '${btoa(JSON.stringify(atendimentosFiltrados))}')">Ver Detalhes</button>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-
-      div.appendChild(tabelaResumo);
-      resultados.appendChild(div);
-    }
-
-    function atualizarTempoReal() {
+    function preencherSelectSemanas() {
+      const select = document.getElementById("semanaSelect");
       const agora = new Date();
-      const hojeStr = agora.toISOString().slice(0, 10);
+      const anoAtual = agora.getFullYear();
+      const mesAtual = agora.getMonth();
 
-      let todosAtendimentos = [];
-      let totalHoje = 0;
-      let totalMes = 0;
-      let usuariosAtivosList = new Set();
-      let tempos = [];
+      const opcoes = [];
+      for (let m = 0; m < 12; m++) {
+        const primeiroDia = new Date(anoAtual, m, 1);
+        const ultimoDia = new Date(anoAtual, m + 1, 0);
+        let semanaNum = 1;
+        let diaAtual = new Date(primeiroDia);
 
-      for (let usuario in atendimentosData) {
-        const atendimentosObj = atendimentosData[usuario];
-        const atendimentos = Object.values(atendimentosObj).filter(a => a && typeof a === 'object');
-        
-        atendimentos.forEach(a => {
-          const dataAtend = new Date(a.timestamp).toISOString().slice(0, 10);
+        while (diaAtual <= ultimoDia) {
+          const proxima = new Date(diaAtual);
+          proxima.setDate(proxima.getDate() + 7);
+          const proximaValida = proxima > ultimoDia ? ultimoDia : new Date(proxima.getTime() - 86400000);
 
-          if (dataAtend === hojeStr) totalHoje++;
+          const opcao = `${diaAtual.getDate()}/${String(m + 1).padStart(2, '0')} a ${proximaValida.getDate()}/${String(m + 1).padStart(2, '0')}`;
+          opcoes.push({ texto: opcao, valor: `${anoAtual}-${m}-${semanaNum}` });
 
-          const dataObj = new Date(a.timestamp);
-          if (dataObj.getMonth() === agora.getMonth() && dataObj.getFullYear() === agora.getFullYear()) {
-            totalMes++;
-          }
+          diaAtual = new Date(proxima);
+          diaAtual.setDate(diaAtual.getDate() + 1);
+          semanaNum++;
+        }
+      }
 
-          usuariosAtivosList.add(usuario);
-          todosAtendimentos.push({...a, usuario});
+      select.innerHTML = opcoes.map(o => `<option value="${o.valor}">${o.texto}</option>`).join('');
+    }
 
-          if (atendimentos.length > 1) {
-            const idx = atendimentos.indexOf(a);
-            if (idx > 0) {
-              tempos.push(a.timestamp - atendimentos[idx - 1].timestamp);
+    function preencherSelectMeses() {
+      const select = document.getElementById("mesSelect");
+      const agora = new Date();
+      const anoAtual = agora.getFullYear();
+
+      const opcoes = [];
+      for (let m = 0; m < 12; m++) {
+        const nomeM = new Date(anoAtual, m, 1).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+        opcoes.push({ texto: nomeM.charAt(0).toUpperCase() + nomeM.slice(1), valor: `${anoAtual}-${m}` });
+      }
+
+      select.innerHTML = opcoes.map(o => `<option value="${o.valor}">${o.texto}</option>`).join('');
+      if (select.value === "") {
+        select.value = opcoes[agora.getMonth()].valor;
+      }
+    }
+
+    function atualizarGraficoSemanal() {
+      const select = document.getElementById("semanaSelect");
+      const valor = select.value;
+      if (!valor) return;
+
+      const [ano, mes, semana] = valor.split('-');
+      const dadosSemana = obterDadosSemana(parseInt(ano), parseInt(mes), parseInt(semana));
+
+      renderizarGrafico(dadosSemana, "graficoSemanalArea", "Histórico Semanal");
+    }
+
+    function atualizarGraficoMensal() {
+      const select = document.getElementById("mesSelect");
+      const valor = select.value;
+      if (!valor) return;
+
+      const [ano, mes] = valor.split('-');
+      const dadosMes = obterDadosMes(parseInt(ano), parseInt(mes));
+
+      renderizarGrafico(dadosMes, "graficoMensalArea", "Histórico Mensal");
+    }
+
+    function obterDadosSemana(ano, mes, semana) {
+      const primeiroDia = new Date(ano, mes, 1);
+      const ultimoDia = new Date(ano, mes + 1, 0);
+
+      let diaAtual = new Date(primeiroDia);
+      let semanaAtual = 1;
+      let diasSemana = [];
+
+      while (diaAtual <= ultimoDia && semanaAtual <= semana) {
+        if (semanaAtual === semana) {
+          diasSemana.push(new Date(diaAtual));
+        }
+        diaAtual.setDate(diaAtual.getDate() + 1);
+        if (diaAtual.getDate() === 1) semanaAtual++;
+      }
+
+      const diaNomes = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'];
+      const dados = [];
+
+      diasSemana.forEach(dia => {
+        const diaStr = dia.toISOString().slice(0, 10);
+        const contadores = { agendar: 0, agendados: 0, preferencial: 0 };
+
+        for (let usuario in atendimentosData) {
+          const atendimentos = Object.values(atendimentosData[usuario]).filter(a => a && typeof a === 'object');
+          atendimentos.forEach(a => {
+            if (new Date(a.timestamp).toISOString().slice(0, 10) === diaStr) {
+              if (a.tipo === "Agendar") contadores.agendar++;
+              else if (a.tipo === "Agendados") contadores.agendados++;
+              else if (a.tipo === "Preferencial") contadores.preferencial++;
             }
-          }
-        });
-      }
-
-      todosAtendimentos.sort((a, b) => b.timestamp - a.timestamp);
-      todosAtendimentos = todosAtendimentos.slice(0, 20);
-
-      document.getElementById("totalHoje").textContent = totalHoje;
-      document.getElementById("totalMes").textContent = totalMes;
-      document.getElementById("usuariosAtivos").textContent = usuariosAtivosList.size;
-
-      if (tempos.length > 0) {
-        const tempoMedioMs = Math.round(tempos.reduce((a, b) => a + b) / tempos.length);
-        document.getElementById("tempoMedio").textContent = formatTempo(Math.round(tempoMedioMs / 1000));
-      }
-
-      const tbody = document.getElementById("tabelaTempoReal");
-      tbody.innerHTML = "";
-
-      if (todosAtendimentos.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" class="msg-vazio">Nenhum atendimento</td></tr>';
-        return;
-      }
-
-      todosAtendimentos.forEach(a => {
-        const data = new Date(a.timestamp);
-        const hora = data.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
-        const tipoClass = a.tipo === "Agendar" ? "status-agendar" : 
-                         a.tipo === "Agendados" ? "status-realizar" : "status-preferencial";
-
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${hora}</td>
-          <td>${a.usuario}</td>
-          <td><span class="${tipoClass}">${a.tipo}</span></td>
-          <td>${a.senha}</td>
-          <td>${a.guiche}</td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-
-    function atualizarGraficos() {
-      const agora = new Date();
-      const hojeStr = agora.toISOString().slice(0, 10);
-
-      const usuariosCount = {};
-      const tiposCount = {};
-
-      for (let usuario in atendimentosData) {
-        const atendimentosObj = atendimentosData[usuario];
-        const atendimentos = Object.values(atendimentosObj).filter(a => a && typeof a === 'object');
-        const hoje = atendimentos.filter(a => {
-          const dataAtend = new Date(a.timestamp).toISOString().slice(0, 10);
-          return dataAtend === hojeStr;
-        });
-
-        if (hoje.length > 0) {
-          usuariosCount[usuario] = hoje.length;
-
-          hoje.forEach(a => {
-            tiposCount[a.tipo] = (tiposCount[a.tipo] || 0) + 1;
           });
         }
-      }
-
-      const usuarios = Object.keys(usuariosCount).sort((a, b) => usuariosCount[b] - usuariosCount[a]);
-
-      const ctx1 = document.getElementById("graficoPorUsuario").getContext("2d");
-      if (chartPorUsuario) chartPorUsuario.destroy();
-      chartPorUsuario = new Chart(ctx1, {
-        type: "bar",
-        data: {
-          labels: usuarios,
-          datasets: [{
-            label: "Atendimentos",
-            data: usuarios.map(u => usuariosCount[u]),
-            backgroundColor: "#4CAF50",
-            borderColor: "#2e7d32",
-            borderWidth: 2
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: true,
-          plugins: {
-            legend: { labels: { color: "#fff" } }
-          },
-          scales: {
-            y: { ticks: { color: "#fff" }, grid: { color: "#333" } },
-            x: { ticks: { color: "#fff" }, grid: { color: "#333" } }
-          }
-        }
-      });
-
-      const tipos = Object.keys(tiposCount);
-      const ctx2 = document.getElementById("graficoTipo").getContext("2d");
-      if (chartTipo) chartTipo.destroy();
-      chartTipo = new Chart(ctx2, {
-        type: "doughnut",
-        data: {
-          labels: tipos,
-          datasets: [{
-            data: tipos.map(t => tiposCount[t]),
-            backgroundColor: ["#d70000", "#0074d9", "#ffe900"],
-            borderColor: "#1a1a1a",
-            borderWidth: 2
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: true,
-          plugins: {
-            legend: { labels: { color: "#fff" } }
-          }
-        }
-      });
-    }
-
-    function formatTempo(segundos) {
-      if (segundos < 60) return `${segundos}s`;
-      const minutos = Math.floor(segundos / 60);
-      const secs = segundos % 60;
-      return `${minutos}m ${secs}s`;
-    }
-
-    function verificarInatividade() {
-      // Implementar lógica de inatividade se necessário
-    }
-
-    function exportarExcel() {
-      const agora = new Date();
-      const hojeStr = agora.toISOString().slice(0, 10);
-
-      let dados = [];
-
-      for (let usuario in atendimentosData) {
-        const atendimentosObj = atendimentosData[usuario];
-        const atendimentos = Object.values(atendimentosObj).filter(a => a && typeof a === 'object');
-        const hoje = atendimentos.filter(a => {
-          const dataAtend = new Date(a.timestamp).toISOString().slice(0, 10);
-          return dataAtend === hojeStr;
-        });
-
-        hoje.sort((a, b) => a.timestamp - b.timestamp);
-
-        const manha = hoje.filter(a => definirTurno(a.timestamp) === "MANHÃ");
-        const tarde = hoje.filter(a => definirTurno(a.timestamp) === "TARDE");
-
-        let tempos = [];
-        for (let i = 1; i < hoje.length; i++) {
-          tempos.push(hoje[i].timestamp - hoje[i - 1].timestamp);
-        }
-
-        const tempoMedio = tempos.length ? formatTempo(Math.round(tempos.reduce((a, b) => a + b) / tempos.length / 1000)) : "--";
 
         dados.push({
-          "Usuário": usuario,
-          "Qt Manhã": manha.length,
-          "Qt Tarde": tarde.length,
-          "Qt Total": hoje.length,
-          "Último": new Date(hoje[hoje.length - 1].timestamp).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
-          "Média Tempo": tempoMedio
+          label: `${diaNomes[dia.getDay()]} ${dia.getDate()}`,
+          agendar: contadores.agendar,
+          agendados: contadores.agendados,
+          preferencial: contadores.preferencial
+        });
+      });
+
+      return dados;
+    }
+
+    function obterDadosMes(ano, mes) {
+      const ultimoDia = new Date(ano, mes + 1, 0).getDate();
+      const dados = [];
+
+      for (let dia = 1; dia <= ultimoDia; dia++) {
+        const diaStr = new Date(ano, mes, dia).toISOString().slice(0, 10);
+        const contadores = { agendar: 0, agendados: 0, preferencial: 0 };
+
+        for (let usuario in atendimentosData) {
+          const atendimentos = Object.values(atendimentosData[usuario]).filter(a => a && typeof a === 'object');
+          atendimentos.forEach(a => {
+            if (new Date(a.timestamp).toISOString().slice(0, 10) === diaStr) {
+              if (a.tipo === "Agendar") contadores.agendar++;
+              else if (a.tipo === "Agendados") contadores.agendados++;
+              else if (a.tipo === "Preferencial") contadores.preferencial++;
+            }
+          });
+        }
+
+        dados.push({
+          label: `${dia}`,
+          agendar: contadores.agendar,
+          agendados: contadores.agendados,
+          preferencial: contadores.preferencial
         });
       }
 
-      const worksheet = XLSX.utils.json_to_sheet(dados);
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, "Atendimentos");
-      XLSX.writeFile(workbook, `Atendimentos_${hojeStr}.xlsx`);
+      return dados;
     }
+
+    function renderizarGrafico(dados, containerId, titulo) {
+      const container = document.getElementById(containerId);
+      const maxTotal = Math.max(...dados.map(d => d.agendar + d.agendados + d.preferencial), 1);
+
+      let html = `<div class="grafico-titulo">${titulo}</div><div class="barras-container">`;
+
+      dados.forEach(item => {
+        const total = item.agendar + item.agendados + item.preferencial;
+        const alturaTotal = total > 0 ? 250 : 0;
+        const alturaAgendar = total > 0 ? (item.agendar / total) * alturaTotal : 0;
+        const alturaAgendados = total > 0 ? (item.agendados / total) * alturaTotal : 0;
+        const alturaPreferencial = total > 0 ? (item.preferencial / total) * alturaTotal : 0;
+
+        html += `
+          <div class="barra-item">
+            <div class="barra-valor">${total}</div>
+            <div class="barra-segmentada">
+              ${item.agendar > 0 ? `
+                <div class="segmento agendar" style="height: ${alturaAgendar}px;">
+                  <div class="tooltip-segmento">Agendar: ${item.agendar}</div>
+                </div>
+              ` : ''}
+              ${item.agendados > 0 ? `
+                <div class="segmento agendados" style="height: ${alturaAgendados}px;">
+                  <div class="tooltip-segmento">Agendados: ${item.agendados}</div>
+                </div>
+              ` : ''}
+              ${item.preferencial > 0 ? `
+                <div class="segmento preferencial" style="height: ${alturaPreferencial}px;">
+                  <div class="tooltip-segmento">Preferencial: ${item.preferencial}</div>
+                </div>
+              ` : ''}
+            </div>
+            <div class="barra-label">${item.label}</div>
+          </div>
+        `;
+      });
+
+      html += `</div><div class="legenda-graficos">
+        <div class="legenda-item"><div class="legenda-cor" style="background: #d70000;"></div>Agendar</div>
+        <div class="legenda-item"><div class="legenda-cor" style="background: #0074d9;"></div>Agendados</div>
+        <div class="legenda-item"><div class="legenda-cor" style="background: var(--amarelo-hcpa);"></div>Preferencial</div>
+      </div>`;
+
+      container.innerHTML = html;
+    }
+
+    document.getElementById("senhaLogin").addEventListener("keyup", function(e) {
+      if (e.key === "Enter") fazerLogin();
+    });
   </script>
 </body>
 </html>
