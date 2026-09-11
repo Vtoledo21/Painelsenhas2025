@@ -1,4 +1,4 @@
-v8
+v 7.0
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -735,7 +735,7 @@ v8
         <div id="usuarioAtual" style="font-size: 0.9em; margin-top: 5px;">Usuário: --</div>
       </div>
       <div class="header-actions">
-        <button class="export-btn" onclick="exportarExcel()">📥 Exportar Excel</button>
+        <button class="export-btn" onclick="exportarExcelMelhorado()">📥 Exportar Excel</button>
         <button class="logout-btn" onclick="fazerLogout()">🚪 Sair</button>
       </div>
     </div>
@@ -939,6 +939,21 @@ v8
 
     console.log("🔄 Inicializando Painel de Chefia...");
 
+    // 🔴 FUNÇÃO: Contar atendimentos válidos (NÃO rechamadas)
+    function contarAtendimentosValidos(lista) {
+      if(!lista || lista.length === 0) return 0;
+      lista.sort((a, b) => a.timestamp - b.timestamp);
+      let count = 1;
+      let ultimo = lista[0].timestamp;
+      for(let i=1; i<lista.length; i++) {
+        if(lista[i].timestamp - ultimo >= 15000) {  // 15 segundos = intervalo mínimo para novo atendimento
+          count++;
+          ultimo = lista[i].timestamp;
+        }
+      }
+      return count;
+    }
+
     // CARREGAR ATENDIMENTOS E USUÁRIOS DO FIREBASE
     function carregarAtendimentos() {
       db.ref("atendimentos").once("value", snap => {
@@ -1077,6 +1092,25 @@ v8
       document.getElementById("filtroDataHistorico").value = hoje;
     }
 
+    function definirTurno(timestamp) {
+      let data = new Date(timestamp);
+      let horas = data.getHours();
+      let minutos = data.getMinutes();
+      let totalMinutos = horas * 60 + minutos;
+
+      let manha_inicio = 7 * 60 + 30;
+      let manha_fim = 12 * 60 + 30;
+      let tarde_inicio = 12 * 60 + 31;
+      let tarde_fim = 20 * 60;
+
+      if (totalMinutos >= manha_inicio && totalMinutos <= manha_fim) {
+        return "MANHÃ";
+      } else if (totalMinutos >= tarde_inicio && totalMinutos <= tarde_fim) {
+        return "TARDE";
+      }
+      return "FORA";
+    }
+
     function atualizarResumo() {
       const agora = new Date();
       const hojeStr = agora.toISOString().slice(0, 10);
@@ -1097,21 +1131,25 @@ v8
 
         hoje.sort((a, b) => a.timestamp - b.timestamp);
 
-        // Separar por turno (manhã = 0-12, tarde = 12-24)
+        // 🔴 USAR contarAtendimentosValidos para contar com lógica de rechamada
+        const totalValidos = contarAtendimentosValidos(hoje);
+
+        // Separar por turno
         const manha = hoje.filter(a => {
-          const hora = new Date(a.timestamp).getHours();
-          return hora < 12;
+          return definirTurno(a.timestamp) === "MANHÃ";
         });
 
         const tarde = hoje.filter(a => {
-          const hora = new Date(a.timestamp).getHours();
-          return hora >= 12;
+          return definirTurno(a.timestamp) === "TARDE";
         });
 
+        const manhaValidos = contarAtendimentosValidos(manha);
+        const tardeValidos = contarAtendimentosValidos(tarde);
+
         usuariosStats[usuario] = {
-          manha: manha.length,
-          tarde: tarde.length,
-          total: hoje.length,
+          manha: manhaValidos,
+          tarde: tardeValidos,
+          total: totalValidos,
           primeiro: new Date(hoje[0].timestamp).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
           ultimo: new Date(hoje[hoje.length - 1].timestamp).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
           atendimentos: hoje
@@ -1169,21 +1207,25 @@ v8
 
         dataAtendimentos.sort((a, b) => a.timestamp - b.timestamp);
 
+        // 🔴 USAR contarAtendimentosValidos
+        const totalValidos = contarAtendimentosValidos(dataAtendimentos);
+
         // Separar por turno
         const manha = dataAtendimentos.filter(a => {
-          const hora = new Date(a.timestamp).getHours();
-          return hora < 12;
+          return definirTurno(a.timestamp) === "MANHÃ";
         });
 
         const tarde = dataAtendimentos.filter(a => {
-          const hora = new Date(a.timestamp).getHours();
-          return hora >= 12;
+          return definirTurno(a.timestamp) === "TARDE";
         });
 
+        const manhaValidos = contarAtendimentosValidos(manha);
+        const tardeValidos = contarAtendimentosValidos(tarde);
+
         usuariosStats[usuario] = {
-          manha: manha.length,
-          tarde: tarde.length,
-          total: manha.length + tarde.length,
+          manha: manhaValidos,
+          tarde: tardeValidos,
+          total: totalValidos,
           primeiro: new Date(dataAtendimentos[0].timestamp).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
           ultimo: new Date(dataAtendimentos[dataAtendimentos.length - 1].timestamp).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
           atendimentos: dataAtendimentos
@@ -1452,7 +1494,7 @@ v8
       const agora = new Date();
       const hojeStr = agora.toISOString().slice(0, 10);
 
-      // MUDANÇA 1: Calcula o primeiro dia do mês atual
+      // Calcula o primeiro dia do mês atual
       const primeiroDiaDoMes = new Date(agora.getFullYear(), agora.getMonth(), 1);
       const primeiroDiaStr = primeiroDiaDoMes.toISOString().slice(0, 10);
 
@@ -1466,17 +1508,20 @@ v8
         const atendimentosObj = atendimentosData[usuario];
         const atendimentos = Object.values(atendimentosObj).filter(a => a && typeof a === 'object');
         
-        atendimentos.forEach(a => {
+        // 🔴 CALCULAR COM contarAtendimentosValidos
+        const hoje = atendimentos.filter(a => {
           const dataAtend = new Date(a.timestamp).toISOString().slice(0, 10);
+          return dataAtend === hojeStr;
+        });
+        totalHoje += contarAtendimentosValidos(hoje);
 
-          // Conta atendimentos de hoje
-          if (dataAtend === hojeStr) totalHoje++;
+        const mes = atendimentos.filter(a => {
+          const dataAtend = new Date(a.timestamp).toISOString().slice(0, 10);
+          return dataAtend >= primeiroDiaStr && dataAtend <= hojeStr;
+        });
+        totalMes += contarAtendimentosValidos(mes);
 
-          // MUDANÇA 1: Conta atendimentos desde o primeiro dia do mês até hoje
-          if (dataAtend >= primeiroDiaStr && dataAtend <= hojeStr) {
-            totalMes++;
-          }
-
+        atendimentos.forEach(a => {
           usuariosAtivosList.add(usuario);
           todosAtendimentos.push({...a, usuario});
 
@@ -1544,7 +1589,10 @@ v8
         });
 
         if (hoje.length > 0) {
-          usuarioContagem[usuario] = hoje.length;
+          // 🔴 USAR contarAtendimentosValidos
+          const validosUsuario = contarAtendimentosValidos(hoje);
+          usuarioContagem[usuario] = validosUsuario;
+          
           hoje.forEach(a => {
             if (tipoContagem.hasOwnProperty(a.tipo)) {
               tipoContagem[a.tipo]++;
@@ -1624,8 +1672,143 @@ v8
       return `${segs}s`;
     }
 
-    function exportarExcel() {
-      alert("Funcionalidade de exportação será implementada!");
+    function exportarExcelMelhorado() {
+      db.ref("atendimentos").once("value", snap => {
+        const val = snap.val() || {};
+        const agora = new Date();
+        const anoAtual = agora.getFullYear();
+        
+        let workbook = XLSX.utils.book_new();
+
+        // ABA GERAL
+        let abaGeral = [
+          ["RESUMO GERAL"],
+          [],
+          ["Período", "Total Atendimentos"],
+          ["Hoje", 0],
+          ["Este Mês", 0],
+          ["Este Ano", 0]
+        ];
+
+        let totalDiaGeral = 0, totalMesGeral = 0, totalAnoGeral = 0;
+        
+        for (let usuario in val) {
+          let atendimentos = Object.values(val[usuario]);
+          if (!atendimentos.length) continue;
+
+          let hoje = atendimentos.filter(a => {
+            let d = new Date(a.timestamp);
+            return d.toISOString().slice(0,10) === agora.toISOString().slice(0,10);
+          });
+          totalDiaGeral += contarAtendimentosValidos(hoje);
+
+          const primeiroDiaDoMes = new Date(anoAtual, agora.getMonth(), 1);
+          const primeiroDiaStr = primeiroDiaDoMes.toISOString().slice(0, 10);
+          const hojeStr = agora.toISOString().slice(0, 10);
+
+          let mes = atendimentos.filter(a => {
+            let d = new Date(a.timestamp);
+            let dataStr = d.toISOString().slice(0, 10);
+            return dataStr >= primeiroDiaStr && dataStr <= hojeStr;
+          });
+          totalMesGeral += contarAtendimentosValidos(mes);
+
+          let ano = atendimentos.filter(a => {
+            let d = new Date(a.timestamp);
+            return d.getFullYear() === anoAtual;
+          });
+          totalAnoGeral += contarAtendimentosValidos(ano);
+        }
+
+        abaGeral[3][1] = totalDiaGeral;
+        abaGeral[4][1] = totalMesGeral;
+        abaGeral[5][1] = totalAnoGeral;
+
+        let wsGeral = XLSX.utils.aoa_to_sheet(abaGeral);
+        XLSX.utils.book_append_sheet(workbook, wsGeral, "GERAL");
+
+        // ABAS POR MÊS
+        for (let mes = 0; mes < 12; mes++) {
+          let nomeMes = new Date(anoAtual, mes, 1).toLocaleDateString('pt-BR', {month: 'long'});
+          nomeMes = nomeMes.charAt(0).toUpperCase() + nomeMes.slice(1);
+
+          let diasNoMes = new Date(anoAtual, mes + 1, 0).getDate();
+
+          let usuarios = [];
+          for (let usuario in val) {
+            let atendimentos = Object.values(val[usuario]);
+            if (atendimentos.length > 0) {
+              usuarios.push(usuario);
+            }
+          }
+
+          let dados = [];
+
+          dados.push(["MANHÃ"]);
+          let cabecalhoManha = ["Usuário"];
+          for (let dia = 1; dia <= diasNoMes; dia++) {
+            cabecalhoManha.push(dia);
+          }
+          dados.push(cabecalhoManha);
+
+          for (let usuario of usuarios) {
+            let atendimentos = Object.values(val[usuario]);
+            let linha = [usuario];
+
+            for (let dia = 1; dia <= diasNoMes; dia++) {
+              let dataVerificar = new Date(anoAtual, mes, dia);
+              let dataStr = dataVerificar.toISOString().slice(0,10);
+
+              let atendimentosDoDia = atendimentos.filter(a => {
+                let d = new Date(a.timestamp);
+                return d.toISOString().slice(0,10) === dataStr && definirTurno(a.timestamp) === "MANHÃ";
+              });
+
+              // 🔴 USAR contarAtendimentosValidos
+              let total = contarAtendimentosValidos(atendimentosDoDia);
+              linha.push(total);
+            }
+
+            dados.push(linha);
+          }
+
+          dados.push([]);
+
+          dados.push(["TARDE"]);
+          let cabecalhoTarde = ["Usuário"];
+          for (let dia = 1; dia <= diasNoMes; dia++) {
+            cabecalhoTarde.push(dia);
+          }
+          dados.push(cabecalhoTarde);
+
+          for (let usuario of usuarios) {
+            let atendimentos = Object.values(val[usuario]);
+            let linha = [usuario];
+
+            for (let dia = 1; dia <= diasNoMes; dia++) {
+              let dataVerificar = new Date(anoAtual, mes, dia);
+              let dataStr = dataVerificar.toISOString().slice(0,10);
+
+              let atendimentosDoDia = atendimentos.filter(a => {
+                let d = new Date(a.timestamp);
+                return d.toISOString().slice(0,10) === dataStr && definirTurno(a.timestamp) === "TARDE";
+              });
+
+              // 🔴 USAR contarAtendimentosValidos
+              let total = contarAtendimentosValidos(atendimentosDoDia);
+              linha.push(total);
+            }
+
+            dados.push(linha);
+          }
+
+          let ws = XLSX.utils.aoa_to_sheet(dados);
+          let nomeAbaMes = nomeMes.substring(0, 31);
+          XLSX.utils.book_append_sheet(workbook, ws, nomeAbaMes);
+        }
+
+        XLSX.writeFile(workbook, `relatorio_${agora.getDate()}-${agora.getMonth()+1}-${anoAtual}.xlsx`);
+      });
     }
   </script>
 </body>
