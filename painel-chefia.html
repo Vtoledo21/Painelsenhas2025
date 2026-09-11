@@ -1,4 +1,4 @@
-v8
+v 7.0
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -939,29 +939,56 @@ v8
 
     console.log("🔄 Inicializando Painel de Chefia...");
 
-    // 🔴 NOVA FUNÇÃO: Contar atendimentos por BLOCOS DE SENHAS
-    // Lógica: Agrupa senhas iguais consecutivas em blocos
-    // Exemplo: [423, 423, 423, 424, 424] = 2 blocos = 2 atendimentos
-    function contarAtendimentosPorBlocos(lista) {
+    // 🔴 FUNÇÃO UNIVERSAL: Contar atendimentos com lógica perfeita (V3)
+    // Lógica completa:
+    // 1. Se usuario + tipo + senha IGUAIS = rechamada (NÃO conta)
+    // 2. Se mudou usuario OU tipo = SEMPRE CONTA (novo atendimento)
+    // 3. Se mudou APENAS senha E intervalo >= 15s = CONTA
+    // 4. Se mudou APENAS senha E intervalo < 15s = IGNORA (falsa chamada)
+    function contarAtendimentosValidos(lista) {
       if(!lista || lista.length === 0) return 0;
       
       let copia = [...lista];
       copia.sort((a, b) => a.timestamp - b.timestamp);
       
-      let blocos = 1;
-      let senhaAnterior = copia[0].senha;
-      let timestampAnterior = copia[0].timestamp;
+      let count = 1;
+      let ultimoUsuario = copia[0].usuario || "";
+      let ultimoTipo = copia[0].tipo;
+      let ultimaSenha = copia[0].senha;
+      let ultimoTimestamp = copia[0].timestamp;
       
       for(let i=1; i<copia.length; i++) {
-        // Se a senha mudou OU passou mais de 15 segundos = novo bloco
-        if(copia[i].senha !== senhaAnterior || (copia[i].timestamp - timestampAnterior >= 15000)) {
-          blocos++;
-          senhaAnterior = copia[i].senha;
-          timestampAnterior = copia[i].timestamp;
+        const usuarioAtual = copia[i].usuario || "";
+        const tipoAtual = copia[i].tipo;
+        const senhaAtual = copia[i].senha;
+        const timestampAtual = copia[i].timestamp;
+        const intervalo = timestampAtual - ultimoTimestamp;
+        
+        // Se é IGUAL usuario + tipo + senha = rechamada (ignora)
+        if(usuarioAtual === ultimoUsuario && 
+           tipoAtual === ultimoTipo && 
+           senhaAtual === ultimaSenha) {
+          // Rechamada - não conta
+          continue;
         }
+        
+        // Se mudou usuario OU tipo = SEMPRE CONTA (novo atendimento)
+        if(usuarioAtual !== ultimoUsuario || tipoAtual !== ultimoTipo) {
+          count++;
+        } else if(senhaAtual !== ultimaSenha && intervalo >= 15000) {
+          // Se mudou APENAS senha E passou 15s = conta
+          count++;
+        }
+        // Se mudou apenas senha e < 15s = ignora (falsa chamada)
+        
+        // Atualiza últimos valores
+        ultimoUsuario = usuarioAtual;
+        ultimoTipo = tipoAtual;
+        ultimaSenha = senhaAtual;
+        ultimoTimestamp = timestampAtual;
       }
       
-      return blocos;
+      return count;
     }
 
     // CARREGAR ATENDIMENTOS E USUÁRIOS DO FIREBASE
@@ -1131,7 +1158,11 @@ v8
 
       for (let usuario in atendimentosData) {
         const atendimentosObj = atendimentosData[usuario];
-        const atendimentos = Object.values(atendimentosObj).filter(a => a && typeof a === 'object');
+        let atendimentos = Object.values(atendimentosObj).filter(a => a && typeof a === 'object');
+        
+        // Adiciona usuario a cada atendimento
+        atendimentos = atendimentos.map(a => ({...a, usuario}));
+        
         const hoje = atendimentos.filter(a => {
           const dataAtend = new Date(a.timestamp).toISOString().slice(0, 10);
           return dataAtend === hojeStr;
@@ -1141,15 +1172,15 @@ v8
 
         hoje.sort((a, b) => a.timestamp - b.timestamp);
 
-        // 🔴 USA contarAtendimentosPorBlocos
-        const totalValidos = contarAtendimentosPorBlocos(hoje);
+        // 🔴 USA contarAtendimentosValidos
+        const totalValidos = contarAtendimentosValidos(hoje);
 
         // Separar por turno e contar cada turno
         const manha = hoje.filter(a => definirTurno(a.timestamp) === "MANHÃ");
         const tarde = hoje.filter(a => definirTurno(a.timestamp) === "TARDE");
 
-        const manhaValidos = contarAtendimentosPorBlocos(manha);
-        const tardeValidos = contarAtendimentosPorBlocos(tarde);
+        const manhaValidos = contarAtendimentosValidos(manha);
+        const tardeValidos = contarAtendimentosValidos(tarde);
 
         usuariosStats[usuario] = {
           manha: manhaValidos,
@@ -1201,7 +1232,10 @@ v8
 
       for (let usuario in atendimentosData) {
         const atendimentosObj = atendimentosData[usuario];
-        const atendimentos = Object.values(atendimentosObj).filter(a => a && typeof a === 'object');
+        let atendimentos = Object.values(atendimentosObj).filter(a => a && typeof a === 'object');
+        
+        // Adiciona usuario a cada atendimento
+        atendimentos = atendimentos.map(a => ({...a, usuario}));
         
         const dataAtendimentos = atendimentos.filter(a => {
           const dataAtend = new Date(a.timestamp).toISOString().slice(0, 10);
@@ -1212,15 +1246,15 @@ v8
 
         dataAtendimentos.sort((a, b) => a.timestamp - b.timestamp);
 
-        // 🔴 USA contarAtendimentosPorBlocos
-        const totalValidos = contarAtendimentosPorBlocos(dataAtendimentos);
+        // 🔴 USA contarAtendimentosValidos
+        const totalValidos = contarAtendimentosValidos(dataAtendimentos);
 
         // Separar por turno e contar
         const manha = dataAtendimentos.filter(a => definirTurno(a.timestamp) === "MANHÃ");
         const tarde = dataAtendimentos.filter(a => definirTurno(a.timestamp) === "TARDE");
 
-        const manhaValidos = contarAtendimentosPorBlocos(manha);
-        const tardeValidos = contarAtendimentosPorBlocos(tarde);
+        const manhaValidos = contarAtendimentosValidos(manha);
+        const tardeValidos = contarAtendimentosValidos(tarde);
 
         usuariosStats[usuario] = {
           manha: manhaValidos,
@@ -1506,21 +1540,24 @@ v8
 
       for (let usuario in atendimentosData) {
         const atendimentosObj = atendimentosData[usuario];
-        const atendimentos = Object.values(atendimentosObj).filter(a => a && typeof a === 'object');
+        let atendimentos = Object.values(atendimentosObj).filter(a => a && typeof a === 'object');
         
-        // 🔴 CALCULA HOJE com contarAtendimentosPorBlocos
+        // Adiciona usuario a cada atendimento
+        atendimentos = atendimentos.map(a => ({...a, usuario}));
+        
+        // 🔴 CALCULA HOJE com contarAtendimentosValidos
         const hoje = atendimentos.filter(a => {
           const dataAtend = new Date(a.timestamp).toISOString().slice(0, 10);
           return dataAtend === hojeStr;
         });
-        totalHoje += contarAtendimentosPorBlocos(hoje);
+        totalHoje += contarAtendimentosValidos(hoje);
 
-        // 🔴 CALCULA MÊS com contarAtendimentosPorBlocos
+        // 🔴 CALCULA MÊS com contarAtendimentosValidos
         const mes = atendimentos.filter(a => {
           const dataAtend = new Date(a.timestamp).toISOString().slice(0, 10);
           return dataAtend >= primeiroDiaStr && dataAtend <= hojeStr;
         });
-        totalMes += contarAtendimentosPorBlocos(mes);
+        totalMes += contarAtendimentosValidos(mes);
 
         atendimentos.forEach(a => {
           usuariosAtivosList.add(usuario);
@@ -1582,7 +1619,10 @@ v8
 
       for (let usuario in atendimentosData) {
         const atendimentosObj = atendimentosData[usuario];
-        const atendimentos = Object.values(atendimentosObj).filter(a => a && typeof a === 'object');
+        let atendimentos = Object.values(atendimentosObj).filter(a => a && typeof a === 'object');
+        
+        // Adiciona usuario a cada atendimento
+        atendimentos = atendimentos.map(a => ({...a, usuario}));
         
         const hoje = atendimentos.filter(a => {
           const dataAtend = new Date(a.timestamp).toISOString().slice(0, 10);
@@ -1590,8 +1630,8 @@ v8
         });
 
         if (hoje.length > 0) {
-          // 🔴 USA contarAtendimentosPorBlocos
-          const validosUsuario = contarAtendimentosPorBlocos(hoje);
+          // 🔴 USA contarAtendimentosValidos
+          const validosUsuario = contarAtendimentosValidos(hoje);
           usuarioContagem[usuario] = validosUsuario;
           
           hoje.forEach(a => {
@@ -1697,12 +1737,15 @@ v8
           let atendimentos = Object.values(val[usuario]);
           if (!atendimentos.length) continue;
 
+          // Adiciona usuario a cada atendimento
+          atendimentos = atendimentos.map(a => ({...a, usuario}));
+
           let hoje = atendimentos.filter(a => {
             let d = new Date(a.timestamp);
             return d.toISOString().slice(0,10) === agora.toISOString().slice(0,10);
           });
-          // 🔴 USA contarAtendimentosPorBlocos
-          totalDiaGeral += contarAtendimentosPorBlocos(hoje);
+          // 🔴 USA contarAtendimentosValidos
+          totalDiaGeral += contarAtendimentosValidos(hoje);
 
           const primeiroDiaDoMes = new Date(anoAtual, agora.getMonth(), 1);
           const primeiroDiaStr = primeiroDiaDoMes.toISOString().slice(0, 10);
@@ -1713,15 +1756,15 @@ v8
             let dataStr = d.toISOString().slice(0, 10);
             return dataStr >= primeiroDiaStr && dataStr <= hojeStr;
           });
-          // 🔴 USA contarAtendimentosPorBlocos
-          totalMesGeral += contarAtendimentosPorBlocos(mes);
+          // 🔴 USA contarAtendimentosValidos
+          totalMesGeral += contarAtendimentosValidos(mes);
 
           let ano = atendimentos.filter(a => {
             let d = new Date(a.timestamp);
             return d.getFullYear() === anoAtual;
           });
-          // 🔴 USA contarAtendimentosPorBlocos
-          totalAnoGeral += contarAtendimentosPorBlocos(ano);
+          // 🔴 USA contarAtendimentosValidos
+          totalAnoGeral += contarAtendimentosValidos(ano);
         }
 
         abaGeral[3][1] = totalDiaGeral;
@@ -1757,6 +1800,9 @@ v8
 
           for (let usuario of usuarios) {
             let atendimentos = Object.values(val[usuario]);
+            // Adiciona usuario a cada atendimento
+            atendimentos = atendimentos.map(a => ({...a, usuario}));
+            
             let linha = [usuario];
 
             for (let dia = 1; dia <= diasNoMes; dia++) {
@@ -1768,8 +1814,8 @@ v8
                 return d.toISOString().slice(0,10) === dataStr && definirTurno(a.timestamp) === "MANHÃ";
               });
 
-              // 🔴 USA contarAtendimentosPorBlocos
-              let total = contarAtendimentosPorBlocos(atendimentosDoDia);
+              // 🔴 USA contarAtendimentosValidos
+              let total = contarAtendimentosValidos(atendimentosDoDia);
               linha.push(total);
             }
 
@@ -1787,6 +1833,9 @@ v8
 
           for (let usuario of usuarios) {
             let atendimentos = Object.values(val[usuario]);
+            // Adiciona usuario a cada atendimento
+            atendimentos = atendimentos.map(a => ({...a, usuario}));
+            
             let linha = [usuario];
 
             for (let dia = 1; dia <= diasNoMes; dia++) {
@@ -1798,8 +1847,8 @@ v8
                 return d.toISOString().slice(0,10) === dataStr && definirTurno(a.timestamp) === "TARDE";
               });
 
-              // 🔴 USA contarAtendimentosPorBlocos
-              let total = contarAtendimentosPorBlocos(atendimentosDoDia);
+              // 🔴 USA contarAtendimentosValidos
+              let total = contarAtendimentosValidos(atendimentosDoDia);
               linha.push(total);
             }
 
