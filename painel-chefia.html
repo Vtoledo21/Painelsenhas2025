@@ -1,4 +1,4 @@
-v 7.0
+v8
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -939,26 +939,29 @@ v 7.0
 
     console.log("🔄 Inicializando Painel de Chefia...");
 
-    // 🔴 FUNÇÃO UNIVERSAL: Contar atendimentos válidos (NÃO rechamadas)
-    // ESTA FUNÇÃO DEVE SER USADA EM TODAS AS CONTAGENS
-    function contarAtendimentosValidos(lista) {
+    // 🔴 NOVA FUNÇÃO: Contar atendimentos por BLOCOS DE SENHAS
+    // Lógica: Agrupa senhas iguais consecutivas em blocos
+    // Exemplo: [423, 423, 423, 424, 424] = 2 blocos = 2 atendimentos
+    function contarAtendimentosPorBlocos(lista) {
       if(!lista || lista.length === 0) return 0;
       
-      // Cria uma cópia para não modificar a original
       let copia = [...lista];
       copia.sort((a, b) => a.timestamp - b.timestamp);
       
-      let count = 1;
-      let ultimo = copia[0].timestamp;
+      let blocos = 1;
+      let senhaAnterior = copia[0].senha;
+      let timestampAnterior = copia[0].timestamp;
       
       for(let i=1; i<copia.length; i++) {
-        if(copia[i].timestamp - ultimo >= 15000) {  // 15 segundos = intervalo mínimo
-          count++;
-          ultimo = copia[i].timestamp;
+        // Se a senha mudou OU passou mais de 15 segundos = novo bloco
+        if(copia[i].senha !== senhaAnterior || (copia[i].timestamp - timestampAnterior >= 15000)) {
+          blocos++;
+          senhaAnterior = copia[i].senha;
+          timestampAnterior = copia[i].timestamp;
         }
       }
       
-      return count;
+      return blocos;
     }
 
     // CARREGAR ATENDIMENTOS E USUÁRIOS DO FIREBASE
@@ -1138,15 +1141,15 @@ v 7.0
 
         hoje.sort((a, b) => a.timestamp - b.timestamp);
 
-        // 🔴 USA contarAtendimentosValidos para o TOTAL
-        const totalValidos = contarAtendimentosValidos(hoje);
+        // 🔴 USA contarAtendimentosPorBlocos
+        const totalValidos = contarAtendimentosPorBlocos(hoje);
 
-        // Separar por turno DEPOIS e contar cada turno individualmente
+        // Separar por turno e contar cada turno
         const manha = hoje.filter(a => definirTurno(a.timestamp) === "MANHÃ");
         const tarde = hoje.filter(a => definirTurno(a.timestamp) === "TARDE");
 
-        const manhaValidos = contarAtendimentosValidos(manha);
-        const tardeValidos = contarAtendimentosValidos(tarde);
+        const manhaValidos = contarAtendimentosPorBlocos(manha);
+        const tardeValidos = contarAtendimentosPorBlocos(tarde);
 
         usuariosStats[usuario] = {
           manha: manhaValidos,
@@ -1209,15 +1212,15 @@ v 7.0
 
         dataAtendimentos.sort((a, b) => a.timestamp - b.timestamp);
 
-        // 🔴 USA contarAtendimentosValidos para o TOTAL
-        const totalValidos = contarAtendimentosValidos(dataAtendimentos);
+        // 🔴 USA contarAtendimentosPorBlocos
+        const totalValidos = contarAtendimentosPorBlocos(dataAtendimentos);
 
         // Separar por turno e contar
         const manha = dataAtendimentos.filter(a => definirTurno(a.timestamp) === "MANHÃ");
         const tarde = dataAtendimentos.filter(a => definirTurno(a.timestamp) === "TARDE");
 
-        const manhaValidos = contarAtendimentosValidos(manha);
-        const tardeValidos = contarAtendimentosValidos(tarde);
+        const manhaValidos = contarAtendimentosPorBlocos(manha);
+        const tardeValidos = contarAtendimentosPorBlocos(tarde);
 
         usuariosStats[usuario] = {
           manha: manhaValidos,
@@ -1505,19 +1508,19 @@ v 7.0
         const atendimentosObj = atendimentosData[usuario];
         const atendimentos = Object.values(atendimentosObj).filter(a => a && typeof a === 'object');
         
-        // 🔴 CALCULA HOJE com contarAtendimentosValidos
+        // 🔴 CALCULA HOJE com contarAtendimentosPorBlocos
         const hoje = atendimentos.filter(a => {
           const dataAtend = new Date(a.timestamp).toISOString().slice(0, 10);
           return dataAtend === hojeStr;
         });
-        totalHoje += contarAtendimentosValidos(hoje);
+        totalHoje += contarAtendimentosPorBlocos(hoje);
 
-        // 🔴 CALCULA MÊS com contarAtendimentosValidos
+        // 🔴 CALCULA MÊS com contarAtendimentosPorBlocos
         const mes = atendimentos.filter(a => {
           const dataAtend = new Date(a.timestamp).toISOString().slice(0, 10);
           return dataAtend >= primeiroDiaStr && dataAtend <= hojeStr;
         });
-        totalMes += contarAtendimentosValidos(mes);
+        totalMes += contarAtendimentosPorBlocos(mes);
 
         atendimentos.forEach(a => {
           usuariosAtivosList.add(usuario);
@@ -1587,8 +1590,8 @@ v 7.0
         });
 
         if (hoje.length > 0) {
-          // 🔴 USA contarAtendimentosValidos
-          const validosUsuario = contarAtendimentosValidos(hoje);
+          // 🔴 USA contarAtendimentosPorBlocos
+          const validosUsuario = contarAtendimentosPorBlocos(hoje);
           usuarioContagem[usuario] = validosUsuario;
           
           hoje.forEach(a => {
@@ -1698,8 +1701,8 @@ v 7.0
             let d = new Date(a.timestamp);
             return d.toISOString().slice(0,10) === agora.toISOString().slice(0,10);
           });
-          // 🔴 USA contarAtendimentosValidos
-          totalDiaGeral += contarAtendimentosValidos(hoje);
+          // 🔴 USA contarAtendimentosPorBlocos
+          totalDiaGeral += contarAtendimentosPorBlocos(hoje);
 
           const primeiroDiaDoMes = new Date(anoAtual, agora.getMonth(), 1);
           const primeiroDiaStr = primeiroDiaDoMes.toISOString().slice(0, 10);
@@ -1710,15 +1713,15 @@ v 7.0
             let dataStr = d.toISOString().slice(0, 10);
             return dataStr >= primeiroDiaStr && dataStr <= hojeStr;
           });
-          // 🔴 USA contarAtendimentosValidos
-          totalMesGeral += contarAtendimentosValidos(mes);
+          // 🔴 USA contarAtendimentosPorBlocos
+          totalMesGeral += contarAtendimentosPorBlocos(mes);
 
           let ano = atendimentos.filter(a => {
             let d = new Date(a.timestamp);
             return d.getFullYear() === anoAtual;
           });
-          // 🔴 USA contarAtendimentosValidos
-          totalAnoGeral += contarAtendimentosValidos(ano);
+          // 🔴 USA contarAtendimentosPorBlocos
+          totalAnoGeral += contarAtendimentosPorBlocos(ano);
         }
 
         abaGeral[3][1] = totalDiaGeral;
@@ -1765,8 +1768,8 @@ v 7.0
                 return d.toISOString().slice(0,10) === dataStr && definirTurno(a.timestamp) === "MANHÃ";
               });
 
-              // 🔴 USA contarAtendimentosValidos
-              let total = contarAtendimentosValidos(atendimentosDoDia);
+              // 🔴 USA contarAtendimentosPorBlocos
+              let total = contarAtendimentosPorBlocos(atendimentosDoDia);
               linha.push(total);
             }
 
@@ -1795,8 +1798,8 @@ v 7.0
                 return d.toISOString().slice(0,10) === dataStr && definirTurno(a.timestamp) === "TARDE";
               });
 
-              // 🔴 USA contarAtendimentosValidos
-              let total = contarAtendimentosValidos(atendimentosDoDia);
+              // 🔴 USA contarAtendimentosPorBlocos
+              let total = contarAtendimentosPorBlocos(atendimentosDoDia);
               linha.push(total);
             }
 
