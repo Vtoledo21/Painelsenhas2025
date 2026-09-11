@@ -1,4 +1,4 @@
-v 7.0a
+v 7.0
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -939,18 +939,25 @@ v 7.0a
 
     console.log("🔄 Inicializando Painel de Chefia...");
 
-    // 🔴 FUNÇÃO: Contar atendimentos válidos (NÃO rechamadas)
+    // 🔴 FUNÇÃO UNIVERSAL: Contar atendimentos válidos (NÃO rechamadas)
+    // ESTA FUNÇÃO DEVE SER USADA EM TODAS AS CONTAGENS
     function contarAtendimentosValidos(lista) {
       if(!lista || lista.length === 0) return 0;
-      lista.sort((a, b) => a.timestamp - b.timestamp);
+      
+      // Cria uma cópia para não modificar a original
+      let copia = [...lista];
+      copia.sort((a, b) => a.timestamp - b.timestamp);
+      
       let count = 1;
-      let ultimo = lista[0].timestamp;
-      for(let i=1; i<lista.length; i++) {
-        if(lista[i].timestamp - ultimo >= 15000) {  // 15 segundos = intervalo mínimo para novo atendimento
+      let ultimo = copia[0].timestamp;
+      
+      for(let i=1; i<copia.length; i++) {
+        if(copia[i].timestamp - ultimo >= 15000) {  // 15 segundos = intervalo mínimo
           count++;
-          ultimo = lista[i].timestamp;
+          ultimo = copia[i].timestamp;
         }
       }
+      
       return count;
     }
 
@@ -1131,17 +1138,12 @@ v 7.0a
 
         hoje.sort((a, b) => a.timestamp - b.timestamp);
 
-        // 🔴 USAR contarAtendimentosValidos para contar com lógica de rechamada
+        // 🔴 USA contarAtendimentosValidos para o TOTAL
         const totalValidos = contarAtendimentosValidos(hoje);
 
-        // Separar por turno
-        const manha = hoje.filter(a => {
-          return definirTurno(a.timestamp) === "MANHÃ";
-        });
-
-        const tarde = hoje.filter(a => {
-          return definirTurno(a.timestamp) === "TARDE";
-        });
+        // Separar por turno DEPOIS e contar cada turno individualmente
+        const manha = hoje.filter(a => definirTurno(a.timestamp) === "MANHÃ");
+        const tarde = hoje.filter(a => definirTurno(a.timestamp) === "TARDE");
 
         const manhaValidos = contarAtendimentosValidos(manha);
         const tardeValidos = contarAtendimentosValidos(tarde);
@@ -1207,17 +1209,12 @@ v 7.0a
 
         dataAtendimentos.sort((a, b) => a.timestamp - b.timestamp);
 
-        // 🔴 USAR contarAtendimentosValidos
+        // 🔴 USA contarAtendimentosValidos para o TOTAL
         const totalValidos = contarAtendimentosValidos(dataAtendimentos);
 
-        // Separar por turno
-        const manha = dataAtendimentos.filter(a => {
-          return definirTurno(a.timestamp) === "MANHÃ";
-        });
-
-        const tarde = dataAtendimentos.filter(a => {
-          return definirTurno(a.timestamp) === "TARDE";
-        });
+        // Separar por turno e contar
+        const manha = dataAtendimentos.filter(a => definirTurno(a.timestamp) === "MANHÃ");
+        const tarde = dataAtendimentos.filter(a => definirTurno(a.timestamp) === "TARDE");
 
         const manhaValidos = contarAtendimentosValidos(manha);
         const tardeValidos = contarAtendimentosValidos(tarde);
@@ -1508,13 +1505,14 @@ v 7.0a
         const atendimentosObj = atendimentosData[usuario];
         const atendimentos = Object.values(atendimentosObj).filter(a => a && typeof a === 'object');
         
-        // 🔴 CALCULAR COM contarAtendimentosValidos
+        // 🔴 CALCULA HOJE com contarAtendimentosValidos
         const hoje = atendimentos.filter(a => {
           const dataAtend = new Date(a.timestamp).toISOString().slice(0, 10);
           return dataAtend === hojeStr;
         });
         totalHoje += contarAtendimentosValidos(hoje);
 
+        // 🔴 CALCULA MÊS com contarAtendimentosValidos
         const mes = atendimentos.filter(a => {
           const dataAtend = new Date(a.timestamp).toISOString().slice(0, 10);
           return dataAtend >= primeiroDiaStr && dataAtend <= hojeStr;
@@ -1589,7 +1587,7 @@ v 7.0a
         });
 
         if (hoje.length > 0) {
-          // 🔴 USAR contarAtendimentosValidos
+          // 🔴 USA contarAtendimentosValidos
           const validosUsuario = contarAtendimentosValidos(hoje);
           usuarioContagem[usuario] = validosUsuario;
           
@@ -1700,6 +1698,7 @@ v 7.0a
             let d = new Date(a.timestamp);
             return d.toISOString().slice(0,10) === agora.toISOString().slice(0,10);
           });
+          // 🔴 USA contarAtendimentosValidos
           totalDiaGeral += contarAtendimentosValidos(hoje);
 
           const primeiroDiaDoMes = new Date(anoAtual, agora.getMonth(), 1);
@@ -1711,12 +1710,14 @@ v 7.0a
             let dataStr = d.toISOString().slice(0, 10);
             return dataStr >= primeiroDiaStr && dataStr <= hojeStr;
           });
+          // 🔴 USA contarAtendimentosValidos
           totalMesGeral += contarAtendimentosValidos(mes);
 
           let ano = atendimentos.filter(a => {
             let d = new Date(a.timestamp);
             return d.getFullYear() === anoAtual;
           });
+          // 🔴 USA contarAtendimentosValidos
           totalAnoGeral += contarAtendimentosValidos(ano);
         }
 
@@ -1764,7 +1765,7 @@ v 7.0a
                 return d.toISOString().slice(0,10) === dataStr && definirTurno(a.timestamp) === "MANHÃ";
               });
 
-              // 🔴 USAR contarAtendimentosValidos
+              // 🔴 USA contarAtendimentosValidos
               let total = contarAtendimentosValidos(atendimentosDoDia);
               linha.push(total);
             }
@@ -1794,7 +1795,7 @@ v 7.0a
                 return d.toISOString().slice(0,10) === dataStr && definirTurno(a.timestamp) === "TARDE";
               });
 
-              // 🔴 USAR contarAtendimentosValidos
+              // 🔴 USA contarAtendimentosValidos
               let total = contarAtendimentosValidos(atendimentosDoDia);
               linha.push(total);
             }
