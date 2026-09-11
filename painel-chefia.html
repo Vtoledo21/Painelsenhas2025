@@ -946,7 +946,7 @@ v 7.0
       let count = 1;
       let ultimo = lista[0].timestamp;
       for(let i=1; i<lista.length; i++) {
-        if(lista[i].timestamp - ultimo >= 15000) {  // 15 segundos = intervalo mínimo para novo atendimento
+        if(lista[i].timestamp - ultimo >= 000) {  // 15 segundos = intervalo mínimo para novo atendimento
           count++;
           ultimo = lista[i].timestamp;
         }
