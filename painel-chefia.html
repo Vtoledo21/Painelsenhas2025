@@ -1,4 +1,4 @@
-v 7.0
+V 7.1
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -634,6 +634,46 @@ v 7.0
       font-weight: bold;
     }
 
+    /* SELETOR DE DIA PARA HISTÓRICO */
+    .dia-selector-container {
+      background: #1a1a1a;
+      padding: 20px;
+      border-radius: 15px;
+      margin-bottom: 20px;
+      border: 2px solid var(--verde-hcpa);
+      display: flex;
+      gap: 15px;
+      align-items: flex-end;
+      flex-wrap: wrap;
+    }
+
+    .dia-selector-container input {
+      padding: 10px 15px;
+      border-radius: 8px;
+      border: 2px solid var(--amarelo-hcpa);
+      background: #222;
+      color: var(--amarelo-hcpa);
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 1em;
+    }
+
+    .dia-selector-container button {
+      padding: 10px 20px;
+      background: var(--verde-claro);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .dia-selector-container button:hover {
+      background: #3d8b40;
+      transform: scale(1.05);
+    }
+
     @media (max-width: 768px) {
       .header-painel {
         flex-direction: column;
@@ -656,6 +696,16 @@ v 7.0
 
       .mes-selector-container select,
       .mes-selector-container button {
+        width: 100%;
+      }
+
+      .dia-selector-container {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .dia-selector-container input,
+      .dia-selector-container button {
         width: 100%;
       }
     }
@@ -701,7 +751,7 @@ v 7.0
       <button class="aba-btn" onclick="mudarAba('historico-mensal')">📅 Histórico Mensal</button>
     </div>
 
-    <!-- ABA 1: RESUMO GERAL (COMO O PRINT) -->
+    <!-- ABA 1: RESUMO GERAL (COM TURNOS) -->
     <div id="abaResumo" class="aba-conteudo active">
       <div class="tabela-usuarios-container">
         <div class="tabela-titulo">👥 Atendentes - Resumo do Dia</div>
@@ -709,15 +759,16 @@ v 7.0
           <thead>
             <tr>
               <th>Usuário</th>
-              <th class="numero">Qtde</th>
+              <th class="numero">Manhã</th>
+              <th class="numero">Tarde</th>
+              <th class="numero">Total</th>
               <th>Primeiro</th>
               <th>Último</th>
-              <th>Média Tempo</th>
               <th>Detalhes</th>
             </tr>
           </thead>
           <tbody id="tabelaResumo">
-            <tr><td colspan="6" class="msg-vazio">Carregando usuários...</td></tr>
+            <tr><td colspan="7" class="msg-vazio">Carregando usuários...</td></tr>
           </tbody>
         </table>
       </div>
@@ -779,37 +830,31 @@ v 7.0
 
     <!-- ABA 4: HISTÓRICO -->
     <div id="abaHistorico" class="aba-conteudo">
-      <div class="tabela-usuarios-container">
-        <div class="tabela-titulo">📜 Buscar Histórico de Atendimento</div>
-        <div style="padding: 20px; display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-end;">
-          <div>
-            <label style="display: block; color: var(--amarelo-hcpa); margin-bottom: 5px; font-weight: bold;">👤 Usuário:</label>
-            <select id="filtroUsuarioHist" style="padding: 8px; border-radius: 6px; border: none; background: #333; color: var(--amarelo-hcpa);">
-              <option value="">Todos</option>
-            </select>
-          </div>
-          <div>
-            <label style="display: block; color: var(--amarelo-hcpa); margin-bottom: 5px; font-weight: bold;">📅 Data:</label>
-            <input type="date" id="filtroDataHist" style="padding: 8px; border-radius: 6px; border: none; background: #333; color: var(--amarelo-hcpa);">
-          </div>
-          <div>
-            <label style="display: block; color: var(--amarelo-hcpa); margin-bottom: 5px; font-weight: bold;">📌 Tipo:</label>
-            <select id="filtroTipoHist" style="padding: 8px; border-radius: 6px; border: none; background: #333; color: var(--amarelo-hcpa);">
-              <option value="">Todos</option>
-              <option value="Agendar">Agendar</option>
-              <option value="Agendados">Realizar</option>
-              <option value="Preferencial">Preferencial</option>
-            </select>
-          </div>
-          <button onclick="buscarHistorico()" style="padding: 8px 20px; background: var(--verde-claro); color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">🔍 Buscar</button>
+      <div class="dia-selector-container">
+        <div>
+          <label style="display: block; color: var(--amarelo-hcpa); margin-bottom: 5px; font-weight: bold;">📅 Selecionar Data:</label>
+          <input type="date" id="filtroDataHistorico" style="padding: 10px 15px; border-radius: 8px; border: 2px solid var(--amarelo-hcpa); background: #222; color: var(--amarelo-hcpa); font-weight: bold; font-size: 1em;">
         </div>
+        <button onclick="carregarHistoricoData()" style="padding: 10px 20px; background: var(--verde-claro); color: #fff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.3s;">🔍 Carregar</button>
       </div>
 
       <div class="tabela-usuarios-container" style="margin-top: 20px;">
-        <div class="tabela-titulo">📋 Resultados</div>
-        <div id="resultadosHistorico" style="padding: 20px;">
-          <div class="msg-vazio">Use os filtros acima para buscar</div>
-        </div>
+        <div class="tabela-titulo">📋 Atendentes por Turno</div>
+        <table>
+          <thead>
+            <tr>
+              <th>👤 Usuário</th>
+              <th class="numero">Manhã</th>
+              <th class="numero">Tarde</th>
+              <th>Primeiro</th>
+              <th>Último</th>
+              <th>Detalhes</th>
+            </tr>
+          </thead>
+          <tbody id="resultadosHistorico">
+            <tr><td colspan="6" class="msg-vazio">Selecione uma data para visualizar</td></tr>
+          </tbody>
+        </table>
       </div>
     </div>
 
@@ -1006,13 +1051,7 @@ v 7.0
     }
 
     function atualizarSelectsUsuarios() {
-      const select = document.getElementById("filtroUsuarioHist");
-      if (select) {
-        select.innerHTML = '<option value="">Todos</option>';
-        usuariosAutorizados.forEach(u => {
-          select.innerHTML += `<option value="${u}">${u}</option>`;
-        });
-      }
+      // Não mais necessário para o histórico básico
     }
 
     function inicializarSelectoresHistoricoMensal() {
@@ -1031,6 +1070,10 @@ v 7.0
         selectAno.appendChild(option);
       }
       selectAno.value = anoAtual;
+
+      // Definir data de hoje no seletor de histórico
+      const hoje = new Date().toISOString().slice(0, 10);
+      document.getElementById("filtroDataHistorico").value = hoje;
     }
 
     function atualizarResumo() {
@@ -1053,18 +1096,23 @@ v 7.0
 
         hoje.sort((a, b) => a.timestamp - b.timestamp);
 
-        let tempos = [];
-        for (let i = 1; i < hoje.length; i++) {
-          tempos.push(hoje[i].timestamp - hoje[i - 1].timestamp);
-        }
+        // Separar por turno (manhã = 0-12, tarde = 12-24)
+        const manha = hoje.filter(a => {
+          const hora = new Date(a.timestamp).getHours();
+          return hora < 12;
+        });
 
-        const tempoMedio = tempos.length ? formatTempo(Math.round(tempos.reduce((a, b) => a + b) / tempos.length / 1000)) : "--";
+        const tarde = hoje.filter(a => {
+          const hora = new Date(a.timestamp).getHours();
+          return hora >= 12;
+        });
 
         usuariosStats[usuario] = {
+          manha: manha.length,
+          tarde: tarde.length,
           total: hoje.length,
           primeiro: new Date(hoje[0].timestamp).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
           ultimo: new Date(hoje[hoje.length - 1].timestamp).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
-          tempoMedio,
           atendimentos: hoje
         };
       }
@@ -1072,7 +1120,7 @@ v 7.0
       const usuarios = Object.keys(usuariosStats).sort((a, b) => usuariosStats[b].total - usuariosStats[a].total);
 
       if (usuarios.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" class="msg-vazio">Nenhum atendimento hoje</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" class="msg-vazio">Nenhum atendimento hoje</td></tr>';
         return;
       }
 
@@ -1081,10 +1129,81 @@ v 7.0
         const tr = document.createElement("tr");
         tr.innerHTML = `
           <td>${usuario}</td>
+          <td class="numero">${stats.manha}</td>
+          <td class="numero">${stats.tarde}</td>
           <td class="numero">${stats.total}</td>
           <td>${stats.primeiro}</td>
           <td>${stats.ultimo}</td>
-          <td><span class="tempo-badge">${stats.tempoMedio}</span></td>
+          <td><button class="btn-ver" onclick="abrirHistoricoUsuario('${usuario}', '${btoa(JSON.stringify(stats.atendimentos))}')">Ver</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function carregarHistoricoData() {
+      const dataStr = document.getElementById("filtroDataHistorico").value;
+      
+      if (!dataStr) {
+        alert("Por favor, selecione uma data!");
+        return;
+      }
+
+      console.log("📅 Carregando histórico para:", dataStr);
+
+      const tbody = document.getElementById("resultadosHistorico");
+      tbody.innerHTML = "";
+
+      const usuariosStats = {};
+
+      for (let usuario in atendimentosData) {
+        const atendimentosObj = atendimentosData[usuario];
+        const atendimentos = Object.values(atendimentosObj).filter(a => a && typeof a === 'object');
+        
+        const dataAtendimentos = atendimentos.filter(a => {
+          const dataAtend = new Date(a.timestamp).toISOString().slice(0, 10);
+          return dataAtend === dataStr;
+        });
+
+        if (dataAtendimentos.length === 0) continue;
+
+        dataAtendimentos.sort((a, b) => a.timestamp - b.timestamp);
+
+        // Separar por turno
+        const manha = dataAtendimentos.filter(a => {
+          const hora = new Date(a.timestamp).getHours();
+          return hora < 12;
+        });
+
+        const tarde = dataAtendimentos.filter(a => {
+          const hora = new Date(a.timestamp).getHours();
+          return hora >= 12;
+        });
+
+        usuariosStats[usuario] = {
+          manha: manha.length,
+          tarde: tarde.length,
+          primeiro: new Date(dataAtendimentos[0].timestamp).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
+          ultimo: new Date(dataAtendimentos[dataAtendimentos.length - 1].timestamp).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
+          atendimentos: dataAtendimentos
+        };
+      }
+
+      const usuarios = Object.keys(usuariosStats).sort((a, b) => usuariosStats[b].manha + usuariosStats[b].tarde - (usuariosStats[a].manha + usuariosStats[a].tarde));
+
+      if (usuarios.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="msg-vazio">Nenhum atendimento para esta data</td></tr>';
+        return;
+      }
+
+      usuarios.forEach(usuario => {
+        const stats = usuariosStats[usuario];
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${usuario}</td>
+          <td class="numero">${stats.manha}</td>
+          <td class="numero">${stats.tarde}</td>
+          <td>${stats.primeiro}</td>
+          <td>${stats.ultimo}</td>
           <td><button class="btn-ver" onclick="abrirHistoricoUsuario('${usuario}', '${btoa(JSON.stringify(stats.atendimentos))}')">Ver</button></td>
         `;
         tbody.appendChild(tr);
@@ -1153,71 +1272,6 @@ v 7.0
       }
     }
 
-    function buscarHistorico() {
-      const usuario = document.getElementById("filtroUsuarioHist").value.toLowerCase();
-      const data = document.getElementById("filtroDataHist").value;
-      const tipo = document.getElementById("filtroTipoHist").value;
-
-      const resultados = document.getElementById("resultadosHistorico");
-      resultados.innerHTML = "";
-
-      let todosAtendimentos = [];
-
-      for (let usu in atendimentosData) {
-        if (usuario && usu !== usuario) continue;
-
-        const atendimentosObj = atendimentosData[usu];
-        const atendimentos = Object.values(atendimentosObj).filter(a => a && typeof a === 'object');
-        
-        atendimentos.forEach(a => {
-          const dataAtend = new Date(a.timestamp).toISOString().slice(0, 10);
-          
-          if (data && dataAtend !== data) return;
-          if (tipo && a.tipo !== tipo) return;
-
-          todosAtendimentos.push({...a, usuario: usu});
-        });
-      }
-
-      todosAtendimentos.sort((a, b) => b.timestamp - a.timestamp);
-
-      if (todosAtendimentos.length === 0) {
-        resultados.innerHTML = '<div class="msg-vazio">Nenhum resultado encontrado</div>';
-        return;
-      }
-
-      const div = document.createElement("div");
-      div.className = "historico-items";
-
-      todosAtendimentos.forEach(a => {
-        const data = new Date(a.timestamp);
-        const hora = data.toLocaleTimeString("pt-BR");
-        const dataStr = data.toLocaleDateString("pt-BR");
-        const tipoClass = a.tipo === "Agendar" ? "status-agendar" : 
-                         a.tipo === "Agendados" ? "status-realizar" : "status-preferencial";
-
-        const item = document.createElement("div");
-        item.className = "historico-item";
-        item.innerHTML = `
-          <div class="historico-item-info">
-            <div class="historico-item-label">Usuário</div>
-            <div class="historico-item-valor">${a.usuario}</div>
-          </div>
-          <div class="historico-item-info">
-            <div class="historico-item-label">Data/Hora</div>
-            <div class="historico-item-valor">${dataStr} ${hora}</div>
-          </div>
-          <div class="historico-item-info">
-            <div class="historico-item-label">Tipo | Senha | Guichê</div>
-            <div class="historico-item-valor ${tipoClass}">${a.tipo} | ${a.senha} | ${a.guiche}</div>
-          </div>
-        `;
-        div.appendChild(item);
-      });
-
-      resultados.appendChild(div);
-    }
-
     function carregarHistoricoMensal() {
       const mes = document.getElementById("selectMesMensal").value;
       const ano = document.getElementById("selectAnoMensal").value;
@@ -1227,7 +1281,7 @@ v 7.0
       const contenedor = document.getElementById("contenedorSemanaMensal");
       contenedor.innerHTML = "";
 
-      // Recopilar todos os atendimientos del mes
+      // Recopilar todos os atendimentos do mês
       let atendimentosMes = [];
 
       for (let usuario in atendimentosData) {
@@ -1265,7 +1319,7 @@ v 7.0
 
         semanaDiv.innerHTML = `<div class="semana-titulo">Semana ${index + 1} (${dataInicioStr} a ${dataFimStr})</div>`;
 
-        // Agrupar atendimentos por dia dentro de la semana
+        // Agrupar atendimentos por dia dentro da semana
         const atendimentosPorDia = {};
         semana.dias.forEach(dia => {
           atendimentosPorDia[dia] = [];
@@ -1278,7 +1332,7 @@ v 7.0
           }
         });
 
-        // Generar gráficos por día
+        // Gerar gráficos por dia
         semana.dias.forEach(dia => {
           const atendimentos = atendimentosPorDia[dia] || [];
           const dataDia = new Date(ano, parseInt(mes) - 1, dia);
@@ -1376,7 +1430,7 @@ v 7.0
 
         semanaAtual.push(dia);
 
-        // Inicia nueva semana en lunes (1) o es el último día del mes
+        // Inicia nova semana em domingo (0) ou é o último dia do mês
         if (diaSemana === 0 || dia === diasNoMes) {
           semanas.push({
             inicio: inicioSemana,
