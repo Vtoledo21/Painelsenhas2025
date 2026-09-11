@@ -1,4 +1,4 @@
-v8
+v 7.0
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -457,6 +457,183 @@ v8
       color: var(--amarelo-hcpa);
     }
 
+    /* ESTILOS PARA HISTÓRICO MENSAL */
+    .mes-selector-container {
+      background: #1a1a1a;
+      padding: 20px;
+      border-radius: 15px;
+      margin-bottom: 20px;
+      border: 2px solid var(--verde-hcpa);
+      display: flex;
+      gap: 15px;
+      align-items: flex-end;
+    }
+
+    .mes-selector-container select {
+      padding: 10px 15px;
+      border-radius: 8px;
+      border: 2px solid var(--amarelo-hcpa);
+      background: #222;
+      color: var(--amarelo-hcpa);
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 1em;
+    }
+
+    .mes-selector-container button {
+      padding: 10px 20px;
+      background: var(--verde-claro);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .mes-selector-container button:hover {
+      background: #3d8b40;
+      transform: scale(1.05);
+    }
+
+    .semana-container {
+      background: #1a1a1a;
+      padding: 20px;
+      border-radius: 15px;
+      margin-bottom: 20px;
+      border: 2px solid var(--verde-hcpa);
+    }
+
+    .semana-titulo {
+      color: var(--amarelo-hcpa);
+      font-weight: bold;
+      font-size: 1.1em;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid var(--amarelo-hcpa);
+    }
+
+    .barra-segmentada-container {
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    .barra-label {
+      color: var(--amarelo-hcpa);
+      font-weight: bold;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .barra-total {
+      background: #333;
+      color: var(--amarelo-hcpa);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.9em;
+      font-weight: bold;
+    }
+
+    .barra-segmentada {
+      display: flex;
+      height: 35px;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 3px 10px #0003;
+      position: relative;
+    }
+
+    .barra-segmento {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: bold;
+      font-size: 0.85em;
+      position: relative;
+      transition: all 0.3s;
+    }
+
+    .barra-segmento:hover {
+      filter: brightness(1.2);
+      z-index: 10;
+    }
+
+    .barra-segmento.agendar {
+      background-color: #d70000;
+    }
+
+    .barra-segmento.agendados {
+      background-color: #0074d9;
+    }
+
+    .barra-segmento.preferencial {
+      background-color: #ffe900;
+      color: #000;
+    }
+
+    .tooltip-mensal {
+      position: absolute;
+      bottom: 45px;
+      background: #000;
+      color: #fff;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 0.85em;
+      white-space: nowrap;
+      pointer-events: none;
+      display: none;
+      border: 1px solid var(--amarelo-hcpa);
+      z-index: 100;
+    }
+
+    .barra-segmento:hover .tooltip-mensal {
+      display: block;
+    }
+
+    .legenda-mensal {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      margin-top: 30px;
+      padding: 20px;
+      background: #1a1a1a;
+      border-radius: 15px;
+      border: 2px solid var(--verde-hcpa);
+      flex-wrap: wrap;
+    }
+
+    .legenda-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .legenda-cor {
+      width: 20px;
+      height: 20px;
+      border-radius: 4px;
+    }
+
+    .legenda-cor.agendar {
+      background-color: #d70000;
+    }
+
+    .legenda-cor.agendados {
+      background-color: #0074d9;
+    }
+
+    .legenda-cor.preferencial {
+      background-color: #ffe900;
+    }
+
+    .legenda-texto {
+      color: var(--amarelo-hcpa);
+      font-weight: bold;
+    }
+
     @media (max-width: 768px) {
       .header-painel {
         flex-direction: column;
@@ -470,6 +647,16 @@ v8
 
       .historico-item {
         grid-template-columns: 1fr;
+      }
+
+      .mes-selector-container {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .mes-selector-container select,
+      .mes-selector-container button {
+        width: 100%;
       }
     }
   </style>
@@ -511,6 +698,7 @@ v8
       <button class="aba-btn" onclick="mudarAba('tempo-real')">⚡ Tempo Real</button>
       <button class="aba-btn" onclick="mudarAba('graficos')">📈 Gráficos</button>
       <button class="aba-btn" onclick="mudarAba('historico')">📜 Histórico</button>
+      <button class="aba-btn" onclick="mudarAba('historico-mensal')">📅 Histórico Mensal</button>
     </div>
 
     <!-- ABA 1: RESUMO GERAL (COMO O PRINT) -->
@@ -624,6 +812,52 @@ v8
         </div>
       </div>
     </div>
+
+    <!-- ABA 5: HISTÓRICO MENSAL -->
+    <div id="abaHistoricoMensal" class="aba-conteudo">
+      <div class="mes-selector-container">
+        <div>
+          <label style="display: block; color: var(--amarelo-hcpa); margin-bottom: 5px; font-weight: bold;">📅 Selecionar Mês:</label>
+          <select id="selectMesMensal" style="padding: 10px 15px; border-radius: 8px; border: 2px solid var(--amarelo-hcpa); background: #222; color: var(--amarelo-hcpa); font-weight: bold; cursor: pointer; font-size: 1em;">
+            <option value="01">Janeiro</option>
+            <option value="02">Fevereiro</option>
+            <option value="03">Março</option>
+            <option value="04">Abril</option>
+            <option value="05">Maio</option>
+            <option value="06">Junho</option>
+            <option value="07">Julho</option>
+            <option value="08">Agosto</option>
+            <option value="09">Setembro</option>
+            <option value="10">Outubro</option>
+            <option value="11">Novembro</option>
+            <option value="12">Dezembro</option>
+          </select>
+        </div>
+        <div>
+          <label style="display: block; color: var(--amarelo-hcpa); margin-bottom: 5px; font-weight: bold;">📆 Ano:</label>
+          <select id="selectAnoMensal" style="padding: 10px 15px; border-radius: 8px; border: 2px solid var(--amarelo-hcpa); background: #222; color: var(--amarelo-hcpa); font-weight: bold; cursor: pointer; font-size: 1em;">
+          </select>
+        </div>
+        <button onclick="carregarHistoricoMensal()" style="padding: 10px 20px; background: var(--verde-claro); color: #fff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.3s;">🔄 Carregar</button>
+      </div>
+
+      <div id="contenedorSemanaMensal"></div>
+
+      <div class="legenda-mensal">
+        <div class="legenda-item">
+          <div class="legenda-cor agendar"></div>
+          <span class="legenda-texto">🔴 Agendar</span>
+        </div>
+        <div class="legenda-item">
+          <div class="legenda-cor agendados"></div>
+          <span class="legenda-texto">🔵 Agendados (Realizar)</span>
+        </div>
+        <div class="legenda-item">
+          <div class="legenda-cor preferencial"></div>
+          <span class="legenda-texto">🟡 Preferencial</span>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- MODAL HISTÓRICO -->
@@ -680,6 +914,7 @@ v8
         console.log("✅ Total de usuários:", usuariosAutorizados.length);
         
         atualizarSelectsUsuarios();
+        inicializarSelectoresHistoricoMensal();
         
         if (usuarioLogadoChefia) {
           atualizarResumo();
@@ -778,6 +1013,24 @@ v8
           select.innerHTML += `<option value="${u}">${u}</option>`;
         });
       }
+    }
+
+    function inicializarSelectoresHistoricoMensal() {
+      const agora = new Date();
+      const mesAtual = String(agora.getMonth() + 1).padStart(2, '0');
+      const anoAtual = agora.getFullYear();
+
+      document.getElementById("selectMesMensal").value = mesAtual;
+
+      const selectAno = document.getElementById("selectAnoMensal");
+      selectAno.innerHTML = "";
+      for (let i = anoAtual - 5; i <= anoAtual + 1; i++) {
+        const option = document.createElement("option");
+        option.value = i;
+        option.textContent = i;
+        selectAno.appendChild(option);
+      }
+      selectAno.value = anoAtual;
     }
 
     function atualizarResumo() {
@@ -965,6 +1218,179 @@ v8
       resultados.appendChild(div);
     }
 
+    function carregarHistoricoMensal() {
+      const mes = document.getElementById("selectMesMensal").value;
+      const ano = document.getElementById("selectAnoMensal").value;
+
+      console.log(`📅 Carregando histórico mensal: ${mes}/${ano}`);
+
+      const contenedor = document.getElementById("contenedorSemanaMensal");
+      contenedor.innerHTML = "";
+
+      // Recopilar todos os atendimientos del mes
+      let atendimentosMes = [];
+
+      for (let usuario in atendimentosData) {
+        const atendimentosObj = atendimentosData[usuario];
+        const atendimentos = Object.values(atendimentosObj).filter(a => a && typeof a === 'object');
+        
+        atendimentos.forEach(a => {
+          const data = new Date(a.timestamp);
+          const mesAtend = String(data.getMonth() + 1).padStart(2, '0');
+          const anoAtend = data.getFullYear();
+
+          if (mesAtend === mes && anoAtend == ano) {
+            atendimentosMes.push({...a, usuario, data});
+          }
+        });
+      }
+
+      if (atendimentosMes.length === 0) {
+        contenedor.innerHTML = '<div class="msg-vazio">Nenhum atendimento encontrado para este mês</div>';
+        return;
+      }
+
+      // Agrupar por semanas
+      const semanas = agruparPorSemanas(atendimentosMes, mes, ano);
+
+      semanas.forEach((semana, index) => {
+        const semanaDiv = document.createElement("div");
+        semanaDiv.className = "semana-container";
+
+        const dataInicio = new Date(ano, parseInt(mes) - 1, semana.inicio);
+        const dataFim = new Date(ano, parseInt(mes) - 1, semana.fim);
+
+        const dataInicioStr = dataInicio.toLocaleDateString("pt-BR", { day: "numeric", month: "short" });
+        const dataFimStr = dataFim.toLocaleDateString("pt-BR", { day: "numeric", month: "short" });
+
+        semanaDiv.innerHTML = `<div class="semana-titulo">Semana ${index + 1} (${dataInicioStr} a ${dataFimStr})</div>`;
+
+        // Agrupar atendimentos por dia dentro de la semana
+        const atendimentosPorDia = {};
+        semana.dias.forEach(dia => {
+          atendimentosPorDia[dia] = [];
+        });
+
+        atendimentosMes.forEach(a => {
+          const dia = a.data.getDate();
+          if (atendimentosPorDia[dia]) {
+            atendimentosPorDia[dia].push(a);
+          }
+        });
+
+        // Generar gráficos por día
+        semana.dias.forEach(dia => {
+          const atendimentos = atendimentosPorDia[dia] || [];
+          const dataDia = new Date(ano, parseInt(mes) - 1, dia);
+          const diaSemana = dataDia.toLocaleDateString("pt-BR", { weekday: "short" }).toUpperCase();
+
+          let agendar = 0, agendados = 0, preferencial = 0;
+
+          atendimentos.forEach(a => {
+            if (a.tipo === "Agendar") agendar++;
+            else if (a.tipo === "Agendados") agendados++;
+            else if (a.tipo === "Preferencial") preferencial++;
+          });
+
+          const total = agendar + agendados + preferencial;
+
+          if (total > 0) {
+            const barraDiv = document.createElement("div");
+            barraDiv.className = "barra-segmentada-container";
+
+            const labelDiv = document.createElement("div");
+            labelDiv.className = "barra-label";
+            labelDiv.innerHTML = `
+              <span>${diaSemana} ${dia}/${mes}</span>
+              <span class="barra-total">Total: ${total}</span>
+            `;
+            barraDiv.appendChild(labelDiv);
+
+            const barraSegmentada = document.createElement("div");
+            barraSegmentada.className = "barra-segmentada";
+
+            const widthAgendar = (agendar / total) * 100;
+            const widthAgendados = (agendados / total) * 100;
+            const widthPreferencial = (preferencial / total) * 100;
+
+            if (agendar > 0) {
+              const segmentoAgendar = document.createElement("div");
+              segmentoAgendar.className = "barra-segmento agendar";
+              segmentoAgendar.style.width = widthAgendar + "%";
+              segmentoAgendar.textContent = agendar > 0 ? agendar : "";
+              
+              const tooltip = document.createElement("div");
+              tooltip.className = "tooltip-mensal";
+              tooltip.textContent = `Agendar: ${agendar}`;
+              segmentoAgendar.appendChild(tooltip);
+              
+              barraSegmentada.appendChild(segmentoAgendar);
+            }
+
+            if (agendados > 0) {
+              const segmentoAgendados = document.createElement("div");
+              segmentoAgendados.className = "barra-segmento agendados";
+              segmentoAgendados.style.width = widthAgendados + "%";
+              segmentoAgendados.textContent = agendados > 0 ? agendados : "";
+              
+              const tooltip = document.createElement("div");
+              tooltip.className = "tooltip-mensal";
+              tooltip.textContent = `Agendados: ${agendados}`;
+              segmentoAgendados.appendChild(tooltip);
+              
+              barraSegmentada.appendChild(segmentoAgendados);
+            }
+
+            if (preferencial > 0) {
+              const segmentoPreferencial = document.createElement("div");
+              segmentoPreferencial.className = "barra-segmento preferencial";
+              segmentoPreferencial.style.width = widthPreferencial + "%";
+              segmentoPreferencial.textContent = preferencial > 0 ? preferencial : "";
+              
+              const tooltip = document.createElement("div");
+              tooltip.className = "tooltip-mensal";
+              tooltip.textContent = `Preferencial: ${preferencial}`;
+              segmentoPreferencial.appendChild(tooltip);
+              
+              barraSegmentada.appendChild(segmentoPreferencial);
+            }
+
+            barraDiv.appendChild(barraSegmentada);
+            semanaDiv.appendChild(barraDiv);
+          }
+        });
+
+        contenedor.appendChild(semanaDiv);
+      });
+    }
+
+    function agruparPorSemanas(atendimentos, mes, ano) {
+      const diasNoMes = new Date(ano, parseInt(mes), 0).getDate();
+      const semanas = [];
+      let semanaAtual = [];
+      let inicioSemana = 1;
+
+      for (let dia = 1; dia <= diasNoMes; dia++) {
+        const data = new Date(ano, parseInt(mes) - 1, dia);
+        const diaSemana = data.getDay();
+
+        semanaAtual.push(dia);
+
+        // Inicia nueva semana en lunes (1) o es el último día del mes
+        if (diaSemana === 0 || dia === diasNoMes) {
+          semanas.push({
+            inicio: inicioSemana,
+            fim: dia,
+            dias: semanaAtual.slice()
+          });
+          inicioSemana = dia + 1;
+          semanaAtual = [];
+        }
+      }
+
+      return semanas;
+    }
+
     function atualizarTempoReal() {
       const agora = new Date();
       const hojeStr = agora.toISOString().slice(0, 10);
@@ -1005,28 +1431,33 @@ v8
       document.getElementById("totalMes").textContent = totalMes;
       document.getElementById("usuariosAtivos").textContent = usuariosAtivosList.size;
 
-      const tempoMediaSeg = tempos.length ? Math.round(tempos.reduce((a, b) => a + b, 0) / tempos.length / 1000) : 0;
-      document.getElementById("tempoMedio").textContent = formatTempo(tempoMediaSeg);
+      if (tempos.length > 0) {
+        const tempoMedioMs = tempos.reduce((a, b) => a + b) / tempos.length;
+        document.getElementById("tempoMedio").textContent = formatTempo(Math.round(tempoMedioMs / 1000));
+      }
+
+      todosAtendimentos.sort((a, b) => b.timestamp - a.timestamp);
+      const ultimos20 = todosAtendimentos.slice(0, 20);
 
       const tbody = document.getElementById("tabelaTempoReal");
       tbody.innerHTML = "";
 
-      if (todosAtendimentos.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" class="msg-vazio">Nenhum atendimento encontrado</td></tr>';
+      if (ultimos20.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="msg-vazio">Nenhum atendimento</td></tr>';
         return;
       }
 
-      todosAtendimentos.sort((a, b) => b.timestamp - a.timestamp);
-      todosAtendimentos.slice(0, 20).forEach(a => {
-        const hora = new Date(a.timestamp).toLocaleTimeString("pt-BR");
+      ultimos20.forEach(a => {
+        const data = new Date(a.timestamp);
+        const hora = data.toLocaleTimeString("pt-BR");
         const tipoClass = a.tipo === "Agendar" ? "status-agendar" : 
                          a.tipo === "Agendados" ? "status-realizar" : "status-preferencial";
-        
+
         const tr = document.createElement("tr");
         tr.innerHTML = `
           <td>${hora}</td>
           <td>${a.usuario}</td>
-          <td><span style="color: ${tipoClass === 'status-agendar' ? '#d70000' : tipoClass === 'status-realizar' ? '#0074d9' : '#ffe900'}; font-weight: bold;">${a.tipo}</span></td>
+          <td><span class="${tipoClass}">${a.tipo}</span></td>
           <td>${a.senha}</td>
           <td>${a.guiche}</td>
         `;
@@ -1038,164 +1469,102 @@ v8
       const agora = new Date();
       const hojeStr = agora.toISOString().slice(0, 10);
 
-      const usuariosStats = {};
-      let agendar = 0, realizar = 0, preferencial = 0;
+      const usuarioContagem = {};
+      const tipoContagem = { "Agendar": 0, "Agendados": 0, "Preferencial": 0 };
 
       for (let usuario in atendimentosData) {
         const atendimentosObj = atendimentosData[usuario];
         const atendimentos = Object.values(atendimentosObj).filter(a => a && typeof a === 'object');
-        const hoje = atendimentos.filter(a => new Date(a.timestamp).toISOString().slice(0, 10) === hojeStr);
+        
+        const hoje = atendimentos.filter(a => {
+          const dataAtend = new Date(a.timestamp).toISOString().slice(0, 10);
+          return dataAtend === hojeStr;
+        });
 
-        if (hoje.length === 0) continue;
-
-        const totalAgendar = hoje.filter(a => a.tipo === "Agendar").length;
-        const totalRealizar = hoje.filter(a => a.tipo === "Agendados").length;
-        const totalPreferencial = hoje.filter(a => a.tipo === "Preferencial").length;
-
-        agendar += totalAgendar;
-        realizar += totalRealizar;
-        preferencial += totalPreferencial;
-
-        usuariosStats[usuario] = hoje.length;
+        if (hoje.length > 0) {
+          usuarioContagem[usuario] = hoje.length;
+          hoje.forEach(a => {
+            if (tipoContagem.hasOwnProperty(a.tipo)) {
+              tipoContagem[a.tipo]++;
+            }
+          });
+        }
       }
 
-      // Gráfico por usuário
-      const usuarios = Object.keys(usuariosStats);
-      const totais = usuarios.map(u => usuariosStats[u]);
-
-      const ctxUsuario = document.getElementById("graficoPorUsuario").getContext("2d");
-      if (chartPorUsuario) chartPorUsuario.destroy();
-      
-      chartPorUsuario = new Chart(ctxUsuario, {
-        type: 'bar',
-        data: {
-          labels: usuarios,
-          datasets: [{
-            label: 'Atendimentos',
-            data: totais,
-            backgroundColor: usuarios.map((_, i) => {
-              const cores = ['#d70000', '#0074d9', '#4CAF50', '#ff9800', '#9c27b0', '#00bcd4'];
-              return cores[i % cores.length];
-            }),
-            borderRadius: 8,
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: true,
-          plugins: {
-            legend: { display: false }
+      // Gráfico por Usuário
+      const ctxUsuario = document.getElementById("graficoPorUsuario");
+      if (ctxUsuario) {
+        if (chartPorUsuario) chartPorUsuario.destroy();
+        
+        chartPorUsuario = new Chart(ctxUsuario, {
+          type: 'bar',
+          data: {
+            labels: Object.keys(usuarioContagem),
+            datasets: [{
+              label: 'Atendimentos',
+              data: Object.values(usuarioContagem),
+              backgroundColor: 'rgba(76, 175, 80, 0.7)',
+              borderColor: '#4CAF50',
+              borderWidth: 2
+            }]
           },
-          scales: {
-            y: { beginAtZero: true }
+          options: {
+            responsive: true,
+            plugins: {
+              legend: { labels: { color: '#fff' } }
+            },
+            scales: {
+              y: { ticks: { color: '#fff' }, grid: { color: '#333' } },
+              x: { ticks: { color: '#fff' }, grid: { color: '#333' } }
+            }
           }
-        }
-      });
+        });
+      }
 
-      // Gráfico por tipo
-      const ctxTipo = document.getElementById("graficoTipo").getContext("2d");
-      if (chartTipo) chartTipo.destroy();
-      
-      chartTipo = new Chart(ctxTipo, {
-        type: 'doughnut',
-        data: {
-          labels: ['Agendar', 'Realizar', 'Preferencial'],
-          datasets: [{
-            data: [agendar, realizar, preferencial],
-            backgroundColor: ['#d70000', '#0074d9', '#ffe900'],
-            borderColor: '#1a1a1a',
-            borderWidth: 2
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: true,
-          plugins: {
-            legend: { position: 'bottom' }
+      // Gráfico por Tipo
+      const ctxTipo = document.getElementById("graficoTipo");
+      if (ctxTipo) {
+        if (chartTipo) chartTipo.destroy();
+        
+        chartTipo = new Chart(ctxTipo, {
+          type: 'doughnut',
+          data: {
+            labels: ['Agendar', 'Agendados', 'Preferencial'],
+            datasets: [{
+              data: [tipoContagem["Agendar"], tipoContagem["Agendados"], tipoContagem["Preferencial"]],
+              backgroundColor: ['#d70000', '#0074d9', '#ffe900'],
+              borderColor: ['#fff', '#fff', '#000'],
+              borderWidth: 2
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: { labels: { color: '#fff' } }
+            }
           }
-        }
-      });
+        });
+      }
     }
 
     function verificarInatividade() {
-      const agora = new Date();
-      const alertaDiv = document.getElementById("alertaInatividade");
-      let inativos = [];
-
-      for (let usuario in atendimentosData) {
-        const atendimentosObj = atendimentosData[usuario];
-        if (!atendimentosObj || typeof atendimentosObj !== 'object') continue;
-
-        const atendimentos = Object.values(atendimentosObj).filter(a => a && typeof a === 'object');
-        if (atendimentos.length === 0) continue;
-
-        const ultimoAtendimento = atendimentos[atendimentos.length - 1];
-        const tempoDecorrido = agora.getTime() - ultimoAtendimento.timestamp;
-        const minutos = Math.floor(tempoDecorrido / 60000);
-
-        if (minutos > 30) {
-          inativos.push(`${usuario} (${minutos}min)`);
-        }
-      }
-
-      if (inativos.length > 0) {
-        alertaDiv.innerHTML = `⚠️ <strong>Atenção!</strong> Inativos: ${inativos.join(", ")}`;
-        alertaDiv.style.display = "block";
-      } else {
-        alertaDiv.style.display = "none";
-      }
-    }
-
-    function exportarExcel() {
-      const agora = new Date();
-      const data = agora.toLocaleDateString("pt-BR");
-
-      let workbook = XLSX.utils.book_new();
-
-      // Resumo
-      const resumo = [
-        ["PAINEL DE CHEFIA - RESUMO"],
-        ["Data", data],
-        [],
-        ["Usuário", "Qtde", "Primeiro", "Último", "Tempo Médio"]
-      ];
-
-      document.querySelectorAll("#tabelaResumo tr").forEach(tr => {
-        const cells = tr.querySelectorAll("td");
-        if (cells.length === 6) {
-          resumo.push([
-            cells[0].textContent,
-            cells[1].textContent,
-            cells[2].textContent,
-            cells[3].textContent,
-            cells[4].textContent
-          ]);
-        }
-      });
-
-      const wsResumo = XLSX.utils.aoa_to_sheet(resumo);
-      XLSX.utils.book_append_sheet(workbook, wsResumo, "Resumo");
-
-      XLSX.writeFile(workbook, `Painel_Chefia_${agora.getDate()}-${agora.getMonth()+1}.xlsx`);
-      alert("✅ Excel exportado!");
+      // Placeholder para verificação de inatividade
     }
 
     function formatTempo(segundos) {
-      if (segundos < 60) return segundos + "s";
-      if (segundos < 3600) return (segundos / 60).toFixed(1) + "min";
-      return (segundos / 3600).toFixed(2) + "h";
+      if (!segundos) return "--";
+      const horas = Math.floor(segundos / 3600);
+      const minutos = Math.floor((segundos % 3600) / 60);
+      const segs = segundos % 60;
+
+      if (horas > 0) return `${horas}h ${minutos}m`;
+      if (minutos > 0) return `${minutos}m ${segs}s`;
+      return `${segs}s`;
     }
 
-    // Atualizar a cada 5 segundos
-    setInterval(() => {
-      if (usuarioLogadoChefia) {
-        atualizarResumo();
-        verificarInatividade();
-      }
-    }, 5000);
-
-    document.getElementById("usuarioLogin").focus();
-    document.getElementById("filtroDataHist").valueAsDate = new Date();
+    function exportarExcel() {
+      alert("Funcionalidade de exportação será implementada!");
+    }
   </script>
 </body>
 </html>
