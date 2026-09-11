@@ -1,4 +1,4 @@
-v 7.0
+v 7.1
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -1365,7 +1365,10 @@ v 7.0
 
       for (let usuario in atendimentosData) {
         const atendimentosObj = atendimentosData[usuario];
-        const atendimentos = Object.values(atendimentosObj).filter(a => a && typeof a === 'object');
+        let atendimentos = Object.values(atendimentosObj).filter(a => a && typeof a === 'object');
+        
+        // Adiciona usuario a cada atendimento
+        atendimentos = atendimentos.map(a => ({...a, usuario}));
         
         atendimentos.forEach(a => {
           const data = new Date(a.timestamp);
@@ -1417,13 +1420,20 @@ v 7.0
           const dataDia = new Date(ano, parseInt(mes) - 1, dia);
           const diaSemana = dataDia.toLocaleDateString("pt-BR", { weekday: "short" }).toUpperCase();
 
+          // 🔴 NOVA LÓGICA: Contar por TIPO usando contarAtendimentosValidos
           let agendar = 0, agendados = 0, preferencial = 0;
 
-          atendimentos.forEach(a => {
-            if (a.tipo === "Agendar") agendar++;
-            else if (a.tipo === "Agendados") agendados++;
-            else if (a.tipo === "Preferencial") preferencial++;
-          });
+          if (atendimentos.length > 0) {
+            // Separar por tipo
+            const atendimentosAgendar = atendimentos.filter(a => a.tipo === "Agendar");
+            const atendimentosAgendados = atendimentos.filter(a => a.tipo === "Agendados");
+            const atendimentosPreferencial = atendimentos.filter(a => a.tipo === "Preferencial");
+
+            // Contar cada tipo com a lógica correta
+            agendar = contarAtendimentosValidos(atendimentosAgendar);
+            agendados = contarAtendimentosValidos(atendimentosAgendados);
+            preferencial = contarAtendimentosValidos(atendimentosPreferencial);
+          }
 
           const total = agendar + agendados + preferencial;
 
