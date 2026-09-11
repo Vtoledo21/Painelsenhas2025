@@ -1,4 +1,4 @@
-v3
+v7.0
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -1017,17 +1017,12 @@ v3
       const meses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
 
       for (let m = 0; m < 12; m++) {
-        const dataIni = new Date(anoAtual, m, 1);
-        const dataFim = new Date(anoAtual, m + 1, 0);
-
-        const value = `${m}|${dataIni.getTime()}|${dataFim.getTime()}`;
-        select.innerHTML += `<option value="${value}">${meses[m]} de ${anoAtual}</option>`;
+        const valor = `${m}|${anoAtual}`;
+        select.innerHTML += `<option value="${valor}">${meses[m]} de ${anoAtual}</option>`;
       }
 
-      if (select.options.length > 0) {
-        const mesAtual = agora.getMonth();
-        select.selectedIndex = mesAtual;
-      }
+      const mesAtual = agora.getMonth();
+      select.value = `${mesAtual}|${anoAtual}`;
     }
 
     function atualizarHistoricoMensal() {
@@ -1035,29 +1030,19 @@ v3
       const valor = select.value;
 
       if (!valor) {
-        document.getElementById("conteudoHistoricoMensal").innerHTML = '<div style="text-align: center; color: #aaa;">Selecione um mês</div>';
+        document.getElementById("conteudoHistoricoMensal").innerHTML = '<div style="text-align: center; color: #aaa;">Carregando dados...</div>';
         return;
       }
 
-      const [mesNum, dataIniMs, dataFimMs] = valor.split('|');
-      const dataIni = new Date(parseInt(dataIniMs));
-      const dataFim = new Date(parseInt(dataFimMs));
-      const mesNomes = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+      const [mes, ano] = valor.split('|');
+      const mesNum = parseInt(mes);
+      const anoNum = parseInt(ano);
 
-      const semanas = [];
-      let semanaAtual = { inicio: new Date(dataIni), dias: [] };
-
-      for (let d = new Date(dataIni); d <= dataFim; d.setDate(d.getDate() + 1)) {
-        if (d.getDay() === 1 && semanaAtual.dias.length > 0) {
-          semanas.push(semanaAtual);
-          semanaAtual = { inicio: new Date(d), dias: [] };
-        }
-        semanaAtual.dias.push(new Date(d));
-      }
-      if (semanaAtual.dias.length > 0) semanas.push(semanaAtual);
+      const primeiro = new Date(anoNum, mesNum, 1);
+      const ultimo = new Date(anoNum, mesNum + 1, 0);
 
       const diasMes = {};
-      for (let d = new Date(dataIni); d <= dataFim; d.setDate(d.getDate() + 1)) {
+      for (let d = new Date(primeiro); d <= ultimo; d.setDate(d.getDate() + 1)) {
         const dataStr = d.toISOString().slice(0, 10);
         diasMes[dataStr] = { agendar: 0, agendados: 0, preferencial: 0 };
       }
@@ -1077,36 +1062,46 @@ v3
         });
       }
 
-      let html = `<div class="mes-header">${mesNomes[parseInt(mesNum)]} de ${dataIni.getFullYear()}</div>`;
-      const nomesDias = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
+      const meses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+      let html = `<div class="mes-header">${meses[mesNum]} de ${anoNum}</div>`;
 
-      semanas.forEach((semana, idx) => {
-        const dataIniSemana = semana.dias[0];
-        const dataFimSemana = semana.dias[semana.dias.length - 1];
-        html += `<div class="semana-header">Semana ${idx + 1} (${dataIniSemana.toLocaleDateString("pt-BR")} a ${dataFimSemana.toLocaleDateString("pt-BR")})</div>`;
-        html += '<div class="historico-dias">';
+      const nomesDias = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sab"];
+      let semanaCount = 1;
 
-        semana.dias.forEach(d => {
-          const dataStr = d.toISOString().slice(0, 10);
-          const diaSemana = nomesDias[d.getDay()];
-          const dados = diasMes[dataStr] || { agendar: 0, agendados: 0, preferencial: 0 };
-          const total = dados.agendar + dados.agendados + dados.preferencial;
+      for (let d = new Date(primeiro); d <= ultimo; d.setDate(d.getDate() + 1)) {
+        if (d.getDay() === 0 && d.getDate() !== 1) {
+          semanaCount++;
+          html += `<div class="semana-header">Semana ${semanaCount}</div>`;
+        }
 
+        if (d.getDate() === 1) {
+          html += `<div class="semana-header">Semana ${semanaCount}</div>`;
+        }
+
+        const dataStr = d.toISOString().slice(0, 10);
+        const dados = diasMes[dataStr] || { agendar: 0, agendados: 0, preferencial: 0 };
+        const total = dados.agendar + dados.agendados + dados.preferencial;
+
+        html += `
+          <div class="dia-item">
+            <div class="dia-titulo">${nomesDias[d.getDay()]} - ${d.getDate()}</div>
+        `;
+
+        if (total === 0) {
+          html += `<div style="color: #aaa; padding: 10px;">Nenhum atendimento</div>`;
+        } else {
           html += `
-            <div class="dia-item">
-              <div class="dia-titulo">${diaSemana} - ${d.toLocaleDateString("pt-BR")}</div>
-              <div class="barra-horizontal">
-                ${dados.agendar > 0 ? `<div class="barra-segmento agendar" style="width: ${(dados.agendar / total * 100)}%" title="Agendar: ${dados.agendar}">Agendar: ${dados.agendar}</div>` : ''}
-                ${dados.agendados > 0 ? `<div class="barra-segmento agendados" style="width: ${(dados.agendados / total * 100)}%" title="Agendados: ${dados.agendados}">Agendados: ${dados.agendados}</div>` : ''}
-                ${dados.preferencial > 0 ? `<div class="barra-segmento preferencial" style="width: ${(dados.preferencial / total * 100)}%" title="Preferencial: ${dados.preferencial}">Preferencial: ${dados.preferencial}</div>` : ''}
-              </div>
-              <div class="total-dia">Total: ${total}</div>
+            <div class="barra-horizontal">
+              ${dados.agendar > 0 ? `<div class="barra-segmento agendar" style="width: ${(dados.agendar / total * 100)}%">Agendar: ${dados.agendar}</div>` : ''}
+              ${dados.agendados > 0 ? `<div class="barra-segmento agendados" style="width: ${(dados.agendados / total * 100)}%">Agendados: ${dados.agendados}</div>` : ''}
+              ${dados.preferencial > 0 ? `<div class="barra-segmento preferencial" style="width: ${(dados.preferencial / total * 100)}%">Preferencial: ${dados.preferencial}</div>` : ''}
             </div>
+            <div class="total-dia">Total: ${total}</div>
           `;
-        });
+        }
 
-        html += '</div>';
-      });
+        html += `</div>`;
+      }
 
       html += `
         <div class="legenda-historico">
@@ -1129,32 +1124,16 @@ v3
     }
 
     function exportarDados() {
-      const agora = new Date();
-      const hojeStr = agora.toISOString().slice(0, 10);
-      const data = [];
-
-      for (let usuario in atendimentosData) {
-        const atendimentosObj = atendimentosData[usuario];
-        const atendimentos = Object.values(atendimentosObj).filter(a => a && typeof a === 'object');
-
-        atendimentos.forEach(a => {
-          const dataAtend = new Date(a.timestamp).toISOString().slice(0, 10);
-          if (dataAtend === hojeStr) {
-            data.push({
-              Usuário: usuario,
-              Tipo: a.tipo || "N/A",
-              Hora: new Date(a.timestamp).toLocaleTimeString("pt-BR"),
-              Data: dataAtend
-            });
-          }
-        });
-      }
-
-      const sheet = XLSX.utils.json_to_sheet(data);
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, sheet, "Atendimentos");
-      XLSX.writeFile(workbook, `atendimentos_${hojeStr}.xlsx`);
+      alert("Função de exportação em desenvolvimento!");
     }
+
+    document.getElementById("usuario").addEventListener("keyup", function(e) {
+      if (e.key === "Enter") checarLogin();
+    });
+
+    document.getElementById("senha").addEventListener("keyup", function(e) {
+      if (e.key === "Enter") checarLogin();
+    });
   </script>
 </body>
 </html>
